@@ -17,6 +17,27 @@ const SEARCH_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Search
 const SEARCH_POLICY_KEY: &str = r"HKCU\Software\Policies\Microsoft\Windows\Explorer";
 const LONG_PATHS_KEY: &str = r"HKLM\SYSTEM\CurrentControlSet\Control\FileSystem";
 const POWER_KEY: &str = r"HKLM\SYSTEM\CurrentControlSet\Control\Power";
+const EXPLORER_ADV_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
+const ADVERTISING_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo";
+const CONTENT_DELIVERY_KEY: &str =
+    r"HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager";
+const PERSONALIZE_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+const COPILOT_POLICY_KEY: &str = r"HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot";
+const ACTIVITY_POLICY_KEY: &str = r"HKLM\SOFTWARE\Policies\Microsoft\Windows\System";
+const SUGGESTION_VALUES: [&str; 7] = [
+    "SubscribedContent-338388Enabled",
+    "SubscribedContent-338389Enabled",
+    "SubscribedContent-353694Enabled",
+    "SubscribedContent-353696Enabled",
+    "SystemPaneSuggestionsEnabled",
+    "SilentInstalledAppsEnabled",
+    "SoftLandingEnabled",
+];
+const ACTIVITY_VALUES: [&str; 3] = [
+    "EnableActivityFeed",
+    "PublishUserActivities",
+    "UploadUserActivities",
+];
 const HOOK_MARKER: &str = "# SETUP-HUB-CUSTOM-HOOK";
 
 #[derive(Debug, Clone, Serialize)]
@@ -76,6 +97,48 @@ pub fn list_tweaks() -> Vec<TweakStatus> {
             requires_admin: true,
         },
         TweakStatus {
+            id: "show_file_extensions".into(),
+            enabled: query_dword(EXPLORER_ADV_KEY, "HideFileExt") == Some(0),
+            requires_admin: false,
+        },
+        TweakStatus {
+            id: "show_hidden_files".into(),
+            enabled: query_dword(EXPLORER_ADV_KEY, "Hidden") == Some(1),
+            requires_admin: false,
+        },
+        TweakStatus {
+            id: "hide_taskbar_search".into(),
+            enabled: query_dword(SEARCH_KEY, "SearchboxTaskbarMode") == Some(0),
+            requires_admin: false,
+        },
+        TweakStatus {
+            id: "dark_mode".into(),
+            enabled: query_dword(PERSONALIZE_KEY, "AppsUseLightTheme") == Some(0)
+                && query_dword(PERSONALIZE_KEY, "SystemUsesLightTheme") == Some(0),
+            requires_admin: false,
+        },
+        TweakStatus {
+            id: "disable_advertising_id".into(),
+            enabled: query_dword(ADVERTISING_KEY, "Enabled") == Some(0),
+            requires_admin: false,
+        },
+        TweakStatus {
+            id: "disable_suggestions".into(),
+            enabled: query_dword(CONTENT_DELIVERY_KEY, "SystemPaneSuggestionsEnabled") == Some(0)
+                && query_dword(CONTENT_DELIVERY_KEY, "SubscribedContent-338389Enabled") == Some(0),
+            requires_admin: false,
+        },
+        TweakStatus {
+            id: "disable_copilot".into(),
+            enabled: query_dword(COPILOT_POLICY_KEY, "TurnOffWindowsCopilot") == Some(1),
+            requires_admin: false,
+        },
+        TweakStatus {
+            id: "disable_activity_history".into(),
+            enabled: query_dword(ACTIVITY_POLICY_KEY, "EnableActivityFeed") == Some(0),
+            requires_admin: true,
+        },
+        TweakStatus {
             id: "cleanup_startup".into(),
             enabled: query_dword(OPS_KEY, "StartupCleaned") == Some(1),
             requires_admin: false,
@@ -96,6 +159,14 @@ pub fn apply(id: &str, enabled: bool) -> Result<String, String> {
         "disable_game_dvr" => set_game_dvr(enabled),
         "enable_long_paths" => set_long_paths(enabled),
         "disable_hibernation" => set_hibernation(enabled),
+        "show_file_extensions" => set_file_extensions(enabled),
+        "show_hidden_files" => set_hidden_files(enabled),
+        "hide_taskbar_search" => set_taskbar_search(enabled),
+        "dark_mode" => set_dark_mode(enabled),
+        "disable_advertising_id" => set_advertising_id(enabled),
+        "disable_suggestions" => set_suggestions(enabled),
+        "disable_copilot" => set_copilot(enabled),
+        "disable_activity_history" => set_activity_history(enabled),
         "cleanup_startup" => set_startup_cleanup(enabled),
         "custom_hook" => set_custom_hook(enabled),
         _ => Err("unknown tweak".into()),
@@ -172,8 +243,10 @@ fn set_bing_search(enabled: bool) -> Result<String, String> {
         set_dword(SEARCH_POLICY_KEY, "DisableSearchBoxSuggestions", 1)?;
         set_dword(SEARCH_KEY, "BingSearchEnabled", 0)?;
         set_dword(SEARCH_KEY, "CortanaConsent", 0)?;
-        Ok("Веб-результаты и подсказки Bing в меню «Пуск» отключены. Перезапустите Проводник."
-            .into())
+        Ok(
+            "Веб-результаты и подсказки Bing в меню «Пуск» отключены. Перезапустите Проводник."
+                .into(),
+        )
     } else {
         match run_reg(&[
             "delete",
@@ -208,8 +281,7 @@ fn set_long_paths(enabled: bool) -> Result<String, String> {
     set_dword(LONG_PATHS_KEY, "LongPathsEnabled", u32::from(enabled))?;
 
     if enabled {
-        Ok("Поддержка длинных путей включена. Изменение вступит в силу после перезагрузки."
-            .into())
+        Ok("Поддержка длинных путей включена. Изменение вступит в силу после перезагрузки.".into())
     } else {
         Ok("Поддержка длинных путей отключена.".into())
     }
@@ -236,6 +308,96 @@ fn set_hibernation(enabled: bool) -> Result<String, String> {
         String::from_utf8_lossy(&output.stderr)
     );
     Err(classify_error(&report, output.status.to_string()))
+}
+
+fn set_file_extensions(enabled: bool) -> Result<String, String> {
+    set_dword(EXPLORER_ADV_KEY, "HideFileExt", u32::from(!enabled))?;
+
+    if enabled {
+        Ok("Расширения файлов показаны. Перезапустите Проводник.".into())
+    } else {
+        Ok("Расширения известных файлов снова скрыты. Перезапустите Проводник.".into())
+    }
+}
+
+fn set_hidden_files(enabled: bool) -> Result<String, String> {
+    // 1 = show hidden files, 2 = do not show (Windows default).
+    set_dword(EXPLORER_ADV_KEY, "Hidden", if enabled { 1 } else { 2 })?;
+
+    if enabled {
+        Ok("Скрытые файлы и папки отображаются. Перезапустите Проводник.".into())
+    } else {
+        Ok("Скрытые файлы и папки снова не показываются. Перезапустите Проводник.".into())
+    }
+}
+
+fn set_taskbar_search(enabled: bool) -> Result<String, String> {
+    if enabled {
+        set_dword(SEARCH_KEY, "SearchboxTaskbarMode", 0)?;
+        Ok("Поиск на панели задач скрыт. Перезапустите Проводник.".into())
+    } else {
+        remove_value(SEARCH_KEY, "SearchboxTaskbarMode")?;
+        Ok("Поиск на панели задач возвращён к стандартному виду. Перезапустите Проводник.".into())
+    }
+}
+
+fn set_dark_mode(enabled: bool) -> Result<String, String> {
+    let value = u32::from(!enabled);
+    set_dword(PERSONALIZE_KEY, "AppsUseLightTheme", value)?;
+    set_dword(PERSONALIZE_KEY, "SystemUsesLightTheme", value)?;
+
+    if enabled {
+        Ok("Тёмная тема для приложений и системы включена.".into())
+    } else {
+        Ok("Светлая тема Windows возвращена.".into())
+    }
+}
+
+fn set_advertising_id(enabled: bool) -> Result<String, String> {
+    set_dword(ADVERTISING_KEY, "Enabled", u32::from(!enabled))?;
+
+    if enabled {
+        Ok("Рекламный идентификатор отключён: приложения не получают персональную рекламу.".into())
+    } else {
+        Ok("Рекламный идентификатор включён.".into())
+    }
+}
+
+fn set_suggestions(enabled: bool) -> Result<String, String> {
+    let value = u32::from(!enabled);
+    for name in SUGGESTION_VALUES {
+        set_dword(CONTENT_DELIVERY_KEY, name, value)?;
+    }
+
+    if enabled {
+        Ok("Рекомендации, советы и автоустановка рекламных приложений отключены.".into())
+    } else {
+        Ok("Рекомендации и советы Windows включены.".into())
+    }
+}
+
+fn set_copilot(enabled: bool) -> Result<String, String> {
+    if enabled {
+        set_dword(COPILOT_POLICY_KEY, "TurnOffWindowsCopilot", 1)?;
+        Ok("Windows Copilot отключён политикой. Перезапустите Проводник.".into())
+    } else {
+        remove_value(COPILOT_POLICY_KEY, "TurnOffWindowsCopilot")?;
+        Ok("Политика отключения Copilot снята. Перезапустите Проводник.".into())
+    }
+}
+
+fn set_activity_history(enabled: bool) -> Result<String, String> {
+    if enabled {
+        for name in ACTIVITY_VALUES {
+            set_dword(ACTIVITY_POLICY_KEY, name, 0)?;
+        }
+        Ok("Журнал действий Windows отключён, данные не отправляются в Microsoft.".into())
+    } else {
+        for name in ACTIVITY_VALUES {
+            remove_value(ACTIVITY_POLICY_KEY, name)?;
+        }
+        Ok("Журнал действий Windows возвращён к стандартным настройкам.".into())
+    }
 }
 
 fn set_startup_cleanup(enabled: bool) -> Result<String, String> {
@@ -420,8 +582,20 @@ fn run_reg(args: &[&str]) -> Result<(), String> {
 fn set_dword(key: &str, value: &str, data: u32) -> Result<(), String> {
     let data = data.to_string();
     run_reg(&[
-        "add", key, "/v", value, "/t", "REG_DWORD", "/d", &data, "/f",
+        "add",
+        key,
+        "/v",
+        value,
+        "/t",
+        "REG_DWORD",
+        "/d",
+        &data,
+        "/f",
     ])
+}
+
+fn remove_value(key: &str, value: &str) -> Result<(), String> {
+    set_flag(key, value, false)
 }
 
 fn set_flag(key: &str, value: &str, enabled: bool) -> Result<(), String> {
