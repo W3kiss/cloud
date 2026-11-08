@@ -63,6 +63,10 @@ export const api = {
   tweakStates: () => invoke<TweakStatus[]>("tweak_states"),
   applyTweak: (id: string, enabled: boolean) =>
     invoke<string>("apply_tweak", { id, enabled }),
+  strippedStates: () => invoke<TweakStatus[]>("stripped_states"),
+  applyStripped: (id: string, enabled: boolean) =>
+    invoke<string>("apply_stripped", { id, enabled }),
+  createRestorePoint: () => invoke<string>("create_restore_point"),
   restartExplorer: () => invoke<string>("restart_explorer"),
   adminStatus: () => invoke<boolean>("admin_status"),
   restartElevated: () => invoke<void>("restart_elevated"),

@@ -18,10 +18,11 @@
   import WelcomeGate from "$lib/components/WelcomeGate.svelte";
   import AppDetails from "$lib/components/AppDetails.svelte";
   import ToastStack from "$lib/components/ToastStack.svelte";
+  import StrippedPanel from "$lib/components/StrippedPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "tweaks" | "backup" | "authors";
+  type TabId = "apps" | "tweaks" | "stripped" | "backup" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -45,6 +46,12 @@
       label: "Windows Tweaks",
       hint: "Оптимизация системы",
       icon: "sliders",
+    },
+    {
+      id: "stripped",
+      label: "Stripped-down",
+      hint: "Бета · урезание Windows",
+      icon: "rocket",
     },
     {
       id: "backup",
@@ -407,6 +414,8 @@
           />
         {:else if activeTab === "tweaks"}
           <TweaksPanel onNotify={notify} />
+        {:else if activeTab === "stripped"}
+          <StrippedPanel onNotify={notify} onLeave={() => switchTab("tweaks")} />
         {:else if activeTab === "authors"}
           <AuthorsPanel />
         {:else}

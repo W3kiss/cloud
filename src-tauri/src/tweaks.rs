@@ -49,7 +49,7 @@ pub struct TweakStatus {
 }
 
 #[cfg(windows)]
-fn hidden_command(program: impl AsRef<OsStr>) -> Command {
+pub(crate) fn hidden_command(program: impl AsRef<OsStr>) -> Command {
     use std::os::windows::process::CommandExt;
     const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
@@ -59,7 +59,7 @@ fn hidden_command(program: impl AsRef<OsStr>) -> Command {
 }
 
 #[cfg(not(windows))]
-fn hidden_command(program: impl AsRef<OsStr>) -> Command {
+pub(crate) fn hidden_command(program: impl AsRef<OsStr>) -> Command {
     Command::new(program)
 }
 
@@ -531,7 +531,7 @@ pub fn restart_elevated() -> Result<(), String> {
     std::process::exit(0);
 }
 
-fn run_powershell(script: &str) -> Result<String, String> {
+pub(crate) fn run_powershell(script: &str) -> Result<String, String> {
     let output = hidden_command("powershell")
         .args([
             "-NoLogo",
@@ -561,7 +561,7 @@ fn run_powershell(script: &str) -> Result<String, String> {
     Err(classify_error(&report, output.status.to_string()))
 }
 
-fn run_reg(args: &[&str]) -> Result<(), String> {
+pub(crate) fn run_reg(args: &[&str]) -> Result<(), String> {
     let output = hidden_command("reg")
         .args(args)
         .output()
@@ -579,7 +579,7 @@ fn run_reg(args: &[&str]) -> Result<(), String> {
     Err(classify_error(&report, output.status.to_string()))
 }
 
-fn set_dword(key: &str, value: &str, data: u32) -> Result<(), String> {
+pub(crate) fn set_dword(key: &str, value: &str, data: u32) -> Result<(), String> {
     let data = data.to_string();
     run_reg(&[
         "add",
@@ -594,11 +594,11 @@ fn set_dword(key: &str, value: &str, data: u32) -> Result<(), String> {
     ])
 }
 
-fn remove_value(key: &str, value: &str) -> Result<(), String> {
+pub(crate) fn remove_value(key: &str, value: &str) -> Result<(), String> {
     set_flag(key, value, false)
 }
 
-fn set_flag(key: &str, value: &str, enabled: bool) -> Result<(), String> {
+pub(crate) fn set_flag(key: &str, value: &str, enabled: bool) -> Result<(), String> {
     if enabled {
         run_reg(&["add", key, "/v", value, "/t", "REG_DWORD", "/d", "1", "/f"])
     } else {
@@ -610,7 +610,7 @@ fn set_flag(key: &str, value: &str, enabled: bool) -> Result<(), String> {
     }
 }
 
-fn query_dword(key: &str, value: &str) -> Option<u32> {
+pub(crate) fn query_dword(key: &str, value: &str) -> Option<u32> {
     let output = hidden_command("reg")
         .args(["query", key, "/v", value])
         .output()
@@ -639,7 +639,7 @@ fn key_exists(key: &str) -> bool {
         .unwrap_or(false)
 }
 
-fn classify_error(report: &str, status: String) -> String {
+pub(crate) fn classify_error(report: &str, status: String) -> String {
     let trimmed = report.trim();
     let lowered = trimmed.to_lowercase();
 

@@ -2,6 +2,7 @@ mod backup;
 mod catalog;
 mod installer;
 mod protected;
+mod stripped;
 mod tweaks;
 
 use catalog::Catalog;
@@ -35,6 +36,27 @@ fn tweak_states() -> Vec<TweakStatus> {
 #[tauri::command]
 async fn apply_tweak(id: String, enabled: bool) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || tweaks::apply(&id, enabled))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn stripped_states() -> Result<Vec<TweakStatus>, String> {
+    tauri::async_runtime::spawn_blocking(stripped::list)
+        .await
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+async fn apply_stripped(id: String, enabled: bool) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || stripped::apply(&id, enabled))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn create_restore_point() -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(stripped::create_restore_point)
         .await
         .map_err(|error| error.to_string())?
 }
@@ -106,6 +128,9 @@ pub fn run() {
             install_entry,
             tweak_states,
             apply_tweak,
+            stripped_states,
+            apply_stripped,
+            create_restore_point,
             restart_explorer,
             admin_status,
             restart_elevated,
