@@ -147,7 +147,7 @@ pub fn validate_winget_id(id: &str) -> Result<(), String> {
         return Err(format!("winget id is not allowed: {id}"));
     }
 
-    if chars.any(|ch| !(ch.is_ascii_alphanumeric() || matches!(ch, '.' | '_' | '-'))) {
+    if chars.any(|ch| !(ch.is_ascii_alphanumeric() || matches!(ch, '.' | '_' | '-' | '+'))) {
         return Err(format!("winget id is not allowed: {id}"));
     }
 
@@ -189,6 +189,13 @@ mod tests {
         assert!(!catalog.apps.is_empty());
         assert!(catalog.apps.iter().any(|app| app.id == "winrar"));
         assert!(catalog.apps.iter().any(|app| app.category == "production"));
+    }
+
+    #[test]
+    fn winget_ids_may_contain_plus() {
+        assert!(validate_winget_id("Notepad++.Notepad++").is_ok());
+        assert!(validate_winget_id("Vendor.App; calc").is_err());
+        assert!(validate_winget_id("+Vendor.App").is_err());
     }
 
     #[test]

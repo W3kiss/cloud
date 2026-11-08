@@ -25,6 +25,10 @@ fn mask(data: &[u8]) -> Vec<u8> {
 }
 
 fn main() {
+    // Make sure a changed icon always regenerates the Windows resource (exe icon).
+    println!("cargo:rerun-if-changed=icons");
+    println!("cargo:rerun-if-changed=tauri.conf.json");
+
     tauri_build::build();
 
     println!("cargo:rerun-if-changed=catalog.json");
