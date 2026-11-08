@@ -78,6 +78,86 @@
       warning: "Быстрый запуск и гибернация перестанут работать до повторного включения.",
     },
     {
+      id: "show_file_extensions",
+      title: "Расширения файлов",
+      description:
+        "Показывает расширения известных типов файлов (.exe, .txt, .png) — проще заметить подделку вроде photo.jpg.exe.",
+      icon: "copy",
+      accent: "#a0a0a8",
+      note: "HKCU Explorer\\Advanced",
+      requiresAdmin: false,
+    },
+    {
+      id: "show_hidden_files",
+      title: "Скрытые файлы и папки",
+      description:
+        "Показывает скрытые файлы и папки в Проводнике, включая AppData и служебные каталоги проектов.",
+      icon: "folder",
+      accent: "#9a9aa2",
+      note: "HKCU Explorer\\Advanced",
+      requiresAdmin: false,
+    },
+    {
+      id: "hide_taskbar_search",
+      title: "Поиск на панели задач",
+      description:
+        "Скрывает поле поиска с панели задач, освобождая место для значков приложений.",
+      icon: "search",
+      accent: "#949498",
+      note: "HKCU Search",
+      requiresAdmin: false,
+    },
+    {
+      id: "dark_mode",
+      title: "Тёмная тема Windows",
+      description:
+        "Включает тёмное оформление для системы и приложений. Выключение возвращает светлую тему.",
+      icon: "spark",
+      accent: "#8e8e94",
+      note: "HKCU Themes\\Personalize",
+      requiresAdmin: false,
+    },
+    {
+      id: "disable_advertising_id",
+      title: "Рекламный идентификатор",
+      description:
+        "Запрещает приложениям использовать рекламный идентификатор для персональной рекламы.",
+      icon: "user",
+      accent: "#88888e",
+      note: "HKCU AdvertisingInfo",
+      requiresAdmin: false,
+    },
+    {
+      id: "disable_suggestions",
+      title: "Без рекомендаций Windows",
+      description:
+        "Отключает советы, рекомендации в «Пуске» и автоматическую установку рекламных приложений.",
+      icon: "message",
+      accent: "#82828a",
+      note: "HKCU ContentDeliveryManager",
+      requiresAdmin: false,
+    },
+    {
+      id: "disable_copilot",
+      title: "Отключить Copilot",
+      description:
+        "Отключает Windows Copilot через пользовательскую политику. Выключение снимает политику.",
+      icon: "cpu",
+      accent: "#7c7c84",
+      note: "HKCU WindowsCopilot policy",
+      requiresAdmin: false,
+    },
+    {
+      id: "disable_activity_history",
+      title: "Журнал действий",
+      description:
+        "Отключает журнал действий Windows и отправку истории действий в Microsoft.",
+      icon: "refresh",
+      accent: "#76767e",
+      note: "HKLM System policy",
+      requiresAdmin: true,
+    },
+    {
       id: "cleanup_startup",
       title: "Оптимизация автозапуска",
       description:
@@ -98,6 +178,15 @@
       note: "SETUP-HUB-CUSTOM-HOOK",
       requiresAdmin: false,
     },
+  ];
+
+  const EXPLORER_RESTART_IDS = [
+    "classic_context_menu",
+    "disable_bing_search",
+    "show_file_extensions",
+    "show_hidden_files",
+    "hide_taskbar_search",
+    "disable_copilot",
   ];
 
   function plural(count: number, one: string, few: string, many: string): string {
@@ -324,7 +413,7 @@
             {#if tweak.requiresAdmin}
               <span class="admin-tag">Требуется UAC</span>
             {/if}
-            {#if (tweak.id === "classic_context_menu" || tweak.id === "disable_bing_search") && status.enabled}
+            {#if EXPLORER_RESTART_IDS.includes(tweak.id) && status.enabled}
               <button
                 type="button"
                 class="inline-action"

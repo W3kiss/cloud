@@ -1,0 +1,320 @@
+{
+  "version": 3,
+  "apps": [
+    {
+      "id": "winrar",
+      "name": "WinRAR",
+      "summary": "Официальный архиватор с поддержкой RAR и ZIP.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "RARLab.WinRAR",
+      "presets": ["essential"],
+      "dependsOn": []
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "summary": "Редактор кода с ИИ-агентом и знакомой средой VS Code.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Anysphere.Cursor",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "7zip",
+      "name": "7-Zip",
+      "summary": "Быстрый архиватор для повседневных задач.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "7zip.7zip",
+      "presets": ["essential", "workstation", "gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "vscode",
+      "name": "Visual Studio Code",
+      "summary": "Расширяемый редактор для разработки.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Microsoft.VisualStudioCode",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "summary": "Контроль версий и инструменты командной строки.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Git.Git",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "notepad-plus-plus",
+      "name": "Notepad++",
+      "summary": "Лёгкий редактор кода с подсветкой синтаксиса и плагинами.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Notepad++.Notepad++",
+      "presets": ["essential", "workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "powertoys",
+      "name": "PowerToys",
+      "summary": "Набор утилит Microsoft для продуктивной работы в Windows.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Microsoft.PowerToys",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "everything",
+      "name": "Everything",
+      "summary": "Мгновенный поиск файлов и папок по всему диску.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "voidtools.Everything",
+      "presets": ["essential", "workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "happ",
+      "name": "Happ",
+      "summary": "Прокси-клиент из каталога winget.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Happ.Happ",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "chrome",
+      "name": "Google Chrome",
+      "summary": "Быстрый браузер с экосистемой Google.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Google.Chrome",
+      "presets": ["essential", "workstation", "gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "summary": "Голосовые каналы, чаты и сообщества.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Discord.Discord",
+      "presets": ["essential", "gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "summary": "Кроссплатформенный мессенджер.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Telegram.TelegramDesktop",
+      "presets": ["essential", "workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "summary": "Независимый браузер с открытым исходным кодом.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Mozilla.Firefox",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "brave",
+      "name": "Brave",
+      "summary": "Приватный браузер со встроенной блокировкой рекламы.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Brave.Brave",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom Workplace",
+      "summary": "Видеоконференции, звонки и совместная работа.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Zoom.Zoom",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "steam",
+      "name": "Steam",
+      "summary": "Крупнейшая библиотека игр и сообщество.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Valve.Steam",
+      "presets": ["gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "prism",
+      "name": "Prism Launcher",
+      "summary": "Лаунчер Minecraft с изолированными сборками.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "PrismLauncher.PrismLauncher",
+      "presets": ["gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "battle-net",
+      "name": "Battle.net",
+      "summary": "Лаунчер Blizzard с библиотекой игр и обновлениями.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Blizzard.BattleNet",
+      "presets": ["gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "epic-games",
+      "name": "Epic Games Launcher",
+      "summary": "Шаблон лаунчера Epic Games с прямой ссылкой на MSI.",
+      "category": "gaming",
+      "kind": "download",
+      "downloadUrl": "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi",
+      "installerArgs": [],
+      "customConfig": {
+        "installDir": "C:\\Program Files\\Epic Games",
+        "autoUpdate": "true",
+        "desktopShortcut": "true"
+      },
+      "placeholder": true,
+      "presets": ["gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "gog-galaxy",
+      "name": "GOG GALAXY",
+      "summary": "Шаблон лаунчера GOG с прямым EXE-инсталлятором.",
+      "category": "gaming",
+      "kind": "download",
+      "downloadUrl": "https://webinstallers.gog-statics.com/download/GOG_Galaxy_2.0.exe",
+      "installerArgs": ["/S"],
+      "customConfig": {
+        "installDir": "C:\\Program Files (x86)\\GOG Galaxy",
+        "language": "ru-RU",
+        "autoUpdate": "true"
+      },
+      "placeholder": true,
+      "presets": ["gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "ea-app",
+      "name": "EA app",
+      "summary": "Шаблон лаунчера EA с прямым EXE-инсталлятором.",
+      "category": "gaming",
+      "kind": "download",
+      "downloadUrl": "https://downloader.ea.com/eaapp/EAappInstaller.exe",
+      "installerArgs": ["/silent"],
+      "customConfig": {
+        "installDir": "C:\\Program Files\\Electronic Arts\\EA Desktop",
+        "backgroundService": "false",
+        "language": "ru"
+      },
+      "placeholder": true,
+      "presets": ["gamer"],
+      "dependsOn": []
+    },
+    {
+      "id": "vlc",
+      "name": "VLC media player",
+      "summary": "Универсальный проигрыватель видео и аудио.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "VideoLAN.VLC",
+      "presets": ["essential"],
+      "dependsOn": []
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "summary": "Музыкальные плейлисты, подкасты и рекомендации.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Spotify.Spotify",
+      "presets": ["essential"],
+      "dependsOn": []
+    },
+    {
+      "id": "audacity",
+      "name": "Audacity",
+      "summary": "Редактор аудио для записи, монтажа и очистки звука.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Audacity.Audacity",
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "davinci-resolve",
+      "name": "DaVinci Resolve",
+      "summary": "Шаблон монтажной станции с цветокоррекцией и Fusion.",
+      "category": "production",
+      "kind": "custom",
+      "downloadUrl": "https://downloads.example.com/blackmagic/davinci-resolve-setup.exe",
+      "installerArgs": ["/S"],
+      "customConfig": {
+        "installDir": "C:\\Program Files\\Blackmagic Design",
+        "gpu": "auto",
+        "profile": "editing",
+        "cacheDir": "D:\\ResolveCache"
+      },
+      "placeholder": true,
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "obs-studio",
+      "name": "OBS Studio",
+      "summary": "Шаблон стриминговой студии с готовым профилем кодирования.",
+      "category": "production",
+      "kind": "custom",
+      "downloadUrl": "https://downloads.example.com/obs/obs-studio-windows-installer.exe",
+      "installerArgs": ["/S"],
+      "customConfig": {
+        "encoder": "nvenc",
+        "profile": "streaming",
+        "recordDir": "D:\\Captures",
+        "resolution": "1920x1080"
+      },
+      "placeholder": true,
+      "presets": ["workstation"],
+      "dependsOn": []
+    },
+    {
+      "id": "creative-cloud",
+      "name": "Adobe Creative Cloud",
+      "summary": "Шаблон пакетной установки приложений Creative Cloud.",
+      "category": "production",
+      "kind": "custom",
+      "downloadUrl": "https://downloads.example.com/adobe/creative-cloud-setup.exe",
+      "installerArgs": [],
+      "customConfig": {
+        "apps": "premiere-pro, after-effects",
+        "language": "ru_RU",
+        "installDir": "C:\\Program Files\\Adobe",
+        "sharedCache": "D:\\AdobeCache"
+      },
+      "placeholder": true,
+      "presets": ["workstation"],
+      "dependsOn": []
+    }
+  ]
+}

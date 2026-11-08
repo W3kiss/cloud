@@ -18,9 +18,10 @@
   import WelcomeGate from "$lib/components/WelcomeGate.svelte";
   import AppDetails from "$lib/components/AppDetails.svelte";
   import ToastStack from "$lib/components/ToastStack.svelte";
+  import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "tweaks" | "backup";
+  type TabId = "apps" | "tweaks" | "backup" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -50,6 +51,12 @@
       label: "Backups",
       hint: "Восстановление AppData",
       icon: "archive",
+    },
+    {
+      id: "authors",
+      label: "Авторы",
+      hint: "Создатели проекта",
+      icon: "user",
     },
   ];
 
@@ -400,6 +407,8 @@
           />
         {:else if activeTab === "tweaks"}
           <TweaksPanel onNotify={notify} />
+        {:else if activeTab === "authors"}
+          <AuthorsPanel />
         {:else}
           <BackupPanel onNotify={notify} />
         {/if}
