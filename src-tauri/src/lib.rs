@@ -3,6 +3,7 @@ mod catalog;
 mod diag;
 mod installer;
 mod protected;
+mod software;
 mod stripped;
 mod tweaks;
 mod usb;
@@ -76,6 +77,48 @@ async fn restore_archive(
     selected: Vec<backup::BackupRequest>,
 ) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || backup::restore_archive(&app, &path, selected))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn list_installed() -> Result<Vec<software::Package>, String> {
+    tauri::async_runtime::spawn_blocking(move || software::list_installed())
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn list_updates() -> Result<Vec<software::Package>, String> {
+    tauri::async_runtime::spawn_blocking(move || software::list_updates())
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn upgrade_package(id: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || software::upgrade_package(&id))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn uninstall_package(id: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || software::uninstall_package(&id))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn write_preset(path: String, content: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || software::write_preset(&path, &content))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn read_preset(path: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || software::read_preset(&path))
         .await
         .map_err(|error| error.to_string())?
 }
@@ -244,6 +287,12 @@ pub fn run() {
             apply_stripped,
             create_restore_point,
             set_window_tint,
+            list_installed,
+            list_updates,
+            upgrade_package,
+            uninstall_package,
+            write_preset,
+            read_preset,
             scan_appdata,
             create_backup,
             inspect_backup,

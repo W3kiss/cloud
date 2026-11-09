@@ -21,11 +21,12 @@
   import StrippedPanel from "$lib/components/StrippedPanel.svelte";
   import UsbPanel from "$lib/components/UsbPanel.svelte";
   import DiagnosticsPanel from "$lib/components/DiagnosticsPanel.svelte";
+  import SoftwareManager from "$lib/components/SoftwareManager.svelte";
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
+  type TabId = "apps" | "manager" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -43,6 +44,12 @@
       label: "Software Hub",
       hint: "Каталог и установка",
       icon: "grid",
+    },
+    {
+      id: "manager",
+      label: "Управление ПО",
+      hint: "Обновления, удаление, пресеты",
+      icon: "package",
     },
     {
       id: "tweaks",
@@ -433,6 +440,8 @@
             onDetails={(app) => (selectedApp = app)}
             onRetry={loadCatalog}
           />
+        {:else if activeTab === "manager"}
+          <SoftwareManager onNotify={notify} />
         {:else if activeTab === "tweaks"}
           <TweaksPanel onNotify={notify} />
         {:else if activeTab === "stripped"}

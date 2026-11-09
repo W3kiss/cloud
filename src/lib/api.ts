@@ -46,6 +46,14 @@ export interface BackupRequest {
   name: string;
 }
 
+export interface Package {
+  id: string;
+  name: string;
+  version: string;
+  available: string;
+  source: string;
+}
+
 export type AppCategory = "system" | "browsers" | "gaming" | "production";
 export type InstallKind = "winget" | "download" | "custom";
 
@@ -105,6 +113,8 @@ export const DISCLAIMER_KEY = "setup-hub.disclaimer.accepted.v1";
 
 export const api = {
   catalog: () => invoke<Catalog>("bundled_catalog"),
+  installWinget: (wingetId: string) =>
+    invoke<string>("install_winget", { wingetId }),
   installEntry: (appId: string) => invoke<string>("install_entry", { appId }),
   tweakStates: () => invoke<TweakStatus[]>("tweak_states"),
   applyTweak: (id: string, enabled: boolean) =>
@@ -121,6 +131,13 @@ export const api = {
     scheme: string,
   ) =>
     invoke<string>("create_usb_installer", { isoPath, diskNumber, variant, scheme }),
+  listInstalled: () => invoke<Package[]>("list_installed"),
+  listUpdates: () => invoke<Package[]>("list_updates"),
+  upgradePackage: (id: string) => invoke<string>("upgrade_package", { id }),
+  uninstallPackage: (id: string) => invoke<string>("uninstall_package", { id }),
+  writePreset: (path: string, content: string) =>
+    invoke<void>("write_preset", { path, content }),
+  readPreset: (path: string) => invoke<string>("read_preset", { path }),
   scanAppdata: () => invoke<AppFolder[]>("scan_appdata"),
   createBackup: (items: BackupRequest[], destination: string, includeCache: boolean) =>
     invoke<string>("create_backup", { items, destination, includeCache }),

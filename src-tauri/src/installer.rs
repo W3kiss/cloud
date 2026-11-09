@@ -130,6 +130,12 @@ fn winget_program() -> String {
 /// on the Windows Installer mutex and produce 1618/1603 failures.
 static WINGET_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
+/// Runs `f` while holding the global winget lock.
+pub(crate) fn with_winget_lock<R>(f: impl FnOnce() -> R) -> R {
+    let _guard = WINGET_LOCK.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    f()
+}
+
 /// Runs winget with a hard timeout (the process tree is killed on expiry).
 pub(crate) fn winget_run(args: &[&str], timeout_secs: u64) -> Result<String, String> {
     use std::io::Read;
