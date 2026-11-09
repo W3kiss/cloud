@@ -1,7 +1,9 @@
 mod backup;
+mod bench;
 mod catalog;
 mod diag;
 mod installer;
+mod monitor;
 mod protected;
 mod software;
 mod stripped;
@@ -202,6 +204,47 @@ async fn remove_menu_item(scope: String, key: String) -> Result<String, String> 
 }
 
 #[tauri::command]
+fn start_monitor(app: tauri::AppHandle) {
+    monitor::start(app);
+}
+
+#[tauri::command]
+fn stop_monitor() {
+    monitor::stop();
+}
+
+#[tauri::command]
+fn list_drives() -> Vec<String> {
+    bench::list_drives()
+}
+
+#[tauri::command]
+fn cancel_bench() {
+    bench::cancel();
+}
+
+#[tauri::command]
+async fn run_disk_bench(
+    app: tauri::AppHandle,
+    drive: String,
+    size_mb: u32,
+) -> Result<bench::DiskResult, String> {
+    tauri::async_runtime::spawn_blocking(move || bench::disk_bench(&app, &drive, size_mb))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn run_cpu_stress(
+    app: tauri::AppHandle,
+    seconds: u32,
+) -> Result<bench::StressResult, String> {
+    tauri::async_runtime::spawn_blocking(move || bench::cpu_stress(&app, seconds))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
 fn exit_app(app: tauri::AppHandle) {
     app.exit(0);
 }
@@ -365,6 +408,12 @@ pub fn run() {
             apply_stripped,
             create_restore_point,
             set_window_tint,
+            start_monitor,
+            stop_monitor,
+            list_drives,
+            cancel_bench,
+            run_disk_bench,
+            run_cpu_stress,
             list_services,
             set_service_mode,
             list_startup,

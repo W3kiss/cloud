@@ -28,6 +28,7 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "nat
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 futures-util = "0.3"
 sha2 = "0.10"
+sysinfo = { version = "0.33", default-features = false, features = ["system"] }
 zip = { version = "2", default-features = false, features = ["deflate"] }
 
 

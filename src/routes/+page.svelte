@@ -23,11 +23,12 @@
   import DiagnosticsPanel from "$lib/components/DiagnosticsPanel.svelte";
   import SoftwareManager from "$lib/components/SoftwareManager.svelte";
   import SystemPanel from "$lib/components/SystemPanel.svelte";
+  import MonitorPanel from "$lib/components/MonitorPanel.svelte";
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "manager" | "system" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
+  type TabId = "apps" | "manager" | "system" | "monitor" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -57,6 +58,12 @@
       label: "Обслуживание",
       hint: "Службы, очистка, меню",
       icon: "terminal",
+    },
+    {
+      id: "monitor",
+      label: "Монитор и тесты",
+      hint: "Железо и бенчмарк",
+      icon: "gamepad",
     },
     {
       id: "tweaks",
@@ -451,6 +458,8 @@
           <SoftwareManager onNotify={notify} />
         {:else if activeTab === "system"}
           <SystemPanel onNotify={notify} />
+        {:else if activeTab === "monitor"}
+          <MonitorPanel onNotify={notify} />
         {:else if activeTab === "tweaks"}
           <TweaksPanel onNotify={notify} />
         {:else if activeTab === "stripped"}

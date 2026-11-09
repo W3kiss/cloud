@@ -101,6 +101,34 @@ export interface MenuItem {
   ours: boolean;
 }
 
+export interface HwStats {
+  cpu: number;
+  cpuName: string;
+  cpuTemp: number | null;
+  ramUsedGb: number;
+  ramTotalGb: number;
+  ramPercent: number;
+  gpu: number | null;
+  gpuName: string | null;
+  gpuTemp: number | null;
+}
+
+export interface DiskResult {
+  drive: string;
+  sizeMb: number;
+  seqWriteMbs: number;
+  seqReadMbs: number;
+  randReadIops: number;
+  randReadMbs: number;
+}
+
+export interface StressResult {
+  threads: number;
+  seconds: number;
+  score: number;
+  throttlePercent: number;
+}
+
 export type AppCategory = "system" | "browsers" | "gaming" | "production";
 export type InstallKind = "winget" | "download" | "custom";
 
@@ -178,6 +206,13 @@ export const api = {
     scheme: string,
   ) =>
     invoke<string>("create_usb_installer", { isoPath, diskNumber, variant, scheme }),
+  startMonitor: () => invoke<void>("start_monitor"),
+  stopMonitor: () => invoke<void>("stop_monitor"),
+  listDrives: () => invoke<string[]>("list_drives"),
+  cancelBench: () => invoke<void>("cancel_bench"),
+  runDiskBench: (drive: string, sizeMb: number) =>
+    invoke<DiskResult>("run_disk_bench", { drive, sizeMb }),
+  runCpuStress: (seconds: number) => invoke<StressResult>("run_cpu_stress", { seconds }),
   listServices: () => invoke<ServiceInfo[]>("list_services"),
   setServiceMode: (name: string, mode: string) =>
     invoke<string>("set_service_mode", { name, mode }),
