@@ -83,6 +83,11 @@ pub fn parse_table(output: &str) -> Vec<Package> {
         if line.iter().all(|c| c.is_whitespace()) {
             continue;
         }
+        // Real rows reach the version column and have a gap before the Id column;
+        // footers such as "2 upgrades available." do not.
+        if line.len() <= starts[2] || !line[starts[1] - 1].is_whitespace() {
+            continue;
+        }
         let id = cell(line, 1);
         if id.is_empty() || id.contains(' ') {
             continue; // footer such as "3 upgrades available."
