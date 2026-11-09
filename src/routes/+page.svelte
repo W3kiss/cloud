@@ -20,11 +20,12 @@
   import ToastStack from "$lib/components/ToastStack.svelte";
   import StrippedPanel from "$lib/components/StrippedPanel.svelte";
   import UsbPanel from "$lib/components/UsbPanel.svelte";
+  import DiagnosticsPanel from "$lib/components/DiagnosticsPanel.svelte";
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "tweaks" | "stripped" | "usb" | "backup" | "settings" | "authors";
+  type TabId = "apps" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -66,6 +67,12 @@
       label: "Backups",
       hint: "Восстановление AppData",
       icon: "archive",
+    },
+    {
+      id: "diagnostics",
+      label: "Диагностика",
+      hint: "Проверка и логи",
+      icon: "shield",
     },
     {
       id: "settings",
@@ -432,6 +439,8 @@
           <StrippedPanel onNotify={notify} onLeave={() => switchTab("tweaks")} />
         {:else if activeTab === "usb"}
           <UsbPanel onNotify={notify} />
+        {:else if activeTab === "diagnostics"}
+          <DiagnosticsPanel onNotify={notify} />
         {:else if activeTab === "settings"}
           <SettingsPanel onNotify={notify} />
         {:else if activeTab === "authors"}

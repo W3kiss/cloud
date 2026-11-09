@@ -24,6 +24,20 @@ jobs:
 
       - run: npm ci
 
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --release
+        continue-on-error: false
+
+      - name: Clippy (non-blocking)
+        working-directory: src-tauri
+        run: cargo clippy --release
+        continue-on-error: true
+
+      - name: Svelte type check (non-blocking)
+        run: npx svelte-kit sync && npx svelte-check --threshold error
+        continue-on-error: true
+
       - run: npm run tauri build
 
       - uses: actions/upload-artifact@v4

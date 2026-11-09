@@ -8,6 +8,15 @@ export interface UsbDisk {
   letters: string;
 }
 
+export interface DiagCheck {
+  id: string;
+  title: string;
+  status: "ok" | "warn" | "fail";
+  detail: string;
+  code: string;
+  fixable: boolean;
+}
+
 export type AppCategory = "system" | "browsers" | "gaming" | "production";
 export type InstallKind = "winget" | "download" | "custom";
 
@@ -83,6 +92,11 @@ export const api = {
     scheme: string,
   ) =>
     invoke<string>("create_usb_installer", { isoPath, diskNumber, variant, scheme }),
+  runDiagnostics: () => invoke<DiagCheck[]>("run_diagnostics"),
+  fixDiagnostic: (id: string) => invoke<string>("fix_diagnostic", { id }),
+  exportDiagnostics: () => invoke<string>("export_diagnostics"),
+  logFrontendError: (message: string) =>
+    invoke<void>("log_frontend_error", { message }),
   restartExplorer: () => invoke<string>("restart_explorer"),
   adminStatus: () => invoke<boolean>("admin_status"),
   restartElevated: () => invoke<void>("restart_elevated"),

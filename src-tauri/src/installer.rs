@@ -126,39 +126,127 @@ fn winget_program() -> String {
     "winget".to_string()
 }
 
-fn run_winget(winget_id: &str) -> Result<String, String> {
-    let output = hidden_command(winget_program())
-        .args([
-            "install",
-            "--id",
-            winget_id,
-            "--exact",
-            "--silent",
-            "--accept-package-agreements",
-            "--accept-source-agreements",
-            "--disable-interactivity",
-        ])
-        .output()
+/// Only one winget operation may run at a time: parallel winget/MSI runs race
+/// on the Windows Installer mutex and produce 1618/1603 failures.
+static WINGET_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+/// Runs winget with a hard timeout (the process tree is killed on expiry).
+pub(crate) fn winget_run(args: &[&str], timeout_secs: u64) -> Result<String, String> {
+    use std::io::Read;
+    use std::process::Stdio;
+    use std::time::Instant;
+
+    let mut child = hidden_command(winget_program())
+        .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
         .map_err(|error| format!("could not start winget: {error}"))?;
 
-    let mut report = String::new();
-    report.push_str(&String::from_utf8_lossy(&output.stdout));
-    report.push_str(&String::from_utf8_lossy(&output.stderr));
-    let report = report.trim().to_string();
+    // Drain pipes on threads so a chatty process cannot block on a full buffer.
+    let mut out = child.stdout.take();
+    let mut err = child.stderr.take();
+    let out_thread = std::thread::spawn(move || {
+        let mut buffer = Vec::new();
+        if let Some(pipe) = out.as_mut() {
+            let _ = pipe.read_to_end(&mut buffer);
+        }
+        buffer
+    });
+    let err_thread = std::thread::spawn(move || {
+        let mut buffer = Vec::new();
+        if let Some(pipe) = err.as_mut() {
+            let _ = pipe.read_to_end(&mut buffer);
+        }
+        buffer
+    });
 
-    if output.status.success() {
-        return Ok(if report.is_empty() {
-            format!("{winget_id} installed")
-        } else {
-            report
-        });
-    }
+    let started = Instant::now();
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(status)) => break status,
+            Ok(None) => {
+                if started.elapsed() > Duration::from_secs(timeout_secs) {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    crate::diag::log("ERROR", &format!("winget timeout: {args:?}"));
+                    return Err("winget timed out".to_string());
+                }
+                std::thread::sleep(Duration::from_millis(250));
+            }
+            Err(error) => return Err(format!("could not wait for winget: {error}")),
+        }
+    };
 
-    Err(if report.is_empty() {
-        format!("winget exited with {}", output.status)
+    let stdout = out_thread.join().unwrap_or_default();
+    let stderr = err_thread.join().unwrap_or_default();
+    let report = format!(
+        "{}{}",
+        String::from_utf8_lossy(&stdout),
+        String::from_utf8_lossy(&stderr)
+    )
+    .trim()
+    .to_string();
+
+    if status.success() {
+        Ok(report)
     } else {
-        report
-    })
+        let code = status.code().map(|c| format!(" (0x{:X})", c as u32)).unwrap_or_default();
+        Err(if report.is_empty() {
+            format!("winget exited with {status}{code}")
+        } else {
+            format!("{report}\nwinget exit{code}")
+        })
+    }
+}
+
+pub(crate) fn winget_version() -> Result<String, String> {
+    winget_run(&["--version"], 20).map(|v| v.trim().to_string())
+}
+
+fn run_winget(winget_id: &str) -> Result<String, String> {
+    let _guard = WINGET_LOCK.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    crate::diag::log("INFO", &format!("winget install {winget_id}"));
+
+    let args = [
+        "install",
+        "--id",
+        winget_id,
+        "--exact",
+        "--silent",
+        "--accept-package-agreements",
+        "--accept-source-agreements",
+        "--disable-interactivity",
+    ];
+
+    let mut last_error = String::new();
+    for attempt in 0..3 {
+        match winget_run(&args, 1800) {
+            Ok(report) => {
+                crate::diag::log("INFO", &format!("winget install {winget_id}: ok"));
+                return Ok(if report.is_empty() {
+                    format!("{winget_id} installed")
+                } else {
+                    report
+                });
+            }
+            Err(error) => {
+                // 1618: another installation is running; wait and retry.
+                let busy = matches!(
+                    crate::diag::error_code(&error),
+                    Some(("E-LOCK-004", _))
+                );
+                last_error = error;
+                if busy && attempt < 2 {
+                    crate::diag::log("WARN", &format!("installer busy, retry {}", attempt + 1));
+                    std::thread::sleep(Duration::from_secs(20));
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+    Err(crate::diag::annotate(&format!("winget install {winget_id}"), last_error))
 }
 
 async fn install_from_url(app: &AppHandle, entry: &SoftwareItem) -> Result<String, String> {

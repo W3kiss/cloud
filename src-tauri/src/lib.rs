@@ -1,5 +1,6 @@
 mod backup;
 mod catalog;
+mod diag;
 mod installer;
 mod protected;
 mod stripped;
@@ -12,6 +13,32 @@ use tweaks::TweakStatus;
 #[tauri::command]
 fn bundled_catalog() -> Result<Catalog, String> {
     catalog::bundled()
+}
+
+#[tauri::command]
+async fn run_diagnostics() -> Vec<diag::Check> {
+    tauri::async_runtime::spawn_blocking(diag::run_checks)
+        .await
+        .unwrap_or_default()
+}
+
+#[tauri::command]
+async fn fix_diagnostic(id: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || diag::fix(&id))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn export_diagnostics() -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(diag::export_report)
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+fn log_frontend_error(message: String) {
+    diag::log("FRONTEND", &message.chars().take(2000).collect::<String>());
 }
 
 #[tauri::command]
@@ -145,6 +172,7 @@ async fn restore_backup(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    diag::install_panic_hook();
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
@@ -177,6 +205,10 @@ pub fn run() {
             apply_stripped,
             create_restore_point,
             set_window_tint,
+            run_diagnostics,
+            fix_diagnostic,
+            export_diagnostics,
+            log_frontend_error,
             list_usb_disks,
             create_usb_installer,
             restart_explorer,
