@@ -1,6 +1,14 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/plugin-dialog";
-  import { api, humanizeError, type ToastTone } from "$lib/api";
+  import { onMount } from "svelte";
+  import { open, save } from "@tauri-apps/plugin-dialog";
+  import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+  import {
+    api,
+    humanizeError,
+    type AppFolder,
+    type BackupManifest,
+    type ToastTone,
+  } from "$lib/api";
   import Icon from "./Icon.svelte";
 
   let {
@@ -9,571 +17,319 @@
     onNotify: (tone: ToastTone, title: string, message?: string) => void;
   } = $props();
 
-  let source = $state("");
-  let folderName = $state("");
-  let scope = $state<"roaming" | "local">("roaming");
+  type Mode = "backup" | "restore";
+
+  let mode = $state<Mode>("backup");
+  let folders = $state<AppFolder[]>([]);
+  let scanning = $state(false);
+  let query = $state("");
+  let onlyKnown = $state(false);
+  let includeCache = $state(false);
+  let picked = $state<Record<string, boolean>>({});
+
+  let archivePath = $state("");
+  let manifest = $state<BackupManifest | null>(null);
+  let restorePicked = $state<Record<string, boolean>>({});
+  let confirmingRestore = $state(false);
+
   let busy = $state(false);
-  let picking = $state(false);
-  let fieldError = $state("");
+  let percent = $state(0);
+  let phase = $state("");
+  let message = $state("");
+  let failure = $state("");
 
-  async function pickFolder() {
-    picking = true;
-    fieldError = "";
+  const keyOf = (root: string, name: string) => `${root}/${name}`;
+
+  const visible = $derived(
+    folders.filter(
+      (f) =>
+        (!onlyKnown || f.known) &&
+        (f.name + (f.known ?? "")).toLowerCase().includes(query.trim().toLowerCase()),
+    ),
+  );
+  const selectedFolders = $derived(folders.filter((f) => picked[keyOf(f.root, f.name)]));
+  const selectedMb = $derived(selectedFolders.reduce((sum, f) => sum + f.sizeMb, 0));
+  const restoreSelection = $derived(
+    manifest?.entries.filter((e) => restorePicked[keyOf(e.root, e.name)]) ?? [],
+  );
+
+  function formatSize(mb: number): string {
+    return mb >= 1024 ? `${(mb / 1024).toFixed(1)} ГБ` : `${mb.toFixed(1)} МБ`;
+  }
+
+  function formatDate(seconds: number): string {
+    return seconds ? new Date(seconds * 1000).toLocaleDateString("ru-RU") : "—";
+  }
+
+  async function scan() {
+    scanning = true;
     try {
-      const selected = await open({
-        directory: true,
-        multiple: false,
-        title: "Выберите папку с резервной копией",
-      });
-      if (typeof selected === "string") {
-        source = selected;
-        if (!folderName) {
-          const parts = selected.split(/[\\/]/).filter(Boolean);
-          folderName = parts[parts.length - 1] ?? "";
-        }
-      }
+      folders = await api.scanAppdata();
     } catch (caught) {
-      onNotify("error", "Не удалось открыть проводник", humanizeError(caught));
+      onNotify("error", "Не удалось просканировать AppData", humanizeError(caught));
     } finally {
-      picking = false;
+      scanning = false;
     }
   }
 
-  function validFolderName(name: string) {
-    return (
-      /^[A-Za-z0-9][A-Za-z0-9 ._-]{0,63}$/.test(name) &&
-      !name.endsWith(".") &&
-      !name.endsWith(" ")
-    );
-  }
-
-  async function restore() {
-    fieldError = "";
-
-    if (!source) {
-      fieldError = "Выберите папку-источник.";
-      return;
-    }
-    if (!validFolderName(folderName)) {
-      fieldError =
-        "Имя папки: латинские буквы, цифры, пробелы, точки и дефисы. До 64 символов.";
-      return;
-    }
-
+  function begin(label: string) {
     busy = true;
+    percent = 0;
+    phase = label;
+    message = "";
+    failure = "";
+  }
+
+  async function createBackup() {
+    if (selectedFolders.length === 0) return;
+    let destination: string | null = null;
     try {
-      const message = await api.restoreBackup(source, scope, folderName);
-      onNotify("success", "Папка восстановлена", message);
+      destination = await save({
+        title: "Сохранить резервную копию",
+        defaultPath: `setup-hub-backup-${new Date().toISOString().slice(0, 10)}.zip`,
+        filters: [{ name: "ZIP", extensions: ["zip"] }],
+      });
     } catch (caught) {
-      onNotify("error", "Восстановление не удалось", humanizeError(caught));
+      onNotify("error", "Не удалось выбрать файл", String(caught));
+      return;
+    }
+    if (!destination) return;
+    begin("Подготовка");
+    try {
+      message = await api.createBackup(
+        selectedFolders.map((f) => ({ root: f.root, name: f.name })),
+        destination,
+        includeCache,
+      );
+      onNotify("success", "Резервная копия создана");
+    } catch (caught) {
+      failure = humanizeError(caught);
+      onNotify("error", "Не удалось создать копию", failure);
     } finally {
       busy = false;
     }
   }
+
+  async function pickArchive() {
+    try {
+      const selected = await open({
+        multiple: false,
+        title: "Выберите архив резервной копии",
+        filters: [{ name: "ZIP", extensions: ["zip"] }],
+      });
+      if (typeof selected !== "string") return;
+      archivePath = selected;
+      manifest = null;
+      failure = "";
+      message = "";
+      confirmingRestore = false;
+      manifest = await api.inspectBackup(selected);
+      restorePicked = Object.fromEntries(
+        manifest.entries.map((e) => [keyOf(e.root, e.name), true]),
+      );
+    } catch (caught) {
+      manifest = null;
+      failure = humanizeError(caught);
+      onNotify("error", "Архив не подходит", failure);
+    }
+  }
+
+  async function restore() {
+    confirmingRestore = false;
+    if (!archivePath || restoreSelection.length === 0) return;
+    begin("Подготовка");
+    try {
+      message = await api.restoreArchive(
+        archivePath,
+        restoreSelection.map((e) => ({ root: e.root, name: e.name })),
+      );
+      onNotify("success", "Настройки восстановлены");
+    } catch (caught) {
+      failure = humanizeError(caught);
+      onNotify("error", "Не удалось восстановить", failure);
+    } finally {
+      busy = false;
+    }
+  }
+
+  onMount(() => {
+    let unlisten: UnlistenFn | undefined;
+    let disposed = false;
+    void listen<{ percent: number; phase: string }>("backup-progress", (event) => {
+      percent = event.payload.percent;
+      phase = event.payload.phase;
+    }).then((fn) => {
+      if (disposed) fn();
+      else unlisten = fn;
+    });
+    void scan();
+    return () => {
+      disposed = true;
+      unlisten?.();
+    };
+  });
 </script>
 
-<div class="backup-page">
+<div class="bk-page">
   <header class="page-head">
     <div>
-      <p class="eyebrow">
-        <span class="live-dot"></span>
-        Recovery / AppData Restore
-      </p>
-      <h1>Верните <span>рабочие настройки</span></h1>
+      <p class="eyebrow"><span class="live-dot"></span>AppData backup</p>
+      <h1>Резервные <span>копии</span></h1>
       <p class="lead">
-        Скопируйте папку профиля приложения из резервной копии в Roaming или
-        Local AppData. Исходные файлы не изменяются.
+        Сохраните настройки программ из AppData в один архив и восстановите их на любом ПК.
       </p>
-    </div>
-    <div class="head-badge">
-      <Icon name="archive" size={16} />
-      <span>Локальное восстановление</span>
     </div>
     <img class="hero-art" src="/art/hero-backup.svg" alt="" />
   </header>
 
-  <div class="backup-layout">
-    <section class="form-card">
-      <div class="form-head">
-        <span class="form-icon"><Icon name="folder" size={19} /></span>
-        <div>
-          <h2>Параметры восстановления</h2>
-          <p>Выберите папку и укажите имя профиля назначения.</p>
-        </div>
-      </div>
+  <div class="tabs">
+    <button type="button" class:active={mode === "backup"} onclick={() => (mode = "backup")}>
+      <Icon name="archive" size={15} />Создать копию
+    </button>
+    <button type="button" class:active={mode === "restore"} onclick={() => (mode = "restore")}>
+      <Icon name="refresh" size={15} />Восстановить
+    </button>
+  </div>
 
-      <label class="field">
-        <span class="field-label">Папка-источник</span>
+  {#if mode === "backup"}
+    <div class="toolbar">
+      <input class="search" placeholder="Поиск программы…" bind:value={query} />
+      <label class="check"><input type="checkbox" bind:checked={onlyKnown} />Только известные</label>
+      <label class="check"><input type="checkbox" bind:checked={includeCache} />Включая кэш</label>
+      <button type="button" class="btn" disabled={scanning || busy} onclick={scan}>
+        <Icon name="refresh" size={15} />{scanning ? "Сканирование…" : "Обновить"}
+      </button>
+    </div>
+
+    <div class="grid">
+      {#each visible as f, i (keyOf(f.root, f.name))}
+        {@const key = keyOf(f.root, f.name)}
         <button
           type="button"
-          class="folder-picker"
-          class:filled={Boolean(source)}
-          disabled={picking}
-          onclick={pickFolder}
+          class="folder"
+          class:active={picked[key]}
+          style="--i:{Math.min(i, 14)};"
+          disabled={busy}
+          onclick={() => (picked[key] = !picked[key])}
         >
-          <Icon name={picking ? "refresh" : "folder"} size={16} />
-          <span>{source || "Выбрать папку резервной копии..."}</span>
-          <Icon name="arrow" size={14} />
+          <span class="box">{#if picked[key]}<Icon name="check" size={13} stroke={2.6} />{/if}</span>
+          <span class="meta">
+            <strong>{f.known ?? f.name}</strong>
+            <small>
+              {f.root === "roaming" ? "Roaming" : "Local"} · {f.name} · {formatSize(f.sizeMb)} · {f.files} файл.
+            </small>
+          </span>
+          {#if f.running}<em class="warn">запущено</em>{/if}
         </button>
-      </label>
+      {:else}
+        <p class="empty">{scanning ? "Сканируем AppData…" : "Ничего не найдено."}</p>
+      {/each}
+    </div>
 
-      <label class="field">
-        <span class="field-label">Имя папки в AppData</span>
-        <input
-          type="text"
-          bind:value={folderName}
-          spellcheck="false"
-          placeholder="Например, Discord"
-          maxlength="64"
-        />
-      </label>
-
-      <div class="field">
-        <span class="field-label">Область назначения</span>
-        <div class="scope-switch" role="group" aria-label="Область AppData">
-          <button
-            type="button"
-            class:active={scope === "roaming"}
-            onclick={() => (scope = "roaming")}
-          >
-            <strong>Roaming</strong>
-            <small>%APPDATA%</small>
-          </button>
-          <button
-            type="button"
-            class:active={scope === "local"}
-            onclick={() => (scope = "local")}
-          >
-            <strong>Local</strong>
-            <small>%LOCALAPPDATA%</small>
-          </button>
-        </div>
-      </div>
-
-      {#if fieldError}
-        <p class="field-error">
-          <Icon name="alert" size={13} />
-          {fieldError}
-        </p>
-      {/if}
-
-      <button type="button" class="restore" disabled={busy} onclick={restore}>
-        {#if busy}
-          <span class="spinner"></span>
-          Копирование...
-        {:else}
-          <Icon name="refresh" size={16} />
-          Восстановить папку
-        {/if}
+    <div class="actions">
+      <span class="muted">Выбрано: {selectedFolders.length} · {formatSize(selectedMb)}</span>
+      <button type="button" class="btn primary" disabled={busy || selectedFolders.length === 0} onclick={createBackup}>
+        <Icon name="archive" size={16} />Создать архив
       </button>
-    </section>
-
-    <aside class="info-card">
-      <div class="info-head">
-        <Icon name="info" size={15} />
-        <span>Как это работает</span>
-      </div>
-      <ol>
-        <li>
-          <span>01</span>
-          <p>Выберите папку с сохранённым профилем приложения.</p>
-        </li>
-        <li>
-          <span>02</span>
-          <p>Укажите имя папки, которая будет создана в AppData.</p>
-        </li>
-        <li>
-          <span>03</span>
-          <p>Приложение рекурсивно скопирует файлы и покажет результат.</p>
-        </li>
-      </ol>
-      <div class="safety-note">
-        <Icon name="shield" size={14} />
-        <span>
-          Системная папка Windows и пересекающиеся пути блокируются на уровне
-          Rust-команды.
+    </div>
+  {:else}
+    <div class="card row">
+      <div class="grow">
+        <strong>{archivePath ? archivePath.split(/[\\/]/).pop() : "Архив не выбран"}</strong>
+        <span class="muted">
+          {manifest
+            ? `Создан ${formatDate(manifest.created)} на ПК ${manifest.computer || "—"}`
+            : "Выберите .zip, созданный Setup Hub."}
         </span>
       </div>
-    </aside>
-  </div>
+      <button type="button" class="btn" disabled={busy} onclick={pickArchive}>
+        <Icon name="folder" size={15} />Выбрать архив
+      </button>
+    </div>
+
+    {#if manifest}
+      <div class="grid">
+        {#each manifest.entries as e (keyOf(e.root, e.name))}
+          {@const key = keyOf(e.root, e.name)}
+          <button type="button" class="folder" class:active={restorePicked[key]} disabled={busy}
+            onclick={() => (restorePicked[key] = !restorePicked[key])}>
+            <span class="box">{#if restorePicked[key]}<Icon name="check" size={13} stroke={2.6} />{/if}</span>
+            <span class="meta">
+              <strong>{e.name}</strong>
+              <small>{e.root === "roaming" ? "Roaming" : "Local"} · {formatSize(e.bytes / 1048576)} · {e.files} файл.</small>
+            </span>
+          </button>
+        {/each}
+      </div>
+
+      <div class="actions">
+        {#if confirmingRestore}
+          <div class="confirm">
+            <Icon name="alert" size={18} />
+            <span>Закройте эти программы. Текущие настройки будут переименованы в <b>*.setuphub-bak-*</b>, а затем заменены.</span>
+            <button type="button" class="btn danger" onclick={restore}>Восстановить</button>
+            <button type="button" class="btn" onclick={() => (confirmingRestore = false)}>Отмена</button>
+          </div>
+        {:else}
+          <span class="muted">К восстановлению: {restoreSelection.length}</span>
+          <button type="button" class="btn primary" disabled={busy || restoreSelection.length === 0} onclick={() => (confirmingRestore = true)}>
+            <Icon name="refresh" size={16} />Восстановить выбранное
+          </button>
+        {/if}
+      </div>
+    {/if}
+  {/if}
+
+  {#if busy || message || failure}
+    <div class="card progress">
+      <div class="row"><strong>{busy ? phase : failure ? "Ошибка" : "Готово"}</strong><span class="muted">{Math.round(percent)}%</span></div>
+      <div class="bar"><div class="fill" style="width:{percent}%"></div></div>
+      {#if message}<p class="ok">{message}</p>{/if}
+      {#if failure}<p class="err">{failure}</p>{/if}
+    </div>
+  {/if}
 </div>
 
 <style>
-  .backup-page {
-    padding-bottom: 30px;
-  }
-
-  .page-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    padding: 14px 4px 0;
-    animation: fade-up 500ms var(--ease-out) both;
-  }
-
-  .page-head > div:first-child {
-    max-width: 680px;
-  }
-
-  .eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    color: rgb(var(--fg) / 0.62);
-    font-size: 9.5px;
-    font-weight: 650;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-  }
-
-  .live-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px rgb(var(--fg) / 0.65);
-    animation: pulse-dot 2.2s ease-in-out infinite;
-  }
-
-  h1 {
-    margin: 13px 0 0;
-    font-size: clamp(30px, 3.8vw, 48px);
-    font-weight: 620;
-    letter-spacing: -0.05em;
-    line-height: 1;
-  }
-
-  h1 span {
-    color: transparent;
-    background: linear-gradient(100deg, #ffffff, #c8c8ce 52%, #7b7b84);
-    background-clip: text;
-    -webkit-background-clip: text;
-  }
-
-  .lead {
-    max-width: 560px;
-    margin: 14px 0 0;
-    color: var(--muted);
-    font-size: 12.5px;
-    line-height: 1.6;
-  }
-
-  .head-badge {
-    display: inline-flex;
-    height: 40px;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 7px;
-    padding: 0 13px;
-    border: 1px solid rgb(var(--fg) / 0.07);
-    border-radius: 12px;
-    color: var(--muted);
-    background: rgb(var(--fg) / 0.025);
-    font-size: 9.5px;
-    white-space: nowrap;
-  }
-
-  .backup-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
-    gap: 16px;
-    margin-top: 30px;
-  }
-
-  .form-card,
-  .info-card {
-    padding: 22px;
-    border: 1px solid rgb(var(--fg) / 0.075);
-    border-radius: 23px;
-    background:
-      linear-gradient(155deg, rgb(var(--fg) / 0.04), transparent 40%),
-      linear-gradient(180deg, rgb(var(--panel) / 0.86), rgb(var(--panel) / 0.92));
-    box-shadow:
-      inset 0 1px 0 rgb(var(--fg) / 0.05),
-      0 16px 38px rgba(0, 0, 0, 0.24);
-    animation: fade-up 520ms var(--ease-out) both;
-    animation-delay: 60ms;
-  }
-
-  .form-head {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgb(var(--fg) / 0.06);
-  }
-
-  .form-icon {
-    display: grid;
-    width: 42px;
-    height: 42px;
-    flex: 0 0 auto;
-    place-items: center;
-    border: 1px solid rgb(var(--fg) / 0.14);
-    border-radius: 13px;
-    color: var(--text);
-    background: rgb(var(--fg) / 0.045);
-  }
-
-  .form-head h2 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 620;
-    letter-spacing: -0.02em;
-  }
-
-  .form-head p {
-    margin: 4px 0 0;
-    color: var(--muted);
-    font-size: 10px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    margin-top: 17px;
-  }
-
-  .field-label {
-    color: rgb(var(--fg) / 0.42);
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .folder-picker,
-  .field input {
-    display: flex;
-    width: 100%;
-    height: 44px;
-    align-items: center;
-    gap: 9px;
-    padding: 0 12px;
-    border: 1px solid rgb(var(--fg) / 0.09);
-    border-radius: 12px;
-    color: var(--muted);
-    background: rgb(var(--panel) / 0.62);
-    font-size: 11px;
-    text-align: left;
-    transition:
-      border-color 200ms ease,
-      box-shadow 200ms ease,
-      background 200ms ease;
-  }
-
-  .field input {
-    outline: 0;
-  }
-
-  .folder-picker:hover,
-  .field input:focus {
-    border-color: rgb(var(--fg) / 0.36);
-    background: rgb(var(--panel) / 0.84);
-    box-shadow: 0 0 0 3px rgb(var(--fg) / 0.045);
-  }
-
-  .folder-picker.filled {
-    color: var(--text);
-  }
-
-  .folder-picker span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .folder-picker :global(svg:last-child) {
-    margin-left: auto;
-    flex: 0 0 auto;
-    opacity: 0.4;
-  }
-
-  .scope-switch {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .scope-switch button {
-    display: flex;
-    height: 56px;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px;
-    padding: 0 13px;
-    border: 1px solid rgb(var(--fg) / 0.07);
-    border-radius: 12px;
-    text-align: left;
-    background: rgb(var(--fg) / 0.02);
-    transition:
-      border-color 200ms ease,
-      background 200ms ease,
-      box-shadow 200ms ease;
-  }
-
-  .scope-switch button.active {
-    border-color: rgb(var(--fg) / 0.38);
-    background: rgb(var(--fg) / 0.06);
-    box-shadow: 0 0 22px rgb(var(--fg) / 0.045);
-  }
-
-  .scope-switch strong {
-    font-size: 11px;
-    font-weight: 620;
-  }
-
-  .scope-switch small {
-    color: var(--muted);
-    font-family: "Cascadia Code", Consolas, monospace;
-    font-size: 8.5px;
-  }
-
-  .field-error {
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    margin: 13px 0 0;
-    color: #ff9d9d;
-    font-size: 10px;
-    line-height: 1.45;
-  }
-
-  .restore {
-    display: inline-flex;
-    width: 100%;
-    height: 46px;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 22px;
-    border: 1px solid rgb(var(--fg) / 0.78);
-    border-radius: 13px;
-    color: #09090b;
-    background: linear-gradient(145deg, #ffffff, #dcdce0);
-    font-size: 11.5px;
-    font-weight: 650;
-    box-shadow:
-      0 0 22px rgb(var(--fg) / 0.11),
-      inset 0 1px 0 rgb(var(--fg) / 0.7);
-    transition:
-      transform 200ms var(--ease-out),
-      box-shadow 200ms ease;
-  }
-
-  .restore:hover:not(:disabled) {
-    box-shadow:
-      0 0 32px rgb(var(--fg) / 0.2),
-      inset 0 1px 0 rgb(var(--fg) / 0.85);
-    transform: translateY(-1px);
-  }
-
-  .restore:disabled {
-    opacity: 0.65;
-  }
-
-  .spinner {
-    width: 14px;
-    height: 14px;
-    border: 1.5px solid rgb(var(--panel) / 0.28);
-    border-top-color: #09090b;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  .info-card {
-    align-self: start;
-    animation-delay: 120ms;
-  }
-
-  .info-head {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: rgb(var(--fg) / 0.66);
-    font-size: 9.5px;
-    font-weight: 650;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .info-card ol {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin: 20px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .info-card li {
-    display: flex;
-    gap: 11px;
-  }
-
-  .info-card li span {
-    flex: 0 0 auto;
-    color: rgb(var(--fg) / 0.46);
-    font-family: "Cascadia Code", Consolas, monospace;
-    font-size: 9px;
-    font-weight: 600;
-  }
-
-  .info-card li p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 10.5px;
-    line-height: 1.55;
-  }
-
-  .safety-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-top: 22px;
-    padding: 12px;
-    border: 1px solid rgb(var(--fg) / 0.06);
-    border-radius: 12px;
-    color: rgb(var(--fg) / 0.4);
-    background: rgb(var(--fg) / 0.02);
-    font-size: 9px;
-    line-height: 1.5;
-  }
-
-  .safety-note :global(svg) {
-    flex: 0 0 auto;
-    margin-top: 1px;
-    color: rgb(var(--fg) / 0.58);
-  }
-
-  @media (max-width: 980px) {
-    .backup-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .page-head {
-      align-items: flex-start;
-      flex-direction: column;
-    }
-  }
-  .hero-art {
-    flex: none;
-    width: 206px;
-    height: 116px;
-    object-fit: cover;
-    border: 1px solid rgb(var(--fg) / 0.14);
-    border-radius: 18px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
-    -webkit-user-drag: none;
-  }
-
-  @media (max-width: 980px) {
-    .hero-art {
-      display: none;
-    }
-  }
+  .bk-page { padding-bottom: 40px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 14px 4px 0; animation: fade-up 500ms var(--ease-out) both; }
+  .page-head > div:first-child { max-width: 640px; }
+  .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text); }
+  h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; }
+  h1 span { color: var(--muted); }
+  .lead { color: var(--muted); margin: 8px 0 0; }
+  .hero-art { width: 220px; max-width: 30%; border-radius: var(--radius-lg); opacity: 0.9; }
+  .tabs { display: flex; gap: 8px; margin: 22px 4px 14px; }
+  .tabs button { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 13px; color: var(--muted-strong); border: 1px solid var(--border); border-radius: 99px; }
+  .tabs button.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 4px 14px; }
+  .search { flex: 1; min-width: 200px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); outline: none; user-select: text; }
+  .check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted-strong); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .folder { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface); animation: fade-up 400ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 30ms); }
+  .folder:hover:not(:disabled) { border-color: var(--border-strong); }
+  .folder.active { border-color: var(--text); background: var(--surface-strong); }
+  .box { width: 20px; height: 20px; flex: none; display: grid; place-items: center; border-radius: 6px; border: 1px solid var(--border-strong); }
+  .folder.active .box { background: var(--text); color: var(--bg); }
+  .meta { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .meta strong, .meta small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  small, .muted { color: var(--muted); font-size: 12px; }
+  .warn { font-style: normal; font-size: 11px; color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 50%, transparent); border-radius: 99px; padding: 2px 8px; }
+  .empty { grid-column: 1 / -1; color: var(--muted); margin: 8px 4px; }
+  .card { padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); display: grid; gap: 12px; margin-bottom: 14px; }
+  .row { display: flex; align-items: center; gap: 14px; }
+  .grow { flex: 1; min-width: 0; display: grid; gap: 3px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; font-size: 13px; background: var(--surface-strong); border: 1px solid var(--border-strong); border-radius: var(--radius-md); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.primary { background: var(--text); color: var(--bg); font-weight: 600; }
+  .btn.danger { background: var(--danger); color: #111; border-color: var(--danger); font-weight: 600; }
+  .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 4px 0; flex-wrap: wrap; }
+  .confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px; width: 100%; border-radius: var(--radius-md); border: 1px solid color-mix(in srgb, var(--danger) 50%, transparent); color: var(--danger); }
+  .confirm span { flex: 1; min-width: 240px; color: var(--text); }
+  .progress { margin-top: 20px; }
+  .bar { height: 8px; border-radius: 99px; background: var(--surface-strong); overflow: hidden; }
+  .fill { height: 100%; background: var(--text); transition: width 300ms var(--ease-out); }
+  .ok { margin: 0; color: var(--success); word-break: break-word; }
+  .err { margin: 0; color: var(--danger); white-space: pre-wrap; }
 </style>

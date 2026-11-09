@@ -42,6 +42,45 @@ fn log_frontend_error(message: String) {
 }
 
 #[tauri::command]
+async fn scan_appdata() -> Result<Vec<backup::AppFolder>, String> {
+    tauri::async_runtime::spawn_blocking(backup::scan_appdata)
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn create_backup(
+    app: tauri::AppHandle,
+    items: Vec<backup::BackupRequest>,
+    destination: String,
+    include_cache: bool,
+) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        backup::create_backup(&app, items, destination, include_cache)
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn inspect_backup(path: String) -> Result<backup::Manifest, String> {
+    tauri::async_runtime::spawn_blocking(move || backup::inspect_backup(&path))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn restore_archive(
+    app: tauri::AppHandle,
+    path: String,
+    selected: Vec<backup::BackupRequest>,
+) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || backup::restore_archive(&app, &path, selected))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
 fn exit_app(app: tauri::AppHandle) {
     app.exit(0);
 }
@@ -205,6 +244,10 @@ pub fn run() {
             apply_stripped,
             create_restore_point,
             set_window_tint,
+            scan_appdata,
+            create_backup,
+            inspect_backup,
+            restore_archive,
             run_diagnostics,
             fix_diagnostic,
             export_diagnostics,

@@ -17,6 +17,35 @@ export interface DiagCheck {
   fixable: boolean;
 }
 
+export interface AppFolder {
+  root: "roaming" | "local";
+  name: string;
+  sizeMb: number;
+  files: number;
+  modified: number;
+  known: string | null;
+  running: boolean;
+}
+
+export interface BackupEntry {
+  root: "roaming" | "local";
+  name: string;
+  files: number;
+  bytes: number;
+}
+
+export interface BackupManifest {
+  version: number;
+  created: number;
+  computer: string;
+  entries: BackupEntry[];
+}
+
+export interface BackupRequest {
+  root: string;
+  name: string;
+}
+
 export type AppCategory = "system" | "browsers" | "gaming" | "production";
 export type InstallKind = "winget" | "download" | "custom";
 
@@ -92,6 +121,12 @@ export const api = {
     scheme: string,
   ) =>
     invoke<string>("create_usb_installer", { isoPath, diskNumber, variant, scheme }),
+  scanAppdata: () => invoke<AppFolder[]>("scan_appdata"),
+  createBackup: (items: BackupRequest[], destination: string, includeCache: boolean) =>
+    invoke<string>("create_backup", { items, destination, includeCache }),
+  inspectBackup: (path: string) => invoke<BackupManifest>("inspect_backup", { path }),
+  restoreArchive: (path: string, selected: BackupRequest[]) =>
+    invoke<string>("restore_archive", { path, selected }),
   runDiagnostics: () => invoke<DiagCheck[]>("run_diagnostics"),
   fixDiagnostic: (id: string) => invoke<string>("fix_diagnostic", { id }),
   exportDiagnostics: () => invoke<string>("export_diagnostics"),
