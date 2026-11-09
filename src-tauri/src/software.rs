@@ -46,7 +46,8 @@ fn valid_package_id(id: &str) -> bool {
 pub fn parse_table(output: &str) -> Vec<Package> {
     let lines: Vec<Vec<char>> = output
         .lines()
-        .map(|l| l.trim_end_matches('\r').chars().collect())
+        // winget redraws a spinner with bare `\r`; only the text after the last one is real.
+        .map(|l| l.trim_end_matches('\r').rsplit('\r').next().unwrap_or("").chars().collect())
         .collect();
 
     let Some(dash) = lines
