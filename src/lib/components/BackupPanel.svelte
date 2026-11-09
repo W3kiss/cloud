@@ -89,6 +89,7 @@
       <Icon name="archive" size={16} />
       <span>Локальное восстановление</span>
     </div>
+    <img class="hero-art" src="/art/hero-backup.svg" alt="" />
   </header>
 
   <div class="backup-layout">
@@ -556,6 +557,23 @@
     .page-head {
       align-items: flex-start;
       flex-direction: column;
+    }
+  }
+  .hero-art {
+    flex: none;
+    width: 206px;
+    height: 116px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  @media (max-width: 980px) {
+    .hero-art {
+      display: none;
     }
   }
 </style>

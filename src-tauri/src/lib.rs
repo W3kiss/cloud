@@ -4,6 +4,7 @@ mod installer;
 mod protected;
 mod stripped;
 mod tweaks;
+mod usb;
 
 use catalog::Catalog;
 use tweaks::TweakStatus;
@@ -59,6 +60,28 @@ async fn create_restore_point() -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(stripped::create_restore_point)
         .await
         .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn list_usb_disks() -> Result<Vec<usb::UsbDisk>, String> {
+    tauri::async_runtime::spawn_blocking(usb::list_usb_disks)
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn create_usb_installer(
+    app: tauri::AppHandle,
+    iso_path: String,
+    disk_number: u32,
+    variant: String,
+    scheme: String,
+) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        usb::create_installer(&app, &iso_path, disk_number, &variant, &scheme)
+    })
+    .await
+    .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]
@@ -131,6 +154,8 @@ pub fn run() {
             stripped_states,
             apply_stripped,
             create_restore_point,
+            list_usb_disks,
+            create_usb_installer,
             restart_explorer,
             admin_status,
             restart_elevated,

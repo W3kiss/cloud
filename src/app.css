@@ -218,3 +218,42 @@ pre {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---- Global user settings (see $lib/settings.svelte.ts) ---- */
+html.s-no-motion *,
+html.s-no-motion *::before,
+html.s-no-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0s !important;
+}
+
+html.s-no-blur *,
+html.s-no-blur *::before {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.s-hide-grid .grid-overlay {
+  display: none !important;
+}
+
+html.s-compact .nav-item {
+  height: 50px;
+}
+
+html.s-compact .tweak-grid,
+html.s-compact .au-grid {
+  gap: 9px;
+}
+
+html[data-theme="amoled"] {
+  --bg: #000;
+  --bg-soft: #000;
+}
+
+html[data-theme="amoled"] .ambient {
+  opacity: 0.2;
+}

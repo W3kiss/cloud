@@ -525,7 +525,8 @@
           <span><strong>{admin ? "UAC ON" : "UAC OFF"}</strong></span>
         </div>
       </div>
-    </header>
+      <img class="hero-art" src="/art/hero-stripped.svg" alt="" />
+  </header>
 
     <div class="restore-bar">
       <span class="restore-icon"><Icon name="archive" size={18} /></span>
@@ -593,6 +594,7 @@
                 class:enabled={status.enabled}
                 style={`--accent:${tweak.accent}; --i:${index};`}
               >
+                <div class="tweak-banner"><img src={`/art/${tweak.id}.svg`} alt="" loading="lazy" /></div>
                 <div class="tweak-aura"></div>
                 <header class="tweak-head">
                   <span class="tweak-icon"><Icon name={tweak.icon} size={20} /></span>
@@ -1486,5 +1488,41 @@
 
   .confirm-row .btn.small {
     margin-left: 0;
+  }
+  .hero-art {
+    flex: none;
+    width: 206px;
+    height: 116px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  @media (max-width: 980px) {
+    .hero-art {
+      display: none;
+    }
+  }
+  .tweak-banner {
+    position: relative;
+    height: 78px;
+    margin: -19px -19px 16px;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    -webkit-mask-image: linear-gradient(#000 55%, transparent);
+    mask-image: linear-gradient(#000 55%, transparent);
+  }
+
+  .tweak-banner img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.88;
+    pointer-events: none;
+    -webkit-user-drag: none;
   }
 </style>

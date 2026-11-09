@@ -19,10 +19,12 @@
   import AppDetails from "$lib/components/AppDetails.svelte";
   import ToastStack from "$lib/components/ToastStack.svelte";
   import StrippedPanel from "$lib/components/StrippedPanel.svelte";
+  import UsbPanel from "$lib/components/UsbPanel.svelte";
+  import SettingsPanel from "$lib/components/SettingsPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "tweaks" | "stripped" | "backup" | "authors";
+  type TabId = "apps" | "tweaks" | "stripped" | "usb" | "backup" | "settings" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -54,10 +56,22 @@
       icon: "rocket",
     },
     {
+      id: "usb",
+      label: "Windows на флешку",
+      hint: "Установочный USB",
+      icon: "usb",
+    },
+    {
       id: "backup",
       label: "Backups",
       hint: "Восстановление AppData",
       icon: "archive",
+    },
+    {
+      id: "settings",
+      label: "Настройки",
+      hint: "Тема и параметры",
+      icon: "settings",
     },
     {
       id: "authors",
@@ -416,6 +430,10 @@
           <TweaksPanel onNotify={notify} />
         {:else if activeTab === "stripped"}
           <StrippedPanel onNotify={notify} onLeave={() => switchTab("tweaks")} />
+        {:else if activeTab === "usb"}
+          <UsbPanel onNotify={notify} />
+        {:else if activeTab === "settings"}
+          <SettingsPanel onNotify={notify} />
         {:else if activeTab === "authors"}
           <AuthorsPanel />
         {:else}

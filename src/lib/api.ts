@@ -1,5 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 
+export interface UsbDisk {
+  number: number;
+  name: string;
+  sizeGb: number;
+  style: string;
+  letters: string;
+}
+
 export type AppCategory = "system" | "browsers" | "gaming" | "production";
 export type InstallKind = "winget" | "download" | "custom";
 
@@ -67,6 +75,14 @@ export const api = {
   applyStripped: (id: string, enabled: boolean) =>
     invoke<string>("apply_stripped", { id, enabled }),
   createRestorePoint: () => invoke<string>("create_restore_point"),
+  listUsbDisks: () => invoke<UsbDisk[]>("list_usb_disks"),
+  createUsbInstaller: (
+    isoPath: string,
+    diskNumber: number,
+    variant: string,
+    scheme: string,
+  ) =>
+    invoke<string>("create_usb_installer", { isoPath, diskNumber, variant, scheme }),
   restartExplorer: () => invoke<string>("restart_explorer"),
   adminStatus: () => invoke<boolean>("admin_status"),
   restartElevated: () => invoke<void>("restart_elevated"),
