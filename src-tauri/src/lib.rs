@@ -5,6 +5,7 @@ mod installer;
 mod protected;
 mod software;
 mod stripped;
+mod system;
 mod tweaks;
 mod usb;
 
@@ -119,6 +120,83 @@ async fn write_preset(path: String, content: String) -> Result<(), String> {
 #[tauri::command]
 async fn read_preset(path: String) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || software::read_preset(&path))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn list_services() -> Result<Vec<system::ServiceInfo>, String> {
+    tauri::async_runtime::spawn_blocking(move || system::list_services())
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn set_service_mode(name: String, mode: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || system::set_service_mode(&name, &mode))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn list_startup() -> Result<Vec<system::StartupItem>, String> {
+    tauri::async_runtime::spawn_blocking(move || system::list_startup())
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn set_startup_enabled(location: String, name: String, enabled: bool) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || system::set_startup_enabled(&location, &name, enabled))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn scan_junk() -> Vec<system::JunkCategory> {
+    tauri::async_runtime::spawn_blocking(system::scan_junk)
+        .await
+        .unwrap_or_default()
+}
+
+#[tauri::command]
+async fn clean_junk(ids: Vec<String>) -> Result<system::CleanReport, String> {
+    tauri::async_runtime::spawn_blocking(move || system::clean_junk(ids))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn empty_recycle_bin() -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || system::empty_recycle_bin())
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn list_menu() -> Result<Vec<system::MenuItem>, String> {
+    tauri::async_runtime::spawn_blocking(move || system::list_menu())
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn add_menu_item(scope: String, key: String, label: String, command: String, icon: String, extended: bool) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || system::add_menu_item(&scope, &key, &label, &command, &icon, extended))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn set_menu_disabled(scope: String, key: String, origin: String, disabled: bool) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || system::set_menu_disabled(&scope, &key, &origin, disabled))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+async fn remove_menu_item(scope: String, key: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || system::remove_menu_item(&scope, &key))
         .await
         .map_err(|error| error.to_string())?
 }
@@ -287,6 +365,17 @@ pub fn run() {
             apply_stripped,
             create_restore_point,
             set_window_tint,
+            list_services,
+            set_service_mode,
+            list_startup,
+            set_startup_enabled,
+            scan_junk,
+            clean_junk,
+            empty_recycle_bin,
+            list_menu,
+            add_menu_item,
+            set_menu_disabled,
+            remove_menu_item,
             list_installed,
             list_updates,
             upgrade_package,

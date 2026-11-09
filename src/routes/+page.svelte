@@ -22,11 +22,12 @@
   import UsbPanel from "$lib/components/UsbPanel.svelte";
   import DiagnosticsPanel from "$lib/components/DiagnosticsPanel.svelte";
   import SoftwareManager from "$lib/components/SoftwareManager.svelte";
+  import SystemPanel from "$lib/components/SystemPanel.svelte";
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "manager" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
+  type TabId = "apps" | "manager" | "system" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -50,6 +51,12 @@
       label: "Управление ПО",
       hint: "Обновления, удаление, пресеты",
       icon: "package",
+    },
+    {
+      id: "system",
+      label: "Обслуживание",
+      hint: "Службы, очистка, меню",
+      icon: "terminal",
     },
     {
       id: "tweaks",
@@ -442,6 +449,8 @@
           />
         {:else if activeTab === "manager"}
           <SoftwareManager onNotify={notify} />
+        {:else if activeTab === "system"}
+          <SystemPanel onNotify={notify} />
         {:else if activeTab === "tweaks"}
           <TweaksPanel onNotify={notify} />
         {:else if activeTab === "stripped"}

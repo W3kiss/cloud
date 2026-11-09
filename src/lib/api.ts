@@ -54,6 +54,53 @@ export interface Package {
   source: string;
 }
 
+export interface ServiceInfo {
+  name: string;
+  display: string;
+  state: string;
+  mode: string;
+  delayed: boolean;
+  path: string;
+  thirdParty: boolean;
+  protected: boolean;
+}
+
+export interface StartupItem {
+  id: string;
+  name: string;
+  command: string;
+  location: string;
+  enabled: boolean;
+}
+
+export interface JunkCategory {
+  id: string;
+  title: string;
+  hint: string;
+  sizeMb: number;
+  files: number;
+  requiresAdmin: boolean;
+  recommended: boolean;
+}
+
+export interface CleanReport {
+  freedMb: number;
+  skippedFiles: number;
+  notes: string[];
+}
+
+export interface MenuItem {
+  scope: "files" | "folders" | "desktop";
+  key: string;
+  label: string;
+  command: string;
+  icon: string;
+  disabled: boolean;
+  extended: boolean;
+  origin: "user" | "machine";
+  ours: boolean;
+}
+
 export type AppCategory = "system" | "browsers" | "gaming" | "production";
 export type InstallKind = "winget" | "download" | "custom";
 
@@ -131,6 +178,22 @@ export const api = {
     scheme: string,
   ) =>
     invoke<string>("create_usb_installer", { isoPath, diskNumber, variant, scheme }),
+  listServices: () => invoke<ServiceInfo[]>("list_services"),
+  setServiceMode: (name: string, mode: string) =>
+    invoke<string>("set_service_mode", { name, mode }),
+  listStartup: () => invoke<StartupItem[]>("list_startup"),
+  setStartupEnabled: (location: string, name: string, enabled: boolean) =>
+    invoke<string>("set_startup_enabled", { location, name, enabled }),
+  scanJunk: () => invoke<JunkCategory[]>("scan_junk"),
+  cleanJunk: (ids: string[]) => invoke<CleanReport>("clean_junk", { ids }),
+  emptyRecycleBin: () => invoke<string>("empty_recycle_bin"),
+  listMenu: () => invoke<MenuItem[]>("list_menu"),
+  addMenuItem: (scope: string, key: string, label: string, command: string, icon: string, extended: boolean) =>
+    invoke<string>("add_menu_item", { scope, key, label, command, icon, extended }),
+  setMenuDisabled: (scope: string, key: string, origin: string, disabled: boolean) =>
+    invoke<string>("set_menu_disabled", { scope, key, origin, disabled }),
+  removeMenuItem: (scope: string, key: string) =>
+    invoke<string>("remove_menu_item", { scope, key }),
   listInstalled: () => invoke<Package[]>("list_installed"),
   listUpdates: () => invoke<Package[]>("list_updates"),
   upgradePackage: (id: string) => invoke<string>("upgrade_package", { id }),
