@@ -84,6 +84,28 @@ async fn create_usb_installer(
     .map_err(|error| error.to_string())?
 }
 
+/// Re-tints the native window (Mica) and caption bar to match the UI theme.
+#[tauri::command]
+fn set_window_tint(window: tauri::WebviewWindow, r: u8, g: u8, b: u8, a: u8, dark: bool) {
+    #[cfg(target_os = "windows")]
+    {
+        use tauri::window::{Color, Effect, EffectsBuilder};
+        let _ = window.set_theme(Some(if dark {
+            tauri::Theme::Dark
+        } else {
+            tauri::Theme::Light
+        }));
+        let _ = window.set_effects(
+            EffectsBuilder::new()
+                .effect(Effect::Mica)
+                .color(Color(r, g, b, a))
+                .build(),
+        );
+    }
+    #[cfg(not(target_os = "windows"))]
+    let _ = (window, r, g, b, a, dark);
+}
+
 #[tauri::command]
 async fn restart_explorer() -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(tweaks::restart_explorer)
@@ -154,6 +176,7 @@ pub fn run() {
             stripped_states,
             apply_stripped,
             create_restore_point,
+            set_window_tint,
             list_usb_disks,
             create_usb_installer,
             restart_explorer,

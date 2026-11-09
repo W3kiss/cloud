@@ -113,10 +113,10 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
     background:
-      linear-gradient(160deg, rgba(255, 255, 255, 0.055), transparent 38%),
-      rgba(10, 10, 13, 0.72);
+      linear-gradient(160deg, rgb(var(--fg) / 0.055), transparent 38%),
+      rgb(var(--panel) / 0.72);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 1px 0 rgb(var(--fg) / 0.06),
       0 24px 70px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(30px) saturate(130%);
   }
@@ -128,7 +128,7 @@
     width: 220px;
     height: 220px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
     filter: blur(70px);
     content: "";
     pointer-events: none;
@@ -149,15 +149,15 @@
     height: 46px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.68);
+    border: 1px solid rgb(var(--fg) / 0.68);
     border-radius: 15px;
     color: #0a0a0c;
     background:
       radial-gradient(circle at 30% 15%, #ffffff, transparent 40%),
       linear-gradient(145deg, #f4f4f5, #cfcfd4);
     box-shadow:
-      0 0 28px rgba(255, 255, 255, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      0 0 28px rgb(var(--fg) / 0.14),
+      inset 0 1px 0 rgb(var(--fg) / 0.8);
   }
 
   .brand-copy {
@@ -186,13 +186,13 @@
     margin-left: auto;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 12px rgb(var(--fg) / 0.7);
     animation: pulse-dot 2.4s ease-in-out infinite;
   }
 
   .nav-caption {
     padding: 0 12px 10px;
-    color: rgba(255, 255, 255, 0.32);
+    color: rgb(var(--fg) / 0.32);
     font-size: 9px;
     font-weight: 650;
     letter-spacing: 0.18em;
@@ -205,7 +205,7 @@
     flex-direction: column;
     gap: 6px;
     padding: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border: 1px solid rgb(var(--fg) / 0.04);
     border-radius: 20px;
     background: rgba(0, 0, 0, 0.14);
   }
@@ -216,14 +216,14 @@
     right: 6px;
     left: 6px;
     height: 58px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgb(var(--fg) / 0.16);
     border-radius: 16px;
     background:
-      linear-gradient(100deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035) 62%, transparent),
-      rgba(255, 255, 255, 0.025);
+      linear-gradient(100deg, rgb(var(--fg) / 0.1), rgb(var(--fg) / 0.035) 62%, transparent),
+      rgb(var(--fg) / 0.025);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 0 26px rgba(255, 255, 255, 0.035);
+      inset 0 1px 0 rgb(var(--fg) / 0.1),
+      0 0 26px rgb(var(--fg) / 0.035);
     transition: top 380ms var(--ease-out);
     pointer-events: none;
   }
@@ -244,7 +244,7 @@
   }
 
   .nav-item:hover {
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .nav-item:active {
@@ -257,10 +257,10 @@
     height: 34px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgb(var(--fg) / 0.06);
     border-radius: 11px;
     color: var(--muted-strong);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
     transition:
       color 220ms ease,
       border-color 220ms ease,
@@ -268,10 +268,10 @@
   }
 
   .nav-item.active .nav-icon {
-    border-color: rgba(255, 255, 255, 0.26);
+    border-color: rgb(var(--fg) / 0.26);
     color: var(--accent);
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 18px rgba(255, 255, 255, 0.06);
+    background: rgb(var(--fg) / 0.08);
+    box-shadow: 0 0 18px rgb(var(--fg) / 0.06);
   }
 
   .nav-copy {
@@ -292,7 +292,7 @@
 
   .nav-copy small {
     overflow: hidden;
-    color: rgba(255, 255, 255, 0.34);
+    color: rgb(var(--fg) / 0.34);
     font-size: 10px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -300,13 +300,13 @@
   }
 
   .nav-item.active .nav-copy small {
-    color: rgba(255, 255, 255, 0.54);
+    color: rgb(var(--fg) / 0.54);
   }
 
   .nav-arrow {
     display: flex;
     margin-left: auto;
-    color: rgba(255, 255, 255, 0.2);
+    color: rgb(var(--fg) / 0.2);
     opacity: 0;
     transform: translateX(-4px);
     transition:
@@ -331,18 +331,18 @@
     margin: 0 4px 12px;
     padding: 14px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgb(var(--fg) / 0.06);
     border-radius: 18px;
     background:
-      linear-gradient(150deg, rgba(255, 255, 255, 0.055), transparent 55%),
-      rgba(255, 255, 255, 0.022);
+      linear-gradient(150deg, rgb(var(--fg) / 0.055), transparent 55%),
+      rgb(var(--fg) / 0.022);
   }
 
   .insight-head {
     display: flex;
     align-items: center;
     gap: 7px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(var(--fg) / 0.7);
     font-size: 10px;
     font-weight: 650;
     letter-spacing: 0.1em;
@@ -360,7 +360,7 @@
     height: 3px;
     overflow: hidden;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .insight-line span {
@@ -369,7 +369,7 @@
     height: 100%;
     border-radius: inherit;
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.24);
+    box-shadow: 0 0 10px rgb(var(--fg) / 0.24);
   }
 
   .admin-card {
@@ -378,10 +378,10 @@
     gap: 10px;
     margin: 0 4px;
     padding: 11px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border: 1px solid rgb(var(--fg) / 0.09);
     border-radius: 16px;
     text-align: left;
-    background: rgba(255, 255, 255, 0.028);
+    background: rgb(var(--fg) / 0.028);
     transition:
       border-color 220ms ease,
       background 220ms ease,
@@ -389,8 +389,8 @@
   }
 
   .admin-card:hover {
-    border-color: rgba(255, 255, 255, 0.22);
-    background: rgba(255, 255, 255, 0.055);
+    border-color: rgb(var(--fg) / 0.22);
+    background: rgb(var(--fg) / 0.055);
   }
 
   .admin-card:active {
@@ -398,8 +398,8 @@
   }
 
   .admin-card.elevated {
-    border-color: rgba(255, 255, 255, 0.24);
-    background: rgba(255, 255, 255, 0.055);
+    border-color: rgb(var(--fg) / 0.24);
+    background: rgb(var(--fg) / 0.055);
   }
 
   .admin-orb {
@@ -407,13 +407,13 @@
     height: 9px;
     flex: 0 0 auto;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.32);
+    background: rgb(var(--fg) / 0.4);
+    box-shadow: 0 0 12px rgb(var(--fg) / 0.32);
   }
 
   .admin-card.elevated .admin-orb {
     background: var(--accent);
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 12px rgb(var(--fg) / 0.6);
   }
 
   .admin-copy {
@@ -445,7 +445,7 @@
     place-items: center;
     border-radius: 9px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgb(var(--fg) / 0.08);
   }
 
   .version-row {
@@ -454,7 +454,7 @@
     justify-content: center;
     gap: 8px;
     padding: 14px 4px 2px;
-    color: rgba(255, 255, 255, 0.26);
+    color: rgb(var(--fg) / 0.26);
     font-size: 9px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -464,6 +464,6 @@
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.24);
+    background: rgb(var(--fg) / 0.24);
   }
 </style>

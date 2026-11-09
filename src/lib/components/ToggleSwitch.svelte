@@ -56,14 +56,14 @@
     width: 54px;
     height: 30px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(var(--fg) / 0.1);
     border-radius: 999px;
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent),
-      rgba(9, 9, 12, 0.9);
+      linear-gradient(180deg, rgb(var(--fg) / 0.05), transparent),
+      rgb(var(--panel) / 0.9);
     box-shadow:
       inset 0 2px 5px rgba(0, 0, 0, 0.5),
-      0 0 0 0 rgba(255, 255, 255, 0);
+      0 0 0 0 rgb(var(--fg) / 0);
     transition:
       background 320ms var(--ease-out),
       border-color 320ms var(--ease-out),
@@ -71,13 +71,13 @@
   }
 
   .toggle.checked .track {
-    border-color: rgba(255, 255, 255, 0.7);
+    border-color: rgb(var(--fg) / 0.7);
     background:
       linear-gradient(100deg, #d9d9de, #ffffff 55%, #e4e4e7),
-      rgba(255, 255, 255, 0.2);
+      rgb(var(--fg) / 0.2);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.6),
-      0 0 18px rgba(255, 255, 255, 0.2);
+      inset 0 1px 0 rgb(var(--fg) / 0.6),
+      0 0 18px rgb(var(--fg) / 0.2);
   }
 
   .shine {
@@ -87,7 +87,7 @@
     background: linear-gradient(
       110deg,
       transparent 20%,
-      rgba(255, 255, 255, 0.55) 48%,
+      rgb(var(--fg) / 0.55) 48%,
       transparent 72%
     );
     transform: translateX(-100%);
@@ -111,7 +111,7 @@
     background: linear-gradient(180deg, #fafafa, #cfcfd4);
     box-shadow:
       0 2px 5px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      inset 0 1px 0 rgb(var(--fg) / 0.9);
     transition:
       transform 340ms var(--ease-out),
       background 340ms var(--ease-out);
@@ -135,7 +135,7 @@
   .spinner {
     width: 11px;
     height: 11px;
-    border: 1.5px solid rgba(255, 255, 255, 0.24);
+    border: 1.5px solid rgb(var(--fg) / 0.24);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;

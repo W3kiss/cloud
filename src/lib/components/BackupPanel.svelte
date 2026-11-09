@@ -221,7 +221,7 @@
     align-items: center;
     gap: 8px;
     margin: 0;
-    color: rgba(255, 255, 255, 0.62);
+    color: rgb(var(--fg) / 0.62);
     font-size: 9.5px;
     font-weight: 650;
     letter-spacing: 0.18em;
@@ -233,7 +233,7 @@
     height: 6px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.65);
+    box-shadow: 0 0 10px rgb(var(--fg) / 0.65);
     animation: pulse-dot 2.2s ease-in-out infinite;
   }
 
@@ -267,10 +267,10 @@
     align-items: center;
     gap: 7px;
     padding: 0 13px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid rgb(var(--fg) / 0.07);
     border-radius: 12px;
     color: var(--muted);
-    background: rgba(255, 255, 255, 0.025);
+    background: rgb(var(--fg) / 0.025);
     font-size: 9.5px;
     white-space: nowrap;
   }
@@ -285,13 +285,13 @@
   .form-card,
   .info-card {
     padding: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.075);
+    border: 1px solid rgb(var(--fg) / 0.075);
     border-radius: 23px;
     background:
-      linear-gradient(155deg, rgba(255, 255, 255, 0.04), transparent 40%),
-      linear-gradient(180deg, rgba(17, 17, 20, 0.86), rgba(10, 10, 12, 0.92));
+      linear-gradient(155deg, rgb(var(--fg) / 0.04), transparent 40%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.86), rgb(var(--panel) / 0.92));
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgb(var(--fg) / 0.05),
       0 16px 38px rgba(0, 0, 0, 0.24);
     animation: fade-up 520ms var(--ease-out) both;
     animation-delay: 60ms;
@@ -302,7 +302,7 @@
     align-items: flex-start;
     gap: 12px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgb(var(--fg) / 0.06);
   }
 
   .form-icon {
@@ -311,10 +311,10 @@
     height: 42px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgb(var(--fg) / 0.14);
     border-radius: 13px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
   }
 
   .form-head h2 {
@@ -338,7 +338,7 @@
   }
 
   .field-label {
-    color: rgba(255, 255, 255, 0.42);
+    color: rgb(var(--fg) / 0.42);
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -353,10 +353,10 @@
     align-items: center;
     gap: 9px;
     padding: 0 12px;
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border: 1px solid rgb(var(--fg) / 0.09);
     border-radius: 12px;
     color: var(--muted);
-    background: rgba(9, 9, 12, 0.62);
+    background: rgb(var(--panel) / 0.62);
     font-size: 11px;
     text-align: left;
     transition:
@@ -371,9 +371,9 @@
 
   .folder-picker:hover,
   .field input:focus {
-    border-color: rgba(255, 255, 255, 0.36);
-    background: rgba(14, 14, 17, 0.84);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.045);
+    border-color: rgb(var(--fg) / 0.36);
+    background: rgb(var(--panel) / 0.84);
+    box-shadow: 0 0 0 3px rgb(var(--fg) / 0.045);
   }
 
   .folder-picker.filled {
@@ -405,10 +405,10 @@
     justify-content: center;
     gap: 2px;
     padding: 0 13px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid rgb(var(--fg) / 0.07);
     border-radius: 12px;
     text-align: left;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgb(var(--fg) / 0.02);
     transition:
       border-color 200ms ease,
       background 200ms ease,
@@ -416,9 +416,9 @@
   }
 
   .scope-switch button.active {
-    border-color: rgba(255, 255, 255, 0.38);
-    background: rgba(255, 255, 255, 0.06);
-    box-shadow: 0 0 22px rgba(255, 255, 255, 0.045);
+    border-color: rgb(var(--fg) / 0.38);
+    background: rgb(var(--fg) / 0.06);
+    box-shadow: 0 0 22px rgb(var(--fg) / 0.045);
   }
 
   .scope-switch strong {
@@ -450,15 +450,15 @@
     justify-content: center;
     gap: 8px;
     margin-top: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.78);
+    border: 1px solid rgb(var(--fg) / 0.78);
     border-radius: 13px;
     color: #09090b;
     background: linear-gradient(145deg, #ffffff, #dcdce0);
     font-size: 11.5px;
     font-weight: 650;
     box-shadow:
-      0 0 22px rgba(255, 255, 255, 0.11),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      0 0 22px rgb(var(--fg) / 0.11),
+      inset 0 1px 0 rgb(var(--fg) / 0.7);
     transition:
       transform 200ms var(--ease-out),
       box-shadow 200ms ease;
@@ -466,8 +466,8 @@
 
   .restore:hover:not(:disabled) {
     box-shadow:
-      0 0 32px rgba(255, 255, 255, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      0 0 32px rgb(var(--fg) / 0.2),
+      inset 0 1px 0 rgb(var(--fg) / 0.85);
     transform: translateY(-1px);
   }
 
@@ -478,7 +478,7 @@
   .spinner {
     width: 14px;
     height: 14px;
-    border: 1.5px solid rgba(9, 9, 11, 0.28);
+    border: 1.5px solid rgb(var(--panel) / 0.28);
     border-top-color: #09090b;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -493,7 +493,7 @@
     display: flex;
     align-items: center;
     gap: 7px;
-    color: rgba(255, 255, 255, 0.66);
+    color: rgb(var(--fg) / 0.66);
     font-size: 9.5px;
     font-weight: 650;
     letter-spacing: 0.12em;
@@ -516,7 +516,7 @@
 
   .info-card li span {
     flex: 0 0 auto;
-    color: rgba(255, 255, 255, 0.46);
+    color: rgb(var(--fg) / 0.46);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 9px;
     font-weight: 600;
@@ -535,10 +535,10 @@
     gap: 8px;
     margin-top: 22px;
     padding: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgb(var(--fg) / 0.06);
     border-radius: 12px;
-    color: rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.02);
+    color: rgb(var(--fg) / 0.4);
+    background: rgb(var(--fg) / 0.02);
     font-size: 9px;
     line-height: 1.5;
   }
@@ -546,7 +546,7 @@
   .safety-note :global(svg) {
     flex: 0 0 auto;
     margin-top: 1px;
-    color: rgba(255, 255, 255, 0.58);
+    color: rgb(var(--fg) / 0.58);
   }
 
   @media (max-width: 980px) {
@@ -564,7 +564,7 @@
     width: 206px;
     height: 116px;
     object-fit: cover;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgb(var(--fg) / 0.14);
     border-radius: 18px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
     pointer-events: none;

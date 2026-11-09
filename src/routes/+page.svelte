@@ -539,8 +539,8 @@
     height: 100vh;
     overflow: hidden;
     background:
-      radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.06), transparent 45%),
-      linear-gradient(180deg, rgba(11, 11, 13, 0.94), rgba(4, 4, 6, 0.98));
+      radial-gradient(circle at 50% -20%, rgb(var(--fg) / 0.06), transparent 45%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.94), rgb(var(--panel) / 0.98));
   }
 
   .grid-overlay {
@@ -548,8 +548,8 @@
     inset: 0;
     opacity: 0.13;
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      linear-gradient(rgb(var(--fg) / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--fg) / 0.035) 1px, transparent 1px);
     background-size: 42px 42px;
     mask-image: radial-gradient(circle at 50% 0%, #000 0%, transparent 72%);
     pointer-events: none;
@@ -567,7 +567,7 @@
     left: 22%;
     width: 42vw;
     height: 42vw;
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .ambient-b {
@@ -575,7 +575,7 @@
     bottom: -20%;
     width: 38vw;
     height: 38vw;
-    background: rgba(255, 255, 255, 0.022);
+    background: rgb(var(--fg) / 0.022);
   }
 
   .ambient-c {
@@ -583,7 +583,7 @@
     left: 8%;
     width: 24vw;
     height: 24vw;
-    background: rgba(255, 255, 255, 0.016);
+    background: rgb(var(--fg) / 0.016);
   }
 
   .app-frame {
@@ -619,7 +619,7 @@
     right: 10%;
     left: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+    background: linear-gradient(90deg, transparent, rgb(var(--fg) / 0.14), transparent);
     content: "";
     pointer-events: none;
   }
@@ -645,22 +645,22 @@
     z-index: 60;
     padding: 15px 18px 0;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgb(var(--fg) / 0.14);
     border-radius: 20px;
     background:
-      linear-gradient(155deg, rgba(255, 255, 255, 0.055), transparent 42%),
-      linear-gradient(180deg, rgba(22, 22, 26, 0.94), rgba(9, 9, 12, 0.97));
+      linear-gradient(155deg, rgb(var(--fg) / 0.055), transparent 42%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.94), rgb(var(--panel) / 0.97));
     box-shadow:
       0 28px 64px rgba(0, 0, 0, 0.56),
-      0 0 0 1px rgba(255, 255, 255, 0.025),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      0 0 0 1px rgb(var(--fg) / 0.025),
+      inset 0 1px 0 rgb(var(--fg) / 0.08);
     backdrop-filter: blur(28px) saturate(115%);
     -webkit-backdrop-filter: blur(28px) saturate(115%);
     animation: dock-in 340ms var(--ease-out) both;
   }
 
   .download-dock.done {
-    border-color: rgba(255, 255, 255, 0.22);
+    border-color: rgb(var(--fg) / 0.22);
   }
 
   .download-dock.failed {
@@ -679,13 +679,13 @@
     height: 42px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgb(var(--fg) / 0.16);
     border-radius: 13px;
     color: var(--text);
     background:
-      radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.14), transparent 46%),
-      rgba(255, 255, 255, 0.055);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      radial-gradient(circle at 32% 18%, rgb(var(--fg) / 0.14), transparent 46%),
+      rgb(var(--fg) / 0.055);
+    box-shadow: inset 0 1px 0 rgb(var(--fg) / 0.08);
   }
 
   .download-dock.failed .dock-icon {
@@ -697,7 +697,7 @@
   .dock-spinner {
     width: 17px;
     height: 17px;
-    border: 1.7px solid rgba(255, 255, 255, 0.16);
+    border: 1.7px solid rgb(var(--fg) / 0.16);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -725,7 +725,7 @@
 
   .dock-percent {
     flex: 0 0 auto;
-    color: rgba(255, 255, 255, 0.58);
+    color: rgb(var(--fg) / 0.58);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 10px;
     letter-spacing: 0.06em;
@@ -771,31 +771,31 @@
   }
 
   .dock-button.ghost {
-    border: 1px solid rgba(255, 255, 255, 0.11);
+    border: 1px solid rgb(var(--fg) / 0.11);
     color: var(--muted-strong);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .dock-button.ghost:hover {
-    border-color: rgba(255, 255, 255, 0.28);
+    border-color: rgb(var(--fg) / 0.28);
     color: var(--text);
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .dock-button.primary {
-    border: 1px solid rgba(255, 255, 255, 0.88);
+    border: 1px solid rgb(var(--fg) / 0.88);
     color: #09090b;
     background: linear-gradient(145deg, #ffffff, #d9d9de);
     box-shadow:
-      0 0 24px rgba(255, 255, 255, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      0 0 24px rgb(var(--fg) / 0.14),
+      inset 0 1px 0 rgb(var(--fg) / 0.65);
   }
 
   .dock-button.primary:hover {
     background: linear-gradient(145deg, #ffffff, #e8e8eb);
     box-shadow:
-      0 0 32px rgba(255, 255, 255, 0.24),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      0 0 32px rgb(var(--fg) / 0.24),
+      inset 0 1px 0 rgb(var(--fg) / 0.8);
     transform: translateY(-1px);
   }
 
@@ -805,10 +805,10 @@
     align-items: center;
     gap: 7px;
     padding: 0 11px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 10px;
     color: var(--muted);
-    background: rgba(255, 255, 255, 0.025);
+    background: rgb(var(--fg) / 0.025);
     font-size: 9.5px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -819,7 +819,7 @@
     height: 6px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 8px rgb(var(--fg) / 0.6);
     animation: pulse-dot 1.3s ease-in-out infinite;
   }
 
@@ -828,7 +828,7 @@
     height: 3px;
     margin: 15px -18px 0;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .dock-progress-fill {
@@ -837,7 +837,7 @@
     border-radius: 0 999px 999px 0;
     background: linear-gradient(90deg, #73737c, #dfdfe3 45%, #ffffff 72%, #a6a6ae);
     background-size: 220% 100%;
-    box-shadow: 0 0 14px rgba(255, 255, 255, 0.34);
+    box-shadow: 0 0 14px rgb(var(--fg) / 0.34);
     transition: width 260ms linear;
   }
 
@@ -855,7 +855,7 @@
     background: linear-gradient(
       100deg,
       transparent 30%,
-      rgba(255, 255, 255, 0.28) 50%,
+      rgb(var(--fg) / 0.28) 50%,
       transparent 70%
     );
     transform: translateX(-100%);
@@ -893,7 +893,7 @@
     justify-content: center;
     gap: 11px;
     background:
-      radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.04), transparent 28%),
+      radial-gradient(circle at 50% 45%, rgb(var(--fg) / 0.04), transparent 28%),
       #060608;
     animation: fade-in 180ms ease both;
   }
@@ -903,11 +903,11 @@
     width: 64px;
     height: 64px;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 1px solid rgb(var(--fg) / 0.28);
     border-radius: 20px;
     color: var(--accent);
-    background: rgba(255, 255, 255, 0.045);
-    box-shadow: 0 0 38px rgba(255, 255, 255, 0.08);
+    background: rgb(var(--fg) / 0.045);
+    box-shadow: 0 0 38px rgb(var(--fg) / 0.08);
     animation: breathe 2.4s ease-in-out infinite;
   }
 
@@ -925,7 +925,7 @@
     margin-top: 4px;
     overflow: hidden;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .boot-line i {
@@ -938,7 +938,7 @@
   }
 
   .boot-note {
-    color: rgba(255, 255, 255, 0.26);
+    color: rgb(var(--fg) / 0.26);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 8px;
     letter-spacing: 0.1em;
