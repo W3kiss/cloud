@@ -185,6 +185,7 @@ export interface ToastItem {
 }
 
 export const DISCLAIMER_KEY = "setup-hub.disclaimer.accepted.v1";
+export const WELCOME_KEY = "setup-hub.welcome.done.v1";
 
 export const api = {
   catalog: () => invoke<Catalog>("bundled_catalog"),

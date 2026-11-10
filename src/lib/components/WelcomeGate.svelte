@@ -7,7 +7,8 @@
     onAccept,
     onExit,
     leaving = false,
-  }: { onAccept: () => void; onExit: () => void; leaving?: boolean } = $props();
+    skipTerms = false,
+  }: { onAccept: () => void; onExit: () => void; leaving?: boolean; skipTerms?: boolean } = $props();
 
   let step = $state(0);
 
@@ -86,7 +87,7 @@
           <Icon name="power" size={17} />
           {t("welcome.exit")}
         </button>
-        <button type="button" class="btn-agree" onclick={() => (step = 1)}>
+        <button type="button" class="btn-agree" onclick={() => (skipTerms ? onAccept() : (step = 1))}>
           <span class="agree-shine"></span>
           {t("welcome.next")}
           <Icon name="arrow" size={17} stroke={2.2} />

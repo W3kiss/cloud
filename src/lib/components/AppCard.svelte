@@ -70,6 +70,18 @@
   class:selected
   class:running
   style={`--i:${index};`}
+  role="button"
+  tabindex="0"
+  aria-pressed={selected}
+  onclick={() => {
+    if (!locked) onToggleSelect(app);
+  }}
+  onkeydown={(event) => {
+    if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      if (!locked) onToggleSelect(app);
+    }
+  }}
 >
   <div class="card-aura" aria-hidden="true"></div>
 
@@ -118,7 +130,10 @@
           class:selected
           disabled={locked}
           aria-pressed={selected}
-          onclick={() => onToggleSelect(app)}
+          onclick={(event) => {
+            event.stopPropagation();
+            onToggleSelect(app);
+          }}
         >
           {#if selected}
             <Icon name="check" size={15} stroke={2.2} />
@@ -550,5 +565,14 @@
   .job-error :global(svg) {
     flex: 0 0 auto;
     margin-top: 1px;
+  }
+
+  .app-card {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .app-card.running {
+    cursor: default;
   }
 </style>

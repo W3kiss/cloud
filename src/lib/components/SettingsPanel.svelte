@@ -6,7 +6,7 @@
   import { THEMES, resetSettings, saveSettings, settings } from "$lib/settings.svelte";
   import type { ToastTone } from "$lib/api";
 
-  const APP_VERSION = "1.0.0";
+  const APP_VERSION = "1.1.0";
 
   let {
     onNotify,

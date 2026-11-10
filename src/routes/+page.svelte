@@ -6,6 +6,7 @@
     api,
     humanizeError,
     DISCLAIMER_KEY,
+    WELCOME_KEY,
     type CatalogApp,
     type InstallProgress,
     type JobState,
@@ -65,6 +66,7 @@
 
   let booted = $state(false);
   let accepted = $state(false);
+  let disclaimerKnown = $state(false);
   let welcomeLeaving = $state(false);
   let activeTab = $state<TabId>("apps");
 
@@ -157,7 +159,8 @@
     let disposed = false;
     let unlisten: UnlistenFn | undefined;
 
-    accepted = localStorage.getItem(DISCLAIMER_KEY) === "1";
+    disclaimerKnown = localStorage.getItem(DISCLAIMER_KEY) === "1";
+    accepted = disclaimerKnown && localStorage.getItem(WELCOME_KEY) === "1";
     booted = true;
 
     loadCatalog();
@@ -347,6 +350,7 @@
 
   function acceptDisclaimer() {
     localStorage.setItem(DISCLAIMER_KEY, "1");
+    localStorage.setItem(WELCOME_KEY, "1");
     welcomeLeaving = true;
     window.setTimeout(() => {
       accepted = true;
@@ -499,6 +503,7 @@
 {#if booted && !accepted}
   <WelcomeGate
     leaving={welcomeLeaving}
+    skipTerms={disclaimerKnown}
     onAccept={acceptDisclaimer}
     onExit={exitApp}
   />

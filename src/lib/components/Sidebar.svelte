@@ -88,7 +88,7 @@
   </button>
 
   <div class="version-row">
-    <span>v1.0.0</span>
+    <span>v1.1.0</span>
   </div>
 </aside>
 
