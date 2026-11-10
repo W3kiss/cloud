@@ -69,15 +69,6 @@
 
   <div class="sidebar-spacer"></div>
 
-  <div class="insight-card">
-    <div class="insight-head">
-      <Icon name="spark" size={15} />
-      <span>Локальная сборка</span>
-    </div>
-    <p>Каталог и ссылки защищены на этапе компиляции.</p>
-    <div class="insight-line"><span></span></div>
-  </div>
-
   <button
     type="button"
     class="admin-card"
@@ -96,7 +87,7 @@
   </button>
 
   <div class="version-row">
-    <span>v0.1.0</span>
+    <span>v1.0.0</span>
     <span class="dot"></span>
     <span>Open Source</span>
   </div>

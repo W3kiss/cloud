@@ -1,356 +1,341 @@
 <script lang="ts">
+  import { openUrl } from "@tauri-apps/plugin-opener";
   import Icon from "./Icon.svelte";
+
+  const LINKS = [
+    { label: "Профиль GitHub", url: "https://github.com/W3kiss", icon: "user", primary: true },
+    { label: "Исходный код", url: "https://github.com/W3kiss/cloud", icon: "terminal", primary: false },
+    { label: "Релизы", url: "https://github.com/W3kiss/cloud/releases", icon: "download", primary: false },
+  ];
+
+  const STATS = [
+    { value: "11", label: "разделов" },
+    { value: "40", label: "твиков Windows" },
+    { value: "5", label: "вариантов Windows" },
+    { value: "1.0", label: "версия" },
+  ];
+
+  const STACK = ["Tauri 2", "Rust", "Svelte 5", "TypeScript", "winget", "PowerShell"];
+
+  const PRINCIPLES = [
+    { icon: "shield", title: "Безопасность", text: "Опасные действия требуют подтверждения, системные компоненты защищены от случайного удаления." },
+    { icon: "rocket", title: "Скорость", text: "Нативное приложение на Rust: быстрый запуск, минимум памяти и никаких лишних процессов." },
+    { icon: "sliders", title: "Контроль", text: "Каждый твик обратим, а все действия записываются в журнал для диагностики." },
+  ];
+
+  async function go(url: string) {
+    try {
+      await openUrl(url);
+    } catch {
+      // Opening a browser can fail in restricted environments; nothing else to do.
+    }
+  }
 </script>
 
-<div class="tweaks-page">
-  <header class="page-head">
-    <div>
-      <p class="eyebrow">
-        <span class="live-dot"></span>
-        Credits / Authors
-      </p>
-      <h1>Авторы <span>Setup Hub</span></h1>
-      <p class="lead">Люди, которые создали проект и работают над его развитием.</p>
+<div class="au">
+  <section class="hero">
+    <div class="halo" aria-hidden="true">
+      <i></i><i></i><i></i>
     </div>
-    <img class="hero-art" src="/art/hero-authors.svg" alt="" />
-  </header>
 
-  <div class="tweak-grid">
-    <article class="tweak-card enabled" style="--i:0;">
-      <div class="tweak-banner"><img src="/art/hero-authors.svg" alt="" /></div>
-      <div class="tweak-aura"></div>
-      <header class="tweak-head">
-        <span class="tweak-icon"><Icon name="user" size={20} /></span>
-        <div class="tweak-title">
-          <h2>w3kiss</h2>
-          <span class="tweak-note">AUTHOR</span>
-        </div>
-      </header>
-      <p class="tweak-description">Автор и разработчик Setup Hub.</p>
-      <footer class="tweak-foot">
-        <span class="state-pill on">
-          <span class="state-dot"></span>
-          Автор проекта
-        </span>
-      </footer>
-    </article>
-  </div>
+    <div class="avatar">
+      <span>W</span>
+    </div>
+
+    <p class="role"><span class="dash"></span>Автор и разработчик<span class="dash"></span></p>
+    <h1>w3kiss</h1>
+    <p class="tagline">
+      Создаёт Setup Hub — единое окно для установки программ, тонкой настройки Windows и записи установочных флешек.
+    </p>
+
+    <div class="links">
+      {#each LINKS as link (link.url)}
+        <button type="button" class="link" class:primary={link.primary} onclick={() => go(link.url)}>
+          <Icon name={link.icon} size={16} />
+          {link.label}
+          <Icon name="external" size={13} />
+        </button>
+      {/each}
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Проект в цифрах">
+    {#each STATS as stat, i (stat.label)}
+      <div class="stat" style="--i:{i};">
+        <strong>{stat.value}</strong>
+        <span>{stat.label}</span>
+      </div>
+    {/each}
+  </section>
+
+  <section class="principles">
+    {#each PRINCIPLES as item, i (item.title)}
+      <article class="principle" style="--i:{i};">
+        <span class="p-icon"><Icon name={item.icon} size={20} /></span>
+        <h3>{item.title}</h3>
+        <p>{item.text}</p>
+      </article>
+    {/each}
+  </section>
+
+  <section class="stack">
+    <p class="stack-title">Технологии</p>
+    <div class="chips">
+      {#each STACK as tech (tech)}<span>{tech}</span>{/each}
+    </div>
+  </section>
+
+  <p class="foot">Спасибо, что пользуетесь Setup Hub.</p>
 </div>
 
 <style>
-  .tweaks-page {
-    padding-bottom: 30px;
+  .au {
+    display: grid;
+    gap: 26px;
+    padding: 6px 4px 48px;
+    justify-items: center;
   }
 
-  .page-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    padding: 14px 4px 0;
-    animation: fade-up 500ms var(--ease-out) both;
+  .hero {
+    position: relative;
+    width: 100%;
+    max-width: 860px;
+    padding: 56px 24px 44px;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background:
+      radial-gradient(circle at 50% 0%, rgb(var(--fg) / 0.07), transparent 60%),
+      var(--surface);
+    overflow: hidden;
+    animation: fade-up 600ms var(--ease-out) both;
   }
 
-  .page-head > div:first-child {
-    max-width: 680px;
+  .halo {
+    position: absolute;
+    top: 38px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    pointer-events: none;
   }
 
-  .eyebrow {
+  .halo i {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgb(var(--fg) / 0.12);
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 5.5s ease-out infinite;
+  }
+
+  .halo i:nth-child(1) { width: 150px; height: 150px; }
+  .halo i:nth-child(2) { width: 220px; height: 220px; animation-delay: 1.8s; }
+  .halo i:nth-child(3) { width: 300px; height: 300px; animation-delay: 3.6s; }
+
+  @keyframes pulse-ring {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.15); }
+  }
+
+  .avatar {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgb(var(--fg) / 0.16), rgb(var(--fg) / 0.03));
+    border: 1px solid var(--border-strong);
+    box-shadow:
+      0 0 0 8px rgb(var(--fg) / 0.04),
+      0 18px 50px -12px rgb(0 0 0 / 0.55);
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .avatar span {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .role {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0;
-    color: rgb(var(--fg) / 0.62);
-    font-size: 9.5px;
-    font-weight: 650;
-    letter-spacing: 0.18em;
+    gap: 12px;
+    margin: 26px 0 8px;
+    font-size: 11px;
+    letter-spacing: 0.26em;
     text-transform: uppercase;
+    color: var(--muted);
   }
 
-  .live-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px rgb(var(--fg) / 0.65);
-    animation: pulse-dot 2.2s ease-in-out infinite;
+  .dash {
+    width: 26px;
+    height: 1px;
+    background: var(--border-strong);
   }
 
   h1 {
-    margin: 13px 0 0;
-    font-size: clamp(30px, 3.8vw, 48px);
-    font-weight: 620;
+    margin: 0;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 700;
     letter-spacing: -0.05em;
     line-height: 1;
   }
 
-  h1 span {
-    color: transparent;
-    background: linear-gradient(100deg, #ffffff, #c8c8ce 52%, #7b7b84);
-    background-clip: text;
-    -webkit-background-clip: text;
-  }
-
-  .lead {
-    max-width: 560px;
-    margin: 14px 0 0;
-    color: var(--muted);
-    font-size: 12.5px;
+  .tagline {
+    max-width: 520px;
+    margin: 16px 0 0;
+    color: var(--muted-strong);
     line-height: 1.6;
   }
 
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+  }
 
-  .tweak-grid {
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 18px;
+    font-size: 13px;
+    border-radius: 99px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-strong);
+    transition: transform 180ms var(--ease-out), background 180ms, border-color 180ms;
+  }
+
+  .link:hover {
+    transform: translateY(-2px);
+    border-color: var(--text);
+  }
+
+  .link.primary {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+    font-weight: 600;
+  }
+
+  .stats {
+    width: 100%;
+    max-width: 860px;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    margin-top: 18px;
-  }
-
-  .tweak-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 19px;
-    overflow: hidden;
-    border: 1px solid rgb(var(--fg) / 0.075);
-    border-radius: 22px;
-    background:
-      linear-gradient(155deg, rgb(var(--fg) / 0.04), transparent 40%),
-      linear-gradient(180deg, rgb(var(--panel) / 0.86), rgb(var(--panel) / 0.92));
-    box-shadow:
-      inset 0 1px 0 rgb(var(--fg) / 0.05),
-      0 14px 34px rgba(0, 0, 0, 0.22);
-    transition:
-      transform 260ms var(--ease-out),
-      border-color 260ms ease,
-      box-shadow 260ms ease;
-    animation: fade-up 500ms var(--ease-out) both;
-    animation-delay: calc(var(--i) * 60ms);
-  }
-
-  .tweak-card:hover {
-    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
-    box-shadow:
-      inset 0 1px 0 rgb(var(--fg) / 0.08),
-      0 22px 48px rgba(0, 0, 0, 0.32),
-      0 0 30px color-mix(in srgb, var(--accent) 10%, transparent);
-    transform: translateY(-3px);
-  }
-
-  .tweak-card.enabled {
-    border-color: color-mix(in srgb, var(--accent) 24%, transparent);
-  }
-
-  .tweak-aura {
-    position: absolute;
-    top: -80px;
-    right: -60px;
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
-    filter: blur(60px);
-    opacity: 0.35;
-    pointer-events: none;
-    transition: opacity 260ms ease;
-  }
-
-  .tweak-card.enabled .tweak-aura {
-    opacity: 0.7;
-  }
-
-  .tweak-head {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 12px;
   }
 
-  .tweak-icon {
+  .stat {
     display: grid;
-    width: 42px;
-    height: 42px;
-    flex: 0 0 auto;
-    place-items: center;
-    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-    border-radius: 13px;
-    color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 7%, transparent);
-  }
-
-  .tweak-title {
-    min-width: 0;
-    padding-top: 2px;
-  }
-
-  .tweak-title h2 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 620;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
-  }
-
-  .tweak-note {
-    display: block;
-    margin-top: 3px;
-    color: rgb(var(--fg) / 0.3);
-    font-family: "Cascadia Code", Consolas, monospace;
-    font-size: 8.5px;
-    letter-spacing: 0.03em;
-  }
-
-  .tweak-head :global(.toggle) {
-    margin-left: auto;
-  }
-
-  .tweak-description {
-    margin: 14px 0 0;
-    color: var(--muted);
-    font-size: 10.5px;
-    line-height: 1.6;
-  }
-
-  .warning-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 7px;
-    margin-top: 11px;
-    padding: 8px 10px;
-    border: 1px solid rgb(var(--fg) / 0.11);
-    border-radius: 9px;
-    color: var(--muted-strong);
-    background: rgb(var(--fg) / 0.025);
-    font-size: 9px;
-    line-height: 1.45;
-  }
-
-  .warning-row :global(svg) {
-    flex: 0 0 auto;
-    margin-top: 1px;
-  }
-
-  .hook-path {
-    display: flex;
-    flex-direction: column;
+    justify-items: center;
     gap: 4px;
-    margin-top: 11px;
-    padding: 9px 10px;
-    border: 1px solid rgb(var(--fg) / 0.055);
-    border-radius: 9px;
-    background: rgba(0, 0, 0, 0.2);
+    padding: 20px 12px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    animation: fade-up 500ms var(--ease-out) both;
+    animation-delay: calc(120ms + var(--i) * 70ms);
   }
 
-  .hook-path span {
-    color: rgb(var(--fg) / 0.28);
-    font-size: 8px;
-    letter-spacing: 0.1em;
+  .stat strong {
+    font-size: 34px;
+    letter-spacing: -0.04em;
+  }
+
+  .stat span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .principles {
+    width: 100%;
+    max-width: 860px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+  }
+
+  .principle {
+    padding: 22px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    animation: fade-up 500ms var(--ease-out) both;
+    animation-delay: calc(300ms + var(--i) * 80ms);
+  }
+
+  .p-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-strong);
+  }
+
+  .principle h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+
+  .principle p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .stack {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  .stack-title {
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.26em;
     text-transform: uppercase;
+    color: var(--muted);
   }
 
-  .hook-path code {
-    overflow: hidden;
-    color: var(--muted-strong);
-    font-size: 8.5px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .tweak-foot {
+  .chips {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    justify-content: center;
     gap: 8px;
-    margin-top: auto;
-    padding-top: 16px;
+    max-width: 640px;
   }
 
-  .state-pill {
-    display: inline-flex;
-    height: 25px;
-    align-items: center;
-    gap: 6px;
-    padding: 0 9px;
-    border: 1px solid rgb(var(--fg) / 0.07);
-    border-radius: 999px;
-    color: rgb(var(--fg) / 0.36);
-    background: rgb(var(--fg) / 0.025);
-    font-size: 8.5px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+  .chips span {
+    padding: 7px 14px;
+    font-size: 12px;
+    color: var(--muted-strong);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    background: var(--surface);
   }
 
-  .state-pill.on {
-    border-color: color-mix(in srgb, var(--accent) 26%, transparent);
-    color: color-mix(in srgb, var(--accent) 76%, white);
-    background: color-mix(in srgb, var(--accent) 7%, transparent);
-  }
-
-  .state-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: rgb(var(--fg) / 0.3);
-  }
-
-  .state-pill.on .state-dot {
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-  }
-
-  .admin-tag {
-    display: inline-flex;
-    height: 25px;
-    align-items: center;
-    padding: 0 8px;
-    border: 1px solid rgb(var(--fg) / 0.11);
-    border-radius: 999px;
-    color: rgb(var(--fg) / 0.46);
-    background: rgb(var(--fg) / 0.025);
-    font-size: 8px;
-    letter-spacing: 0.03em;
-  }
-
-  @media (max-width: 980px) {
-    .tweak-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  .hero-art {
-    flex: none;
-    width: 206px;
-    height: 116px;
-    object-fit: cover;
-    border: 1px solid rgb(var(--fg) / 0.14);
-    border-radius: 18px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
-    -webkit-user-drag: none;
-  }
-
-  @media (max-width: 980px) {
-    .hero-art {
-      display: none;
-    }
-  }
-  .tweak-banner {
-    position: relative;
-    height: 78px;
-    margin: -19px -19px 16px;
-    overflow: hidden;
-    border-bottom: 1px solid rgb(var(--fg) / 0.08);
-    -webkit-mask-image: linear-gradient(#000 55%, transparent);
-    mask-image: linear-gradient(#000 55%, transparent);
-  }
-
-  .tweak-banner img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.88;
-    pointer-events: none;
-    -webkit-user-drag: none;
+  .foot {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--muted);
   }
 </style>

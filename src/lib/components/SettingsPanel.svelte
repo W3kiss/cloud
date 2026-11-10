@@ -5,7 +5,7 @@
   import { THEMES, resetSettings, saveSettings, settings } from "$lib/settings.svelte";
   import type { ToastTone } from "$lib/api";
 
-  const APP_VERSION = "0.1.0";
+  const APP_VERSION = "1.0.0";
 
   let {
     onNotify,
@@ -134,6 +134,7 @@
         >
           <span
             class="theme-preview"
+            class:star={theme.id === "star"}
             style={`--pv-bg:${theme.bg}; --pv-panel:rgb(${theme.panel}); --pv-line:rgb(${theme.fg} / 0.16); --pv-accent:${theme.accent};`}
           >
             <i class="pv-side"></i>
@@ -872,6 +873,15 @@
     background: var(--pv-bg);
     border: 1px solid var(--pv-line);
     overflow: hidden;
+  }
+
+  .theme-preview.star {
+    background-image:
+      radial-gradient(circle at 12% 22%, #fff 0 1px, transparent 1.6px),
+      radial-gradient(circle at 78% 14%, #fff 0 1.2px, transparent 1.8px),
+      radial-gradient(circle at 55% 82%, #fff 0 1px, transparent 1.6px),
+      radial-gradient(circle at 92% 70%, #fff 0 0.9px, transparent 1.5px),
+      radial-gradient(circle at 30% 60%, #fff 0 0.8px, transparent 1.4px);
   }
 
   .theme-preview i {

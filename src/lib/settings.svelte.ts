@@ -2,6 +2,7 @@
 
 export type ThemeId =
   | "mono"
+  | "star"
   | "cyan"
   | "violet"
   | "emerald"
@@ -65,6 +66,12 @@ function dark(
 
 export const THEMES: ThemeDef[] = [
   dark("mono", "Моно", "Классическая чёрно-белая", "#f5f5f6", "#a1a1aa", "#d4d4d8", "#08080a", "#0c0c0f", "10 10 13"),
+  {
+    ...dark("star", "Star", "Чёрно-белая, звёзды следят за курсором", "#ffffff", "#d4d4d8", "#ffffff", "#000000", "#050505", "0 0 0"),
+    muted: "#9a9a9a",
+    mutedStrong: "#dcdcdc",
+    tint: [0, 0, 0, 255],
+  },
   dark("cyan", "Бирюза", "Холодный неон", "#22d3ee", "#38bdf8", "#a5f3fc", "#060b0e", "#0a1216", "8 14 18"),
   dark("violet", "Фиолет", "Мягкий лавандовый", "#a78bfa", "#818cf8", "#ddd6fe", "#0a0813", "#100d1c", "13 10 24"),
   dark("emerald", "Изумруд", "Свежий зелёный", "#34d399", "#2dd4bf", "#a7f3d0", "#060d0a", "#0a1511", "8 17 13"),

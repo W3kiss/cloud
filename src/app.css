@@ -263,3 +263,8 @@ html,
 body {
   transition: background-color 250ms ease, color 250ms ease;
 }
+
+html[data-theme="star"] .ambient,
+html[data-theme="star"] .grid-overlay {
+  display: none;
+}

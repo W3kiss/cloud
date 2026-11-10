@@ -26,6 +26,7 @@
   import MonitorPanel from "$lib/components/MonitorPanel.svelte";
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
+  import StarField from "$lib/components/StarField.svelte";
   import Icon from "$lib/components/Icon.svelte";
 
   type TabId = "apps" | "manager" | "system" | "monitor" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
@@ -424,6 +425,7 @@
   <div class="ambient ambient-b"></div>
   <div class="ambient ambient-c"></div>
   <div class="grid-overlay"></div>
+  <StarField />
 
   <div
     class="app-frame"
