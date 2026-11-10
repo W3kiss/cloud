@@ -16,7 +16,7 @@
   </header>
 
   <div class="tweak-grid">
-    <article class="tweak-card enabled" style="--accent:#22d3ee; --i:0;">
+    <article class="tweak-card enabled" style="--i:0;">
       <div class="tweak-banner"><img src="/art/hero-authors.svg" alt="" /></div>
       <div class="tweak-aura"></div>
       <header class="tweak-head">

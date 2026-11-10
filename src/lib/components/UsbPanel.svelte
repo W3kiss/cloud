@@ -19,7 +19,6 @@
     risk: "safe" | "mid" | "high";
     text: string;
     art: string;
-    accent: string;
   }
 
   const VARIANTS: Variant[] = [
@@ -30,54 +29,65 @@
       risk: "safe",
       text: "Чистый официальный образ Microsoft. Ничего не добавляется и не удаляется.",
       art: "/art/win-original.svg",
-      accent: "#60a5fa",
     },
     {
       id: "bypass",
       name: "Без проверок",
       badge: "Старые ПК",
       risk: "safe",
-      text: "Оригинал + обход проверок TPM, Secure Boot, RAM и локального аккаунта при установке Windows 11.",
+      text: "Оригинал + обход проверок TPM, Secure Boot, RAM и CPU при установке Windows 11.",
       art: "/art/win-bypass.svg",
-      accent: "#34d399",
     },
     {
       id: "lite",
       name: "Lite",
       badge: "Меньше мусора",
       risk: "mid",
-      text: "После установки отключает телеметрию, рекламу и удаляет лишние предустановленные приложения.",
+      text: "После установки отключает телеметрию и рекламу, удаляет лишние предустановленные приложения.",
       art: "/art/win-lite.svg",
-      accent: "#fbbf24",
     },
     {
       id: "gaming",
       name: "Gaming",
       badge: "FPS",
       risk: "mid",
-      text: "Lite + игровые твики: максимальная производительность, без Game DVR, задержек мыши и троттлинга.",
+      text: "Lite + игровые твики: максимальная производительность, без Game DVR и троттлинга.",
       art: "/art/win-gaming.svg",
-      accent: "#f472b6",
     },
     {
       id: "minimal",
       name: "Minimal",
       badge: "Бета · рискованно",
       risk: "high",
-      text: "Gaming + отключение поиска, эффектов, OneDrive и зарезервированного места. Самая лёгкая система.",
+      text: "Gaming + отключение поиска, эффектов, OneDrive и резервирования места. Самая лёгкая система.",
       art: "/art/win-minimal.svg",
-      accent: "#f87171",
     },
   ];
 
-  const ISO_LINKS = [
-    { label: "Windows 11", url: "https://www.microsoft.com/software-download/windows11" },
-    { label: "Windows 10", url: "https://www.microsoft.com/software-download/windows10" },
+  const PRODUCTS = [
+    { id: "win11", label: "Windows 11" },
+    { id: "win10", label: "Windows 10" },
   ];
+
+  const LANGS = [
+    { id: "ru", label: "Русский", fido: "Russian" },
+    { id: "en", label: "English", fido: "English (United States)" },
+    { id: "uk", label: "Українська", fido: "Ukrainian" },
+    { id: "de", label: "Deutsch", fido: "German" },
+  ];
+
+  const MS_PAGES: Record<string, string> = {
+    win11: "https://www.microsoft.com/software-download/windows11",
+    win10: "https://www.microsoft.com/software-download/windows10",
+  };
 
   const RISK_LABEL = { safe: "Безопасно", mid: "Умеренный риск", high: "Высокий риск" };
 
   let variant = $state("original");
+  let source = $state<"auto" | "file">("auto");
+  let product = $state("win11");
+  let langId = $state("ru");
+  let keepIso = $state(false);
   let scheme = $state<"gpt" | "mbr">("gpt");
   let isoPath = $state("");
   let disks = $state<UsbDisk[]>([]);
@@ -86,14 +96,19 @@
   let isAdmin = $state(true);
   let confirming = $state(false);
   let running = $state(false);
+  let stage = $state<"" | "download" | "write">("");
   let percent = $state(0);
   let phase = $state("");
+  let detail = $state("");
   let done = $state("");
   let failure = $state("");
 
   const selectedDisk = $derived(disks.find((d) => d.number === diskNumber) ?? null);
   const selectedVariant = $derived(VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0]);
-  const ready = $derived(isoPath !== "" && selectedDisk !== null && !running);
+  const fidoLang = $derived(LANGS.find((l) => l.id === langId)?.fido ?? "Russian");
+  const ready = $derived(
+    (source === "auto" || isoPath !== "") && selectedDisk !== null && !running,
+  );
 
   async function refreshDisks() {
     loadingDisks = true;
@@ -131,11 +146,27 @@
     running = true;
     percent = 0;
     phase = "Запуск";
+    detail = "";
     done = "";
     failure = "";
+    let downloaded = "";
     try {
-      done = await api.createUsbInstaller(isoPath, diskNumber, variant, scheme);
+      let path = isoPath;
+      if (source === "auto") {
+        stage = "download";
+        phase = "Запрос ссылки у Microsoft";
+        path = await api.downloadWindowsIso(product, fidoLang);
+        downloaded = path;
+      }
+      stage = "write";
+      percent = 0;
+      detail = "";
+      phase = "Подготовка флешки";
+      done = await api.createUsbInstaller(path, diskNumber, variant, scheme);
       percent = 100;
+      if (downloaded && !keepIso) {
+        await api.deleteCachedIso(downloaded).catch(() => {});
+      }
       onNotify("success", "Флешка готова", "Можно загружаться с неё.");
       await refreshDisks();
     } catch (caught) {
@@ -143,32 +174,54 @@
       onNotify("error", "Не удалось записать флешку", failure);
     } finally {
       running = false;
+      stage = "";
     }
   }
 
-  async function open_(url: string) {
+  async function stop() {
+    await api.cancelIsoDownload().catch(() => {});
+  }
+
+  async function openMsPage() {
     try {
-      await openUrl(url);
+      await openUrl(MS_PAGES[product]);
     } catch (caught) {
       onNotify("error", "Не удалось открыть ссылку", String(caught));
     }
   }
 
   onMount(() => {
-    let unlisten: UnlistenFn | undefined;
+    const unlisteners: UnlistenFn[] = [];
     let disposed = false;
-    void listen<{ percent: number; phase: string }>("usb-progress", (event) => {
-      percent = event.payload.percent;
-      phase = event.payload.phase;
-    }).then((fn) => {
-      if (disposed) fn();
-      else unlisten = fn;
-    });
+    const track = (promise: Promise<UnlistenFn>) =>
+      void promise.then((fn) => (disposed ? fn() : unlisteners.push(fn)));
+
+    track(
+      listen<{ percent: number; phase: string }>("usb-progress", (event) => {
+        if (stage !== "write") return;
+        percent = event.payload.percent;
+        phase = event.payload.phase;
+      }),
+    );
+    track(
+      listen<{ percent: number; phase: string; receivedMb: number; totalMb: number; speedMbs: number }>(
+        "iso-progress",
+        (event) => {
+          if (stage !== "download") return;
+          percent = event.payload.percent;
+          phase = event.payload.phase;
+          const p = event.payload;
+          detail = p.totalMb
+            ? `${p.receivedMb} / ${p.totalMb} МБ${p.speedMbs ? ` · ${p.speedMbs} МБ/с` : ""}`
+            : "";
+        },
+      ),
+    );
     void api.adminStatus().then((value) => (isAdmin = value)).catch(() => {});
     void refreshDisks();
     return () => {
       disposed = true;
-      unlisten?.();
+      unlisteners.forEach((fn) => fn());
     };
   });
 </script>
@@ -199,7 +252,7 @@
         type="button"
         class="variant"
         class:active={variant === v.id}
-        style="--accent:{v.accent}; --i:{i};"
+        style="--i:{i};"
         disabled={running}
         onclick={() => (variant = v.id)}
       >
@@ -222,22 +275,36 @@
     </p>
   {/if}
 
-  <h2 class="section-title">2. ISO-образ</h2>
-  <div class="card row">
-    <div class="grow">
-      <strong>{isoPath ? isoPath.split(/[\\/]/).pop() : "Файл не выбран"}</strong>
-      <span class="muted">{isoPath || "Скачайте оригинальный ISO с сайта Microsoft и выберите его."}</span>
+  <h2 class="section-title">2. Образ Windows</h2>
+  <div class="card">
+    <div class="tabs">
+      <button type="button" class:active={source === "auto"} disabled={running} onclick={() => (source = "auto")}>Скачать автоматически</button>
+      <button type="button" class:active={source === "file"} disabled={running} onclick={() => (source = "file")}>У меня есть ISO</button>
     </div>
-    <button type="button" class="btn" disabled={running} onclick={pickIso}>
-      <Icon name="folder" size={16} />Выбрать ISO
-    </button>
-  </div>
-  <div class="links">
-    {#each ISO_LINKS as link}
-      <button type="button" class="link" onclick={() => open_(link.url)}>
-        <Icon name="external" size={14} />Скачать {link.label} (Microsoft)
-      </button>
-    {/each}
+
+    {#if source === "auto"}
+      <div class="row wrap">
+        <select bind:value={product} disabled={running}>
+          {#each PRODUCTS as p}<option value={p.id}>{p.label}</option>{/each}
+        </select>
+        <select bind:value={langId} disabled={running}>
+          {#each LANGS as l}<option value={l.id}>{l.label}</option>{/each}
+        </select>
+        <span class="muted">Официальный образ x64 с серверов Microsoft, около 6–7 ГБ.</span>
+      </div>
+      <label class="check"><input type="checkbox" bind:checked={keepIso} disabled={running} />Оставить скачанный ISO после записи (для следующей флешки)</label>
+      <small class="muted">Приложение само получает ссылку Microsoft и качает выбранную версию. Выбранный вариант (Lite, Gaming…) применяется к этому образу при установке; прерванная загрузка продолжится с того же места.</small>
+    {:else}
+      <div class="row">
+        <div class="grow">
+          <strong>{isoPath ? isoPath.split(/[\\/]/).pop() : "Файл не выбран"}</strong>
+          <span class="muted">{isoPath || "Выберите ISO-образ Windows 10 или 11."}</span>
+        </div>
+        <button type="button" class="btn" disabled={running} onclick={pickIso}>
+          <Icon name="folder" size={16} />Выбрать ISO
+        </button>
+      </div>
+    {/if}
   </div>
 
   <h2 class="section-title">3. Флешка</h2>
@@ -272,10 +339,28 @@
 
   {#if running || done || failure}
     <div class="card progress">
-      <div class="row"><strong>{running ? phase : done ? "Готово" : "Ошибка"}</strong><span class="muted">{Math.round(percent)}%</span></div>
+      {#if source === "auto"}
+        <div class="steps">
+          <span class:on={stage === "download"} class:ok={stage === "write" || (done && !failure)}>1. Скачивание</span>
+          <span class:on={stage === "write"} class:ok={done && !failure}>2. Запись на флешку</span>
+        </div>
+      {/if}
+      <div class="row"><strong>{running ? phase : failure ? "Ошибка" : "Готово"}</strong><span class="muted">{Math.round(percent)}%</span></div>
       <div class="bar"><div class="fill" style="width:{percent}%"></div></div>
+      {#if running && detail}<small class="muted">{detail}</small>{/if}
+      {#if running && stage === "download"}
+        <button type="button" class="btn" onclick={stop}>Остановить загрузку</button>
+      {/if}
       {#if done}<p class="ok">{done}</p>{/if}
-      {#if failure}<p class="err">{failure}</p>{/if}
+      {#if failure}
+        <p class="err">{failure}</p>
+        {#if source === "auto"}
+          <div class="row wrap">
+            <button type="button" class="btn" onclick={openMsPage}><Icon name="external" size={14} />Открыть страницу Microsoft</button>
+            <button type="button" class="btn" onclick={() => (source = "file")}>Выбрать ISO вручную</button>
+          </div>
+        {/if}
+      {/if}
     </div>
   {/if}
 
@@ -344,6 +429,15 @@
   .chip { padding: 6px 12px; font: inherit; font-size: 12px; color: var(--muted-strong); background: none; border: 1px solid var(--border-strong); border-radius: 99px; cursor: pointer; }
   .chip.active { background: var(--text); color: var(--bg); }
   .progress { margin-top: 20px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tabs button { padding: 8px 14px; font-size: 13px; color: var(--muted-strong); border: 1px solid var(--border); border-radius: 99px; }
+  .tabs button.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .row.wrap { flex-wrap: wrap; }
+  select { padding: 9px 12px; background: var(--bg-soft); border: 1px solid var(--border-strong); border-radius: 10px; color: var(--text); }
+  .check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted-strong); }
+  .steps { display: flex; gap: 18px; font-size: 12px; color: var(--muted); }
+  .steps span.on { color: var(--text); font-weight: 600; }
+  .steps span.ok { color: var(--success); }
   .bar { height: 8px; border-radius: 99px; background: var(--surface-strong); overflow: hidden; }
   .fill { height: 100%; background: var(--text); transition: width 400ms var(--ease-out); }
   .ok { margin: 0; color: var(--success); }

@@ -198,6 +198,10 @@ export const api = {
   applyStripped: (id: string, enabled: boolean) =>
     invoke<string>("apply_stripped", { id, enabled }),
   createRestorePoint: () => invoke<string>("create_restore_point"),
+  downloadWindowsIso: (product: string, language: string) =>
+    invoke<string>("download_windows_iso", { product, language }),
+  cancelIsoDownload: () => invoke<void>("cancel_iso_download"),
+  deleteCachedIso: (path: string) => invoke<void>("delete_cached_iso", { path }),
   listUsbDisks: () => invoke<UsbDisk[]>("list_usb_disks"),
   createUsbInstaller: (
     isoPath: string,

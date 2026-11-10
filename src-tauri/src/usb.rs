@@ -73,7 +73,7 @@ pub fn list_usb_disks() -> Result<Vec<UsbDisk>, String> {
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 try {
-    $items = @(Get-Disk | Where-Object { $_.BusType -eq 'USB' -and -not $_.IsBoot -and -not $_.IsSystem } | ForEach-Object {
+    $items = @(Get-Disk | Where-Object { $_.BusType -eq 'USB' -and -not $_.IsBoot -and -not $_.IsSystem -and $_.Size -gt 0 } | ForEach-Object {
         $letters = (Get-Partition -DiskNumber $_.Number -ErrorAction SilentlyContinue | Where-Object { $_.DriveLetter } | ForEach-Object { [string]$_.DriveLetter }) -join ', '
         [pscustomobject]@{
             number = [int]$_.Number
@@ -152,24 +152,31 @@ pub fn create_installer(
         .replace("__UNATTEND__", &unattend)
         .replace("__FIRSTLOGON__", &first_logon);
 
+    if !crate::tweaks::is_admin() {
+        return Err("admin_required".into());
+    }
+
     emit(app, 0.0, "Запуск");
+    crate::diag::log("INFO", &format!("usb create: disk {disk_number}, variant {variant_id}, scheme {scheme}, iso {iso_path}"));
+
+    // The script is long and contains here-strings and quotes, so it is run from a
+    // file (UTF-8 with BOM, which Windows PowerShell needs for Cyrillic) instead of
+    // being squeezed through the command line.
+    let script_path = std::env::temp_dir().join(format!("setup-hub-usb-{}.ps1", std::process::id()));
+    let mut bytes = vec![0xEF, 0xBB, 0xBF];
+    bytes.extend_from_slice(script.as_bytes());
+    std::fs::write(&script_path, bytes).map_err(|error| format!("cannot write the helper script: {error}"))?;
 
     let mut child = hidden_command("powershell")
-        .args([
-            "-NoLogo",
-            "-NoProfile",
-            "-NonInteractive",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-WindowStyle",
-            "Hidden",
-            "-Command",
-            &script,
-        ])
+        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File"])
+        .arg(&script_path)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|error| format!("could not start powershell: {error}"))?;
+        .map_err(|error| {
+            let _ = std::fs::remove_file(&script_path);
+            format!("could not start powershell: {error}")
+        })?;
 
     let mut report = String::new();
     let mut finished_ok = false;
@@ -203,14 +210,18 @@ pub fn create_installer(
     }
     let status = child
         .wait()
-        .map_err(|error| format!("powershell did not finish: {error}"))?;
+        .map_err(|error| format!("powershell did not finish: {error}"));
+    let _ = std::fs::remove_file(&script_path);
+    let status = status?;
 
     if status.success() && finished_ok {
         return Ok("Установочная флешка готова. Загрузитесь с неё через меню выбора устройства (Boot Menu) компьютера.".into());
     }
 
     report.push_str(&stderr_text);
-    Err(classify_error(&report, status.to_string()))
+    let message = classify_error(&report, status.to_string());
+    crate::diag::log("ERROR", &format!("usb create failed: {message}"));
+    Err(crate::diag::annotate("usb create", message))
 }
 
 fn emit(app: &AppHandle, percent: f64, phase: &str) {
@@ -234,6 +245,8 @@ $diskNumber = __DISK__
 $style = '__STYLE__'
 $hasUnattend = __HAS_UNATTEND__
 $mounted = $false
+$shellSvc = Get-Service -Name ShellHWDetection -ErrorAction SilentlyContinue
+$shellWasRunning = $shellSvc -and $shellSvc.Status -eq 'Running'
 function Step([int]$percent, [string]$phase) { Write-Output ('PROGRESS:' + $percent + ':' + $phase) }
 try {
     Step 2 'Проверка флешки'
@@ -266,6 +279,7 @@ try {
     }
 
     Step 10 'Подготовка флешки'
+    if ($shellWasRunning) { Stop-Service -Name ShellHWDetection -Force -ErrorAction SilentlyContinue }
     Set-Disk -Number $diskNumber -IsOffline $false -ErrorAction SilentlyContinue
     Set-Disk -Number $diskNumber -IsReadOnly $false -ErrorAction SilentlyContinue
     if ($disk.PartitionStyle -ne 'RAW') {
@@ -281,7 +295,17 @@ try {
     if ($style -eq 'MBR') {
         Set-Partition -DiskNumber $diskNumber -PartitionNumber $part.PartitionNumber -IsActive $true -ErrorAction Stop
     }
-    Format-Volume -Partition $part -FileSystem FAT32 -NewFileSystemLabel 'SETUPHUB' -Force -Confirm:$false -ErrorAction Stop | Out-Null
+    $formatted = $false
+    for ($try = 0; $try -lt 4 -and -not $formatted; $try++) {
+        try {
+            Start-Sleep -Seconds 2
+            $fresh = Get-Partition -DiskNumber $diskNumber -PartitionNumber $part.PartitionNumber -ErrorAction Stop
+            Format-Volume -Partition $fresh -FileSystem FAT32 -NewFileSystemLabel 'SETUPHUB' -Force -Confirm:$false -ErrorAction Stop | Out-Null
+            $formatted = $true
+        } catch {
+            if ($try -eq 3) { throw }
+        }
+    }
     $letter = (Get-Partition -DiskNumber $diskNumber -PartitionNumber $part.PartitionNumber).DriveLetter
     if (-not $letter) { throw 'Не удалось получить букву диска флешки.' }
     $dst = [string]$letter + ':\'
@@ -348,6 +372,7 @@ __FIRSTLOGON__
     Write-Output ('SETUP_HUB_ERR:' + $_.Exception.GetType().Name + ':' + $_.Exception.Message)
     exit 1
 } finally {
+    if ($shellWasRunning) { Start-Service -Name ShellHWDetection -ErrorAction SilentlyContinue }
     if ($mounted) { Dismount-DiskImage -ImagePath $iso -ErrorAction SilentlyContinue | Out-Null }
 }
 "##;

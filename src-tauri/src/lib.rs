@@ -3,6 +3,7 @@ mod bench;
 mod catalog;
 mod diag;
 mod installer;
+mod isodl;
 mod monitor;
 mod protected;
 mod software;
@@ -245,6 +246,27 @@ async fn run_cpu_stress(
 }
 
 #[tauri::command]
+async fn download_windows_iso(
+    app: tauri::AppHandle,
+    product: String,
+    language: String,
+) -> Result<String, String> {
+    isodl::download(&app, &product, &language).await
+}
+
+#[tauri::command]
+fn cancel_iso_download() {
+    isodl::cancel();
+}
+
+#[tauri::command]
+async fn delete_cached_iso(path: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || isodl::delete_cached(&path))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
 fn exit_app(app: tauri::AppHandle) {
     app.exit(0);
 }
@@ -439,6 +461,9 @@ pub fn run() {
             fix_diagnostic,
             export_diagnostics,
             log_frontend_error,
+            download_windows_iso,
+            cancel_iso_download,
+            delete_cached_iso,
             list_usb_disks,
             create_usb_installer,
             restart_explorer,
