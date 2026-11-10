@@ -285,7 +285,18 @@ try {
     if ($disk.PartitionStyle -ne 'RAW') {
         Clear-Disk -Number $diskNumber -RemoveData -RemoveOEM -Confirm:$false -ErrorAction Stop
     }
-    Initialize-Disk -Number $diskNumber -PartitionStyle $style -ErrorAction Stop
+    # Windows may re-initialize a freshly cleared disk by itself ("already been initialized"),
+    # so look at the real state instead of blindly initializing.
+    Start-Sleep -Seconds 1
+    Update-Disk -Number $diskNumber -ErrorAction SilentlyContinue
+    $current = Get-Disk -Number $diskNumber -ErrorAction Stop
+    if ($current.PartitionStyle -eq 'RAW') {
+        Initialize-Disk -Number $diskNumber -PartitionStyle $style -ErrorAction Stop
+    } elseif ($current.PartitionStyle -ne $style) {
+        Set-Disk -Number $diskNumber -PartitionStyle $style -ErrorAction Stop
+    }
+    # Remove anything auto-created in the meantime so the layout is exactly ours.
+    Get-Partition -DiskNumber $diskNumber -ErrorAction SilentlyContinue | Remove-Partition -Confirm:$false -ErrorAction SilentlyContinue
     $diskSize = (Get-Disk -Number $diskNumber).Size
     if ($diskSize -gt 32GB) {
         $part = New-Partition -DiskNumber $diskNumber -Size 30GB -AssignDriveLetter -ErrorAction Stop
