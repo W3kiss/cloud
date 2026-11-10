@@ -104,8 +104,12 @@ export const THEMES: ThemeDef[] = [
   },
 ];
 
+export type LangCode = "ru" | "en" | "uk" | "de" | "es" | "fr" | "pl" | "tr";
+const LANG_CODES: LangCode[] = ["ru", "en", "uk", "de", "es", "fr", "pl", "tr"];
+
 export interface Settings {
   theme: ThemeId;
+  lang: LangCode;
   animations: boolean;
   blur: boolean;
   grid: boolean;
@@ -114,6 +118,7 @@ export interface Settings {
 
 const DEFAULTS: Settings = {
   theme: "mono",
+  lang: "ru",
   animations: true,
   blur: true,
   grid: true,
@@ -127,11 +132,17 @@ export const settings: Settings = $state({ ...DEFAULTS });
 export function loadSettings(): void {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    if (!raw) {
+      // First launch: pick the system language when we support it.
+      const code = (navigator.language || "ru").slice(0, 2).toLowerCase() as LangCode;
+      settings.lang = LANG_CODES.includes(code) ? code : "en";
+      return;
+    }
     const parsed = JSON.parse(raw) as Partial<Settings>;
     if (parsed.theme && THEMES.some((theme) => theme.id === parsed.theme)) {
       settings.theme = parsed.theme;
     }
+    if (parsed.lang && LANG_CODES.includes(parsed.lang)) settings.lang = parsed.lang;
     for (const key of ["animations", "blur", "grid", "compact"] as const) {
       if (typeof parsed[key] === "boolean") settings[key] = parsed[key];
     }

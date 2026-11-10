@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { t } from "$lib/i18n.svelte";
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import {
     api,
@@ -41,74 +42,26 @@
     finished: boolean;
   };
 
-  const navItems = [
-    {
-      id: "apps",
-      label: "Software Hub",
-      hint: "Каталог и установка",
-      icon: "grid",
-    },
-    {
-      id: "manager",
-      label: "Управление ПО",
-      hint: "Обновления, удаление, пресеты",
-      icon: "package",
-    },
-    {
-      id: "system",
-      label: "Обслуживание",
-      hint: "Службы, очистка, меню",
-      icon: "terminal",
-    },
-    {
-      id: "monitor",
-      label: "Монитор и тесты",
-      hint: "Железо и бенчмарк",
-      icon: "gamepad",
-    },
-    {
-      id: "tweaks",
-      label: "Windows Tweaks",
-      hint: "Оптимизация системы",
-      icon: "sliders",
-    },
-    {
-      id: "stripped",
-      label: "Stripped-down",
-      hint: "Внимание · урезание Windows",
-      icon: "rocket",
-    },
-    {
-      id: "usb",
-      label: "Windows на флешку",
-      hint: "Установочный USB",
-      icon: "usb",
-    },
-    {
-      id: "backup",
-      label: "Backups",
-      hint: "Восстановление AppData",
-      icon: "archive",
-    },
-    {
-      id: "diagnostics",
-      label: "Диагностика",
-      hint: "Проверка и логи",
-      icon: "shield",
-    },
-    {
-      id: "settings",
-      label: "Настройки",
-      hint: "Тема и параметры",
-      icon: "settings",
-    },
-    {
-      id: "authors",
-      label: "Авторы",
-      hint: "Создатели проекта",
-      icon: "user",
-    },
+  const NAV_META = [
+    { id: "apps", icon: "grid" },
+    { id: "manager", icon: "package" },
+    { id: "system", icon: "terminal" },
+    { id: "monitor", icon: "gamepad" },
+    { id: "tweaks", icon: "sliders" },
+    { id: "stripped", icon: "rocket" },
+    { id: "usb", icon: "usb" },
+    { id: "backup", icon: "archive" },
+    { id: "diagnostics", icon: "shield" },
+    { id: "settings", icon: "settings" },
+    { id: "authors", icon: "user" },
   ];
+  const navItems = $derived(
+    NAV_META.map((item) => ({
+      ...item,
+      label: t(`nav.${item.id}`),
+      hint: t(`nav.${item.id}.hint`),
+    })),
+  );
 
   let booted = $state(false);
   let accepted = $state(false);
@@ -400,8 +353,8 @@
       welcomeLeaving = false;
       notify(
         "success",
-        "Добро пожаловать в Setup Hub",
-        "Выберите приложения в каталоге и скачайте их одной очередью.",
+        t("welcome.toast"),
+        t("welcome.toast.sub"),
       );
     }, 240);
   }

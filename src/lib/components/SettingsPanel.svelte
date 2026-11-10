@@ -2,6 +2,7 @@
   import { openUrl } from "@tauri-apps/plugin-opener";
   import Icon from "./Icon.svelte";
   import ToggleSwitch from "./ToggleSwitch.svelte";
+  import { t, LANGS } from "$lib/i18n.svelte";
   import { THEMES, resetSettings, saveSettings, settings } from "$lib/settings.svelte";
   import type { ToastTone } from "$lib/api";
 
@@ -82,6 +83,11 @@
     saveSettings();
   }
 
+  function setLang(id: (typeof LANGS)[number]["id"]) {
+    settings.lang = id;
+    saveSettings();
+  }
+
   function toggle(key: (typeof effects)[number]["key"], next: boolean) {
     settings[key] = next;
     saveSettings();
@@ -120,6 +126,26 @@
 
   <section class="group">
     <div class="group-head">
+      <h2>{t("settings.language")}</h2>
+      <p>{t("settings.language.hint")}</p>
+    </div>
+    <div class="lang-grid">
+      {#each LANGS as lang (lang.id)}
+        <button
+          type="button"
+          class="lang-chip"
+          class:active={settings.lang === lang.id}
+          onclick={() => setLang(lang.id)}
+        >
+          <b>{lang.flag}</b>
+          <span>{lang.native}</span>
+        </button>
+      {/each}
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head">
       <h2>Тема оформления</h2>
       <p>Выберите цветовой акцент интерфейса.</p>
     </div>
@@ -143,8 +169,8 @@
             <i class="pv-accent"></i>
           </span>
           <span class="theme-meta">
-            <strong>{theme.label}</strong>
-            <small>{theme.hint}</small>
+            <strong>{t(`theme.${theme.id}`)}</strong>
+            <small>{t(`theme.${theme.id}.hint`)}</small>
           </span>
           {#if settings.theme === theme.id}
             <span class="theme-check"><Icon name="check" size={13} stroke={2.4} /></span>
@@ -1026,4 +1052,38 @@
       display: none;
     }
   }
+
+  .lang-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+  }
+
+  .lang-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 160ms, background 160ms;
+  }
+
+  .lang-chip b {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--surface-strong);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .lang-chip:hover { border-color: var(--border-strong); }
+  .lang-chip.active { border-color: var(--accent); background: var(--accent-soft); }
 </style>

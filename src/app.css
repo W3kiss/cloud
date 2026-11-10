@@ -242,8 +242,8 @@ html.s-hide-grid .grid-overlay {
   display: none !important;
 }
 
-html.s-compact .nav-item {
-  height: 50px;
+html.s-compact .nav {
+  --item-h: 46px;
 }
 
 html.s-compact .tweak-grid,

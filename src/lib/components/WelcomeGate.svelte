@@ -1,5 +1,7 @@
 <script lang="ts">
   import Icon from "./Icon.svelte";
+  import { t, LANGS } from "$lib/i18n.svelte";
+  import { THEMES, settings, saveSettings } from "$lib/settings.svelte";
 
   let {
     onAccept,
@@ -7,8 +9,17 @@
     leaving = false,
   }: { onAccept: () => void; onExit: () => void; leaving?: boolean } = $props();
 
-  const disclaimer =
-    "Это приложение является проектом с открытым исходным кодом (Open-Source). Данный инструмент предназначен исключительно для автоматизации рутинных задач после переустановки операционной системы. Автор не несет ответственности за действия пользователя и используемые им ссылки на сторонние ресурсы. Если вы не хотите рисковать или не согласны с данными условиями, пожалуйста, закройте приложение и прекратите его использование.";
+  let step = $state(0);
+
+  function pickLang(id: (typeof LANGS)[number]["id"]) {
+    settings.lang = id;
+    saveSettings();
+  }
+
+  function pickTheme(id: (typeof THEMES)[number]["id"]) {
+    settings.theme = id;
+    saveSettings();
+  }
 </script>
 
 <div
@@ -31,39 +42,79 @@
       <div class="welcome-meta">
         <span class="eyebrow">Setup Hub</span>
         <span class="meta-line"></span>
-        <span class="meta-note">Первый запуск</span>
+        <span class="meta-note">{t("welcome.step1.eyebrow")}</span>
       </div>
     </div>
 
-    <h1 id="welcome-title">Перед началом работы</h1>
+    {#if step === 0}
+      <h1 id="welcome-title">{t("welcome.hello")}</h1>
+      <p class="disclaimer">{t("welcome.sub")}</p>
 
-    <p class="disclaimer">{disclaimer}</p>
+      <h2 class="pick-title">{t("welcome.lang")}</h2>
+      <div class="pick-grid langs">
+        {#each LANGS as lang (lang.id)}
+          <button
+            type="button"
+            class="pick"
+            class:active={settings.lang === lang.id}
+            onclick={() => pickLang(lang.id)}
+          >
+            <b>{lang.flag}</b>
+            <span>{lang.native}</span>
+          </button>
+        {/each}
+      </div>
 
-    <div class="notice">
-      <Icon name="info" size={16} />
-      <span>
-        Все операции выполняются локально. Приложение не отправляет данные
-        на сторонние серверы, кроме загрузки выбранных вами установщиков.
-      </span>
-    </div>
+      <h2 class="pick-title">{t("welcome.theme")}</h2>
+      <div class="pick-grid themes">
+        {#each THEMES as theme (theme.id)}
+          <button
+            type="button"
+            class="pick theme"
+            class:active={settings.theme === theme.id}
+            style={`--sw-bg:${theme.bg}; --sw-accent:${theme.accent}; --sw-panel:rgb(${theme.panel});`}
+            onclick={() => pickTheme(theme.id)}
+          >
+            <i class="swatch"></i>
+            <span>{t(`theme.${theme.id}`)}</span>
+          </button>
+        {/each}
+      </div>
 
-    <div class="welcome-actions">
-      <button type="button" class="btn-exit" onclick={onExit}>
-        <Icon name="power" size={17} />
-        Выйти
-      </button>
-      <button type="button" class="btn-agree" onclick={onAccept}>
-        <span class="agree-shine"></span>
-        <Icon name="check" size={18} stroke={2.2} />
-        Я согласен
-      </button>
-    </div>
+      <div class="welcome-actions">
+        <button type="button" class="btn-exit" onclick={onExit}>
+          <Icon name="power" size={17} />
+          {t("welcome.exit")}
+        </button>
+        <button type="button" class="btn-agree" onclick={() => (step = 1)}>
+          <span class="agree-shine"></span>
+          {t("welcome.next")}
+          <Icon name="arrow" size={17} stroke={2.2} />
+        </button>
+      </div>
+    {:else}
+      <h1 id="welcome-title">{t("welcome.title")}</h1>
 
-    <p class="fineprint">
-      Нажимая «Я согласен», вы подтверждаете, что прочитали и принимаете
-      данные условия. Решение сохраняется локально и не передаётся третьим
-      лицам.
-    </p>
+      <p class="disclaimer">{t("welcome.disclaimer")}</p>
+
+      <div class="notice">
+        <Icon name="info" size={16} />
+        <span>{t("welcome.notice")}</span>
+      </div>
+
+      <div class="welcome-actions">
+        <button type="button" class="btn-exit" onclick={() => (step = 0)}>
+          {t("welcome.back")}
+        </button>
+        <button type="button" class="btn-agree" onclick={onAccept}>
+          <span class="agree-shine"></span>
+          <Icon name="check" size={18} stroke={2.2} />
+          {t("welcome.agree")}
+        </button>
+      </div>
+
+      <p class="fineprint">{t("welcome.fine")}</p>
+    {/if}
   </div>
 </div>
 
@@ -364,5 +415,65 @@
     .btn-agree {
       width: 100%;
     }
+  }
+
+  .pick-title {
+    position: relative;
+    z-index: 1;
+    margin: 18px 0 8px;
+    color: var(--muted-strong);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .pick-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 8px;
+  }
+
+  .pick-grid.langs { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .pick-grid.themes { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+
+  .pick {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 11px;
+    border: 1px solid rgb(var(--fg) / 0.1);
+    border-radius: 12px;
+    background: rgb(var(--fg) / 0.03);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 160ms, background 160ms;
+  }
+
+  .pick b {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 20px;
+    border-radius: 6px;
+    background: rgb(var(--fg) / 0.08);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .pick:hover { border-color: rgb(var(--fg) / 0.25); }
+  .pick.active { border-color: rgb(var(--fg) / 0.7); background: rgb(var(--fg) / 0.09); }
+
+  .swatch {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 50%;
+    border: 2px solid var(--sw-accent);
+    background: var(--sw-bg);
+    box-shadow: inset 0 0 0 3px var(--sw-panel);
   }
 </style>

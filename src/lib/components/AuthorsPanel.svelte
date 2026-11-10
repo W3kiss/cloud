@@ -1,6 +1,7 @@
 <script lang="ts">
   import { openUrl } from "@tauri-apps/plugin-opener";
   import Icon from "./Icon.svelte";
+  import { t } from "$lib/i18n.svelte";
 
   let avatarFailed = $state(false);
   let letter = $state(false);
@@ -8,26 +9,26 @@
     avatarFailed = true;
   }
 
-  const LINKS = [
-    { label: "Профиль GitHub", url: "https://github.com/W3kiss", icon: "user", primary: true },
-    { label: "Исходный код", url: "https://github.com/W3kiss/cloud", icon: "terminal", primary: false },
-    { label: "Релизы", url: "https://github.com/W3kiss/cloud/releases", icon: "download", primary: false },
-  ];
+  const LINKS = $derived([
+    { label: t("authors.github"), url: "https://github.com/W3kiss", icon: "user", primary: true },
+    { label: t("authors.source"), url: "https://github.com/W3kiss/cloud", icon: "terminal", primary: false },
+    { label: t("authors.releases"), url: "https://github.com/W3kiss/cloud/releases", icon: "download", primary: false },
+  ]);
 
-  const STATS = [
-    { value: "11", label: "разделов" },
-    { value: "40", label: "твиков Windows" },
-    { value: "5", label: "вариантов Windows" },
-    { value: "1.0", label: "версия" },
-  ];
+  const STATS = $derived([
+    { value: "11", label: t("authors.s1") },
+    { value: "40", label: t("authors.s2") },
+    { value: "5", label: t("authors.s3") },
+    { value: "1.0", label: t("authors.s4") },
+  ]);
 
   const STACK = ["Tauri 2", "Rust", "Svelte 5", "TypeScript", "winget", "PowerShell"];
 
-  const PRINCIPLES = [
-    { icon: "shield", title: "Безопасность", text: "Опасные действия требуют подтверждения, системные компоненты защищены от случайного удаления." },
-    { icon: "rocket", title: "Скорость", text: "Нативное приложение на Rust: быстрый запуск, минимум памяти и никаких лишних процессов." },
-    { icon: "sliders", title: "Контроль", text: "Каждый твик обратим, а все действия записываются в журнал для диагностики." },
-  ];
+  const PRINCIPLES = $derived([
+    { icon: "shield", title: t("authors.p1"), text: t("authors.p1.t") },
+    { icon: "rocket", title: t("authors.p2"), text: t("authors.p2.t") },
+    { icon: "sliders", title: t("authors.p3"), text: t("authors.p3.t") },
+  ]);
 
   async function go(url: string) {
     try {
@@ -60,10 +61,10 @@
       </div>
     </div>
 
-    <p class="role"><span class="dash"></span>Автор и разработчик<span class="dash"></span></p>
+    <p class="role"><span class="dash"></span>{t("authors.role")}<span class="dash"></span></p>
     <h1>w3kiss</h1>
     <p class="tagline">
-      Создаёт Setup Hub — единое окно для установки программ, тонкой настройки Windows и записи установочных флешек.
+      {t("authors.tagline")}
     </p>
 
     <div class="links">
@@ -77,7 +78,7 @@
     </div>
   </section>
 
-  <section class="stats" aria-label="Проект в цифрах">
+  <section class="stats" aria-label={t("authors.stats")}>
     {#each STATS as stat, i (stat.label)}
       <div class="stat" style="--i:{i};">
         <strong>{stat.value}</strong>
@@ -97,13 +98,13 @@
   </section>
 
   <section class="stack">
-    <p class="stack-title">Технологии</p>
+    <p class="stack-title">{t("authors.tech")}</p>
     <div class="chips">
       {#each STACK as tech (tech)}<span>{tech}</span>{/each}
     </div>
   </section>
 
-  <p class="foot">Спасибо, что пользуетесь Setup Hub.</p>
+  <p class="foot">{t("authors.thanks")}</p>
 </div>
 
 <style>

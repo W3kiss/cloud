@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from "./Icon.svelte";
+  import { t } from "$lib/i18n.svelte";
 
   export type NavItem = {
     id: string;
@@ -39,12 +40,12 @@
       <strong>Setup Hub</strong>
       <span>launcher workspace</span>
     </div>
-    <span class="brand-status" title="Локальный режим"></span>
+    <span class="brand-status" title={t("nav.local")}></span>
   </div>
 
-  <div class="nav-caption">Рабочее пространство</div>
+  <div class="nav-caption">{t("nav.caption")}</div>
 
-  <nav class="nav" style={`--index:${activeIndex}`} aria-label="Основная навигация">
+  <nav class="nav" style={`--index:${activeIndex}`} aria-label={t("nav.aria")}>
     <span class="glider" aria-hidden="true"></span>
     {#each items as item (item.id)}
       <button
@@ -74,12 +75,12 @@
     class="admin-card"
     class:elevated={admin}
     onclick={onElevate}
-    title={admin ? "Приложение запущено с правами администратора" : "Перезапустить с правами администратора"}
+    title={admin ? t("admin.title.on") : t("admin.title.off")}
   >
     <span class="admin-orb"></span>
     <span class="admin-copy">
-      <strong>{admin ? "Администратор" : "Ограниченный режим"}</strong>
-      <small>{admin ? "Все твики доступны" : "Для части твиков нужен UAC"}</small>
+      <strong>{admin ? t("admin.on") : t("admin.off")}</strong>
+      <small>{admin ? t("admin.on.hint") : t("admin.off.hint")}</small>
     </span>
     {#if !admin}
       <span class="admin-action"><Icon name="power" size={14} /></span>
