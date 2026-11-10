@@ -20,7 +20,15 @@ use tauri::{AppHandle, Emitter};
 use crate::tweaks::{hidden_command, run_powershell};
 
 const FIDO_COMMIT: &str = "266084e3765ab8bf96767bd55c51b0ee70934551";
-const FIDO_SHA256: &str = "ceedef02aca0135fcd98f481d1c386e467432f2973bbbade093205c380330da5";
+/// SHA-256 of the script as served by GitHub (LF line endings, UTF-8 BOM)...
+const FIDO_SHA256: &str = "89a26b4a8be2721e610ba3f563ec44024e6cf7975938ee5b61d624d2bfbf4643";
+/// ...and of the same file with CRLF line endings (what a Windows git checkout yields).
+const FIDO_SHA256_CRLF: &str = "ceedef02aca0135fcd98f481d1c386e467432f2973bbbade093205c380330da5";
+
+fn fido_hash_ok(bytes: &[u8]) -> bool {
+    let hash = sha256_hex(bytes);
+    hash == FIDO_SHA256 || hash == FIDO_SHA256_CRLF
+}
 
 const MIN_ISO_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
@@ -87,7 +95,7 @@ async fn ensure_fido() -> Result<PathBuf, String> {
     let path = dir.join(format!("Fido-{}.ps1", &FIDO_COMMIT[..8]));
 
     if let Ok(existing) = fs::read(&path) {
-        if sha256_hex(&existing) == FIDO_SHA256 {
+        if fido_hash_ok(&existing) {
             return Ok(path);
         }
     }
@@ -109,7 +117,8 @@ async fn ensure_fido() -> Result<PathBuf, String> {
         .await
         .map_err(|e| format!("не удалось загрузить помощник Fido: {e}"))?;
 
-    if sha256_hex(&bytes) != FIDO_SHA256 {
+    if !fido_hash_ok(&bytes) {
+        crate::diag::log("ERROR", &format!("Fido hash was {}", sha256_hex(&bytes)));
         crate::diag::log("ERROR", "Fido hash mismatch, refusing to run it");
         return Err("Контрольная сумма Fido не совпала — запуск отменён из соображений безопасности.".into());
     }
@@ -366,6 +375,7 @@ mod tests {
     #[test]
     fn fido_hash_constant_is_sha256() {
         assert_eq!(FIDO_SHA256.len(), 64);
+        assert_eq!(FIDO_SHA256_CRLF.len(), 64);
         assert!(FIDO_SHA256.chars().all(|c| c.is_ascii_hexdigit()));
         assert_eq!(sha256_hex(b""), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
     }
