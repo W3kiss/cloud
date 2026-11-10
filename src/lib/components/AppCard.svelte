@@ -45,7 +45,7 @@
         ? app.downloadUrl
             .replace(/^https:\/\//, "")
             .split("/")[0]
-        : "placeholder"),
+        : "—"),
   );
 
   let running = $derived(job?.status === "running");
@@ -67,7 +67,6 @@
 
 <article
   class="app-card"
-  class:template={app.placeholder}
   class:selected
   class:running
   style={`--i:${index};`}
@@ -89,17 +88,12 @@
       {/if}
     </div>
     <div class="badge-row">
-      {#if !app.placeholder}
-        <span class="select-mark" class:on={selected} aria-hidden="true">
-          {#if selected}
-            <Icon name="check" size={10} stroke={2.6} />
-          {/if}
-        </span>
-      {/if}
+      <span class="select-mark" class:on={selected} aria-hidden="true">
+        {#if selected}
+          <Icon name="check" size={10} stroke={2.6} />
+        {/if}
+      </span>
       <span class="badge kind">{kindLabel}</span>
-      {#if app.placeholder}
-        <span class="badge template-badge">TEMPLATE</span>
-      {/if}
     </div>
   </header>
 
@@ -117,13 +111,7 @@
     <ProgressBar percent={job?.percent ?? null} phase={job?.phase ?? "Установка"} />
   {:else}
     <footer class="card-foot">
-      {#if app.placeholder}
-        <button type="button" class="action ghost" onclick={() => onDetails(app)}>
-          <Icon name="sliders" size={15} />
-          Параметры
-          <Icon name="arrow" size={13} className="arrow" />
-        </button>
-      {:else}
+      {#if true}
         <button
           type="button"
           class="action select"

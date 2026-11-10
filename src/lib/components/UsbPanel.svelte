@@ -57,7 +57,7 @@
     {
       id: "minimal",
       name: "Minimal",
-      badge: "Бета · рискованно",
+      badge: "Внимание · рискованно",
       risk: "high",
       text: "Gaming + отключение поиска, эффектов, OneDrive и резервирования места. Самая лёгкая система.",
       art: "/art/win-minimal.svg",

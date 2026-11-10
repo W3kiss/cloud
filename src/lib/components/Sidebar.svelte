@@ -88,8 +88,6 @@
 
   <div class="version-row">
     <span>v1.0.0</span>
-    <span class="dot"></span>
-    <span>Open Source</span>
   </div>
 </aside>
 
@@ -199,14 +197,20 @@
     border: 1px solid rgb(var(--fg) / 0.04);
     border-radius: 20px;
     background: rgba(0, 0, 0, 0.14);
+    --item-h: 58px;
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
   }
 
   .glider {
     position: absolute;
-    top: calc(6px + var(--index) * 64px);
+    top: calc(6px + var(--index) * (var(--item-h) + 6px));
     right: 6px;
     left: 6px;
-    height: 58px;
+    height: var(--item-h);
     border: 1px solid rgb(var(--fg) / 0.16);
     border-radius: 16px;
     background:
@@ -223,7 +227,8 @@
     position: relative;
     z-index: 1;
     display: flex;
-    height: 58px;
+    height: var(--item-h);
+    flex-shrink: 0;
     align-items: center;
     gap: 12px;
     padding: 0 12px;
@@ -313,8 +318,25 @@
   }
 
   .sidebar-spacer {
-    flex: 1;
-    min-height: 18px;
+    flex: 1 0 0;
+    min-height: 8px;
+  }
+
+  .admin-card,
+  .version-row {
+    flex-shrink: 0;
+  }
+
+  @media (max-height: 820px) {
+    .sidebar { padding: 14px 12px 12px; }
+    .brand { padding-bottom: 12px; }
+    .nav { --item-h: 46px; }
+    .nav-item small { display: none; }
+  }
+
+  @media (max-height: 640px) {
+    .nav { --item-h: 40px; }
+    .nav-caption { display: none; }
   }
 
   .insight-card {

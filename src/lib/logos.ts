@@ -1,6 +1,7 @@
 const logos: Record<string, string> = {
   "7zip": "/logos/7zip.svg",
   "adobe-creative-cloud": "/logos/creative-cloud.svg",
+  "creative-cloud": "/logos/creative-cloud.svg",
   audacity: "/logos/audacity.svg",
   "battle-net": "/logos/battle-net.svg",
   brave: "/logos/brave.svg",

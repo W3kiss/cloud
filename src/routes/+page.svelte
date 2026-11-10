@@ -75,7 +75,7 @@
     {
       id: "stripped",
       label: "Stripped-down",
-      hint: "Бета · урезание Windows",
+      hint: "Внимание · урезание Windows",
       icon: "rocket",
     },
     {

@@ -8,7 +8,9 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "RARLab.WinRAR",
-      "presets": ["essential"],
+      "presets": [
+        "essential"
+      ],
       "dependsOn": []
     },
     {
@@ -18,7 +20,9 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "Anysphere.Cursor",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -28,7 +32,11 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "7zip.7zip",
-      "presets": ["essential", "workstation", "gamer"],
+      "presets": [
+        "essential",
+        "workstation",
+        "gamer"
+      ],
       "dependsOn": []
     },
     {
@@ -38,7 +46,9 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "Microsoft.VisualStudioCode",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -48,7 +58,9 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "Git.Git",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -58,7 +70,10 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "Notepad++.Notepad++",
-      "presets": ["essential", "workstation"],
+      "presets": [
+        "essential",
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -68,7 +83,9 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "Microsoft.PowerToys",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -78,7 +95,10 @@
       "category": "system",
       "kind": "winget",
       "wingetId": "voidtools.Everything",
-      "presets": ["essential", "workstation"],
+      "presets": [
+        "essential",
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -98,7 +118,11 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Google.Chrome",
-      "presets": ["essential", "workstation", "gamer"],
+      "presets": [
+        "essential",
+        "workstation",
+        "gamer"
+      ],
       "dependsOn": []
     },
     {
@@ -108,7 +132,10 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Discord.Discord",
-      "presets": ["essential", "gamer"],
+      "presets": [
+        "essential",
+        "gamer"
+      ],
       "dependsOn": []
     },
     {
@@ -118,7 +145,10 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Telegram.TelegramDesktop",
-      "presets": ["essential", "workstation"],
+      "presets": [
+        "essential",
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -128,7 +158,9 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Mozilla.Firefox",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -138,7 +170,9 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Brave.Brave",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -148,7 +182,9 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Zoom.Zoom",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
@@ -158,7 +194,9 @@
       "category": "gaming",
       "kind": "winget",
       "wingetId": "Valve.Steam",
-      "presets": ["gamer"],
+      "presets": [
+        "gamer"
+      ],
       "dependsOn": []
     },
     {
@@ -168,7 +206,9 @@
       "category": "gaming",
       "kind": "winget",
       "wingetId": "PrismLauncher.PrismLauncher",
-      "presets": ["gamer"],
+      "presets": [
+        "gamer"
+      ],
       "dependsOn": []
     },
     {
@@ -178,59 +218,46 @@
       "category": "gaming",
       "kind": "winget",
       "wingetId": "Blizzard.BattleNet",
-      "presets": ["gamer"],
+      "presets": [
+        "gamer"
+      ],
       "dependsOn": []
     },
     {
       "id": "epic-games",
       "name": "Epic Games Launcher",
-      "summary": "Шаблон лаунчера Epic Games с прямой ссылкой на MSI.",
+      "summary": "Магазин и лаунчер Epic Games с бесплатными играми.",
       "category": "gaming",
-      "kind": "download",
-      "downloadUrl": "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi",
-      "installerArgs": [],
-      "customConfig": {
-        "installDir": "C:\\Program Files\\Epic Games",
-        "autoUpdate": "true",
-        "desktopShortcut": "true"
-      },
-      "placeholder": true,
-      "presets": ["gamer"],
-      "dependsOn": []
+      "kind": "winget",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": [],
+      "wingetId": "EpicGames.EpicGamesLauncher"
     },
     {
       "id": "gog-galaxy",
       "name": "GOG GALAXY",
-      "summary": "Шаблон лаунчера GOG с прямым EXE-инсталлятором.",
+      "summary": "Единая библиотека игр GOG и других платформ.",
       "category": "gaming",
-      "kind": "download",
-      "downloadUrl": "https://webinstallers.gog-statics.com/download/GOG_Galaxy_2.0.exe",
-      "installerArgs": ["/S"],
-      "customConfig": {
-        "installDir": "C:\\Program Files (x86)\\GOG Galaxy",
-        "language": "ru-RU",
-        "autoUpdate": "true"
-      },
-      "placeholder": true,
-      "presets": ["gamer"],
-      "dependsOn": []
+      "kind": "winget",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": [],
+      "wingetId": "GOG.Galaxy"
     },
     {
       "id": "ea-app",
       "name": "EA app",
-      "summary": "Шаблон лаунчера EA с прямым EXE-инсталлятором.",
+      "summary": "Лаунчер игр Electronic Arts.",
       "category": "gaming",
-      "kind": "download",
-      "downloadUrl": "https://downloader.ea.com/eaapp/EAappInstaller.exe",
-      "installerArgs": ["/silent"],
-      "customConfig": {
-        "installDir": "C:\\Program Files\\Electronic Arts\\EA Desktop",
-        "backgroundService": "false",
-        "language": "ru"
-      },
-      "placeholder": true,
-      "presets": ["gamer"],
-      "dependsOn": []
+      "kind": "winget",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": [],
+      "wingetId": "ElectronicArts.EADesktop"
     },
     {
       "id": "vlc",
@@ -239,7 +266,9 @@
       "category": "production",
       "kind": "winget",
       "wingetId": "VideoLAN.VLC",
-      "presets": ["essential"],
+      "presets": [
+        "essential"
+      ],
       "dependsOn": []
     },
     {
@@ -249,7 +278,9 @@
       "category": "production",
       "kind": "winget",
       "wingetId": "Spotify.Spotify",
-      "presets": ["essential"],
+      "presets": [
+        "essential"
+      ],
       "dependsOn": []
     },
     {
@@ -259,61 +290,298 @@
       "category": "production",
       "kind": "winget",
       "wingetId": "Audacity.Audacity",
-      "presets": ["workstation"],
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     },
     {
       "id": "davinci-resolve",
       "name": "DaVinci Resolve",
-      "summary": "Шаблон монтажной станции с цветокоррекцией и Fusion.",
+      "summary": "Монтаж, цветокоррекция и Fusion в одной программе.",
       "category": "production",
-      "kind": "custom",
-      "downloadUrl": "https://downloads.example.com/blackmagic/davinci-resolve-setup.exe",
-      "installerArgs": ["/S"],
-      "customConfig": {
-        "installDir": "C:\\Program Files\\Blackmagic Design",
-        "gpu": "auto",
-        "profile": "editing",
-        "cacheDir": "D:\\ResolveCache"
-      },
-      "placeholder": true,
-      "presets": ["workstation"],
-      "dependsOn": []
+      "kind": "winget",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": [],
+      "wingetId": "BlackmagicDesign.DaVinciResolve"
     },
     {
       "id": "obs-studio",
       "name": "OBS Studio",
-      "summary": "Шаблон стриминговой студии с готовым профилем кодирования.",
+      "summary": "Запись и стриминг с гибкими сценами и источниками.",
       "category": "production",
-      "kind": "custom",
-      "downloadUrl": "https://downloads.example.com/obs/obs-studio-windows-installer.exe",
-      "installerArgs": ["/S"],
-      "customConfig": {
-        "encoder": "nvenc",
-        "profile": "streaming",
-        "recordDir": "D:\\Captures",
-        "resolution": "1920x1080"
-      },
-      "placeholder": true,
-      "presets": ["workstation"],
-      "dependsOn": []
+      "kind": "winget",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": [],
+      "wingetId": "OBSProject.OBSStudio"
     },
     {
       "id": "creative-cloud",
       "name": "Adobe Creative Cloud",
-      "summary": "Шаблон пакетной установки приложений Creative Cloud.",
+      "summary": "Менеджер приложений Adobe: Photoshop, Premiere и другие.",
       "category": "production",
-      "kind": "custom",
-      "downloadUrl": "https://downloads.example.com/adobe/creative-cloud-setup.exe",
-      "installerArgs": [],
-      "customConfig": {
-        "apps": "premiere-pro, after-effects",
-        "language": "ru_RU",
-        "installDir": "C:\\Program Files\\Adobe",
-        "sharedCache": "D:\\AdobeCache"
-      },
-      "placeholder": true,
-      "presets": ["workstation"],
+      "kind": "winget",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": [],
+      "wingetId": "Adobe.CreativeCloud"
+    },
+    {
+      "id": "sharex",
+      "name": "ShareX",
+      "summary": "Скриншоты, запись экрана и мгновенная загрузка.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "ShareX.ShareX",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "rufus",
+      "name": "Rufus",
+      "summary": "Создание загрузочных флешек из ISO-образов.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Rufus.Rufus",
+      "presets": [
+        "essential"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "python",
+      "name": "Python 3",
+      "summary": "Язык программирования и менеджер пакетов pip.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Python.Python.3.12",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "nodejs",
+      "name": "Node.js LTS",
+      "summary": "Среда выполнения JavaScript для разработки.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "OpenJS.NodeJS.LTS",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "docker",
+      "name": "Docker Desktop",
+      "summary": "Контейнеры для разработки и запуска сервисов.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Docker.DockerDesktop",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "windirstat",
+      "name": "WinDirStat",
+      "summary": "Наглядный анализ занятого места на диске.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "WinDirStat.WinDirStat",
+      "presets": [
+        "essential"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "cpu-z",
+      "name": "CPU-Z",
+      "summary": "Подробные сведения о процессоре, памяти и плате.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "CPUID.CPU-Z",
+      "presets": [
+        "gamer",
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "gpu-z",
+      "name": "GPU-Z",
+      "summary": "Характеристики и датчики видеокарты.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "TechPowerUp.GPU-Z",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "keepassxc",
+      "name": "KeePassXC",
+      "summary": "Локальный менеджер паролей без облака.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "KeePassXCTeam.KeePassXC",
+      "presets": [
+        "essential"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "winscp",
+      "name": "WinSCP",
+      "summary": "SFTP и SCP клиент для работы с серверами.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "WinSCP.WinSCP",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "opera-gx",
+      "name": "Opera GX",
+      "summary": "Игровой браузер с ограничителями CPU и RAM.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Opera.OperaGX",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "summary": "Рабочие чаты и каналы для команд.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "SlackTechnologies.Slack",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "ubisoft-connect",
+      "name": "Ubisoft Connect",
+      "summary": "Лаунчер и магазин игр Ubisoft.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Ubisoft.Connect",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "msi-afterburner",
+      "name": "MSI Afterburner",
+      "summary": "Разгон и мониторинг видеокарты в играх.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Guru3D.Afterburner",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "parsec",
+      "name": "Parsec",
+      "summary": "Низкозадержечный удалённый доступ и игра по сети.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Parsec.Parsec",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "geforce-experience",
+      "name": "NVIDIA App",
+      "summary": "Драйверы и настройки игр для видеокарт NVIDIA.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Nvidia.GeForceExperience",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "handbrake",
+      "name": "HandBrake",
+      "summary": "Конвертер видео с готовыми профилями.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "HandBrake.HandBrake",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "gimp",
+      "name": "GIMP",
+      "summary": "Растровый графический редактор.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "GIMP.GIMP",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "inkscape",
+      "name": "Inkscape",
+      "summary": "Векторный редактор для иллюстраций и логотипов.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Inkscape.Inkscape",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "blender",
+      "name": "Blender",
+      "summary": "3D-моделирование, анимация и рендер.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "BlenderFoundation.Blender",
+      "presets": [
+        "workstation"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "krita",
+      "name": "Krita",
+      "summary": "Программа для цифрового рисования.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "KDE.Krita",
+      "presets": [
+        "workstation"
+      ],
       "dependsOn": []
     }
   ]

@@ -71,7 +71,7 @@
         {/if}
       </div>
       <div class="details-title">
-        <span class="eyebrow">Custom configuration template</span>
+        <span class="eyebrow">Параметры установки</span>
         <h2 id="details-title">{app.name}</h2>
         <p>{app.summary}</p>
       </div>
@@ -79,15 +79,6 @@
         <Icon name="x" size={17} />
       </button>
     </header>
-
-    <div class="template-note">
-      <Icon name="info" size={15} />
-      <span>
-        Это шаблон. Укажите реальный <code>downloadUrl</code>, проверьте
-        <code>installerArgs</code> и установите <code>placeholder: false</code>
-        в <code>src-tauri/catalog.json</code>.
-      </span>
-    </div>
 
     <div class="grid">
       <section class="panel">

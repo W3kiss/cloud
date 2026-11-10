@@ -467,11 +467,11 @@
 {#if !acknowledged}
   <div class="gate">
     <div class="gate-card">
-      <span class="beta-badge">BETA</span>
+      <span class="beta-badge">WARNING</span>
       <span class="gate-icon"><Icon name="alert" size={30} /></span>
       <h1>Раздел <span>Stripped-down</span></h1>
       <p class="gate-lead">
-        Это <strong>бета-раздел</strong>, он ещё не готов полностью. Здесь собраны
+        Это <strong>опасный раздел</strong>. Здесь собраны
         агрессивные настройки: отключение служб, удаление встроенных приложений и
         правки реестра для повышения FPS и облегчения Windows.
       </p>
@@ -492,9 +492,9 @@
 {:else}
   <div class="tweaks-page">
     <div class="beta-banner">
-      <span class="beta-badge small">BETA</span>
+      <span class="beta-badge small">WARNING</span>
       <div>
-        <strong>Бета-раздел: не готов полностью и опасен.</strong>
+        <strong>Предупреждение: раздел вносит глубокие изменения в Windows и опасен.</strong>
         <p>Работайте на свой страх и риск. Сначала создайте точку восстановления.</p>
       </div>
     </div>
@@ -670,7 +670,7 @@
     <div class="safety">
       <span class="safety-icon"><Icon name="info" size={17} /></span>
       <div>
-        <strong>Раздел в стадии бета-тестирования.</strong>
+        <strong>Внимание: изменения глубоко затрагивают систему.</strong>
         <p>
           Часть изменений вступает в силу после перезагрузки или повторного входа.
           Приложение не отправляет данные на сторонние серверы, все команды выполняются локально.

@@ -2,6 +2,12 @@
   import { openUrl } from "@tauri-apps/plugin-opener";
   import Icon from "./Icon.svelte";
 
+  let avatarFailed = $state(false);
+  let letter = $state(false);
+  function onAvatarError() {
+    avatarFailed = true;
+  }
+
   const LINKS = [
     { label: "Профиль GitHub", url: "https://github.com/W3kiss", icon: "user", primary: true },
     { label: "Исходный код", url: "https://github.com/W3kiss/cloud", icon: "terminal", primary: false },
@@ -34,12 +40,24 @@
 
 <div class="au">
   <section class="hero">
-    <div class="halo" aria-hidden="true">
-      <i></i><i></i><i></i>
-    </div>
+    <div class="avatar-wrap">
+      <div class="halo" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </div>
 
-    <div class="avatar">
-      <span>W</span>
+      <div class="avatar">
+        {#if !avatarFailed}
+          <img
+            src="https://github.com/W3kiss.png?size=256"
+            alt="w3kiss"
+            draggable="false"
+            onerror={onAvatarError}
+          />
+        {:else}
+          <img src="/avatar.jpg" alt="w3kiss" draggable="false" onerror={() => (letter = true)} />
+        {/if}
+        {#if letter}<span>W</span>{/if}
+      </div>
     </div>
 
     <p class="role"><span class="dash"></span>Автор и разработчик<span class="dash"></span></p>
@@ -113,9 +131,18 @@
     animation: fade-up 600ms var(--ease-out) both;
   }
 
+  .avatar-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 104px;
+    height: 104px;
+    animation: float 6s ease-in-out infinite;
+  }
+
   .halo {
     position: absolute;
-    top: 38px;
+    top: 50%;
     left: 50%;
     width: 0;
     height: 0;
@@ -149,11 +176,19 @@
     height: 104px;
     border-radius: 50%;
     background: linear-gradient(145deg, rgb(var(--fg) / 0.16), rgb(var(--fg) / 0.03));
+    overflow: hidden;
     border: 1px solid var(--border-strong);
     box-shadow:
       0 0 0 8px rgb(var(--fg) / 0.04),
       0 18px 50px -12px rgb(0 0 0 / 0.55);
-    animation: float 6s ease-in-out infinite;
+  }
+
+  .avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .avatar span {

@@ -29,7 +29,7 @@
         <Icon name="shield" size={30} stroke={1.6} />
       </div>
       <div class="welcome-meta">
-        <span class="eyebrow">Setup Hub / Open Source</span>
+        <span class="eyebrow">Setup Hub</span>
         <span class="meta-line"></span>
         <span class="meta-note">Первый запуск</span>
       </div>

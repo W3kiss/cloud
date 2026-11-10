@@ -26,13 +26,13 @@
     {
       id: "gaming",
       title: "Gaming & Launchers",
-      subtitle: "Игровые библиотеки и шаблоны лаунчеров с прямыми ссылками.",
+      subtitle: "Игровые лаунчеры, магазины и утилиты для видеокарты.",
       icon: "gamepad",
     },
     {
       id: "production",
-      title: "Production & Custom",
-      subtitle: "Медиа-станции и установщики с пользовательскими параметрами.",
+      title: "Creative & Media",
+      subtitle: "Монтаж, графика, 3D и инструменты для творчества.",
       icon: "film",
     },
   ];
@@ -90,7 +90,6 @@
   );
 
   let readyCount = $derived(apps.filter((app) => !app.placeholder).length);
-  let templateCount = $derived(apps.filter((app) => app.placeholder).length);
 
   function appsFor(category: Category): CatalogApp[] {
     return filtered.filter((app) => app.category === category.id);
@@ -153,8 +152,8 @@
     <div class="stat">
       <span class="stat-icon"><Icon name="spark" size={15} /></span>
       <span class="stat-copy">
-        <strong>{templateCount}</strong>
-        <small>шаблонов с параметрами</small>
+        <strong>{apps.length}</strong>
+        <small>программ в каталоге</small>
       </span>
     </div>
     <div class="stat">
