@@ -84,6 +84,10 @@ export const RU: Record<string, string> = {
   "tpack.apply": "Применить",
   "tpack.done": "Набор применён",
   "tpack.skipped": "Пропущено (нужны права администратора)",
+  "spack.title": "Безопасные наборы",
+  "spack.hint": "Только обратимые модули с низким риском. Опасные пункты в наборы не входят.",
+  "spack.game": "Для игр", "spack.game.d": "Отзывчивость, приоритет игр, мышь без ускорения, без фоновых приложений",
+  "spack.light": "Лёгкий режим", "spack.light.d": "Меньше телеметрии, виджетов и фоновой нагрузки без потери функций",
   "nav.home": "Обзор",
   "nav.home.hint": "Главная и быстрые действия",
   "home.title": "Добро пожаловать",
@@ -161,6 +165,10 @@ export const RU: Record<string, string> = {
 type Dict = Record<string, string>;
 
 const EN: Dict = {
+  "spack.title": "Safe packs",
+  "spack.hint": "Only reversible, low-risk modules. Dangerous items are not part of any pack.",
+  "spack.game": "For games", "spack.game.d": "Responsiveness, game priority, mouse without acceleration, no background apps",
+  "spack.light": "Light mode", "spack.light.d": "Less telemetry, widgets and background load without losing features",
   "pack.title": "App packs",
   "pack.hint": "Click a pack to select all of its apps at once",
   "pack.base": "Basics", "pack.base.d": "Browser, messengers, archiver, player",

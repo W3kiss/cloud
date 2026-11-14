@@ -61,3 +61,32 @@ export const TWEAK_PACKS: TweakPack[] = [
     ],
   },
 ];
+
+export const STRIPPED_PACKS: TweakPack[] = [
+  {
+    id: "game",
+    icon: "gamepad",
+    tweaks: [
+      "fullscreen_optimizations",
+      "network_throttling",
+      "games_priority",
+      "mouse_acceleration",
+      "sticky_keys_prompts",
+      "background_apps",
+      "delivery_optimization",
+    ],
+  },
+  {
+    id: "light",
+    icon: "rocket",
+    tweaks: [
+      "widgets_news",
+      "telemetry_tasks",
+      "background_apps",
+      "ntfs_last_access",
+      "svc_error_reporting",
+      "svc_maps",
+      "delivery_optimization",
+    ],
+  },
+];

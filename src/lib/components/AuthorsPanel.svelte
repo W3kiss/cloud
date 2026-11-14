@@ -19,7 +19,7 @@
     { value: "12", label: t("authors.s1") },
     { value: "40", label: t("authors.s2") },
     { value: "5", label: t("authors.s3") },
-    { value: "1.2", label: t("authors.s4") },
+    { value: "1.3", label: t("authors.s4") },
   ]);
 
   const STACK = ["Tauri 2", "Rust", "Svelte 5", "TypeScript", "winget", "PowerShell"];

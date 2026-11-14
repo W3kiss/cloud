@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { t } from "$lib/i18n.svelte";
+  import { STRIPPED_PACKS } from "$lib/packs";
   import { api, humanizeError, type ToastTone, type TweakStatus } from "$lib/api";
   import Icon from "./Icon.svelte";
   import ToggleSwitch from "./ToggleSwitch.svelte";
@@ -441,6 +443,42 @@
     }
   }
 
+  let packBusy = $state("");
+
+  async function applyPack(packId: string) {
+    const pack = STRIPPED_PACKS.find((item) => item.id === packId);
+    if (!pack || packBusy) return;
+    packBusy = packId;
+    let applied = 0;
+    let skipped = 0;
+    try {
+      for (const id of pack.tweaks) {
+        const definition = tweaks.find((item) => item.id === id);
+        if (!definition || definition.action || definition.risk !== "low" || statusOf(id).enabled) continue;
+        if (definition.requiresAdmin && !admin) {
+          skipped += 1;
+          continue;
+        }
+        try {
+          await api.applyStripped(id, true);
+          statuses = statuses.some((item) => item.id === id)
+            ? statuses.map((item) => (item.id === id ? { ...item, enabled: true } : item))
+            : [...statuses, { id, enabled: true, requiresAdmin: definition.requiresAdmin }];
+          applied += 1;
+        } catch (caught) {
+          onNotify("error", definition.title, humanizeError(caught));
+        }
+      }
+      onNotify(
+        "success",
+        `${t("tpack.done")}: ${t(`spack.${packId}`)}`,
+        skipped > 0 ? `${applied} ✓ · ${t("tpack.skipped")}: ${skipped}` : `${applied} ✓`,
+      );
+    } finally {
+      packBusy = "";
+    }
+  }
+
   async function restorePoint() {
     restoreBusy = true;
     try {
@@ -580,6 +618,27 @@
         </button>
       </div>
     {:else}
+      <section class="spacks">
+        <div class="spacks-head">
+          <h2>{t("spack.title")}</h2>
+          <p>{t("spack.hint")}</p>
+        </div>
+        <div class="spack-row">
+          {#each STRIPPED_PACKS as pack (pack.id)}
+            <button type="button" class="spack" disabled={packBusy !== ""} onclick={() => applyPack(pack.id)}>
+              <span class="spack-ico"><Icon name={pack.icon} size={18} /></span>
+              <span class="spack-copy">
+                <strong>{t(`spack.${pack.id}`)}</strong>
+                <small>{t(`spack.${pack.id}.d`)}</small>
+              </span>
+              <span class="spack-go">
+                {#if packBusy === pack.id}<span class="mini-spinner"></span>{:else}{t("tpack.apply")}{/if}
+              </span>
+            </button>
+          {/each}
+        </div>
+      </section>
+
       {#each categories as category (category.id)}
         <section class="group">
           <div class="group-head">
@@ -1525,4 +1584,23 @@
     pointer-events: none;
     -webkit-user-drag: none;
   }
+
+  .spacks { margin: 0 0 20px; }
+  .spacks-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .spacks-head h2 { margin: 0; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-strong); }
+  .spacks-head p { margin: 0; color: var(--muted); font-size: 12px; }
+  .spack-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .spack {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border: 1px solid var(--border); border-radius: 14px; color: var(--text);
+    background: var(--surface); font: inherit; text-align: left; cursor: pointer;
+    transition: border-color 160ms, background 160ms, transform 160ms;
+  }
+  .spack:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); }
+  .spack:disabled { opacity: 0.6; cursor: default; }
+  .spack-ico { display: grid; width: 36px; height: 36px; flex: none; place-items: center; border-radius: 10px; background: var(--surface-strong); }
+  .spack-copy { display: grid; flex: 1; min-width: 0; gap: 2px; }
+  .spack-copy strong { font-size: 14px; }
+  .spack-copy small { color: var(--muted); font-size: 11.5px; }
+  .spack-go { padding: 5px 11px; border-radius: 999px; background: var(--surface-strong); font-size: 12px; white-space: nowrap; }
 </style>
