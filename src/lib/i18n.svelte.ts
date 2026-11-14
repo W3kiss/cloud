@@ -3,15 +3,15 @@ import { settings } from "./settings.svelte";
 
 export type LangId = "ru" | "en" | "uk" | "de" | "es" | "fr" | "pl" | "tr";
 
-export const LANGS: { id: LangId; name: string; native: string; flag: string }[] = [
-  { id: "ru", name: "Russian", native: "Русский", flag: "RU" },
-  { id: "en", name: "English", native: "English", flag: "EN" },
-  { id: "uk", name: "Ukrainian", native: "Українська", flag: "UK" },
-  { id: "de", name: "German", native: "Deutsch", flag: "DE" },
-  { id: "es", name: "Spanish", native: "Español", flag: "ES" },
-  { id: "fr", name: "French", native: "Français", flag: "FR" },
-  { id: "pl", name: "Polish", native: "Polski", flag: "PL" },
-  { id: "tr", name: "Turkish", native: "Türkçe", flag: "TR" },
+export const LANGS: { id: LangId; name: string; native: string; flag: string; full: boolean }[] = [
+  { id: "ru", name: "Russian", native: "Русский", flag: "RU", full: true },
+  { id: "en", name: "English", native: "English", flag: "EN", full: true },
+  { id: "uk", name: "Ukrainian", native: "Українська", flag: "UK", full: false },
+  { id: "de", name: "German", native: "Deutsch", flag: "DE", full: false },
+  { id: "es", name: "Spanish", native: "Español", flag: "ES", full: false },
+  { id: "fr", name: "French", native: "Français", flag: "FR", full: false },
+  { id: "pl", name: "Polish", native: "Polski", flag: "PL", full: false },
+  { id: "tr", name: "Turkish", native: "Türkçe", flag: "TR", full: false },
 ];
 
 export const RU: Record<string, string> = {

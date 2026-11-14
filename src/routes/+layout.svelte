@@ -2,6 +2,7 @@
   import "../app.css";
   import { applySettings, loadSettings, settings } from "$lib/settings.svelte";
   import { applyLang } from "$lib/i18n.svelte";
+  import { setDomTranslation } from "$lib/dom-i18n";
 
   import { onMount } from "svelte";
   import { api } from "$lib/api";
@@ -29,8 +30,9 @@
   });
 
   $effect(() => {
-    void settings.lang;
+    const lang = settings.lang;
     applyLang();
+    setDomTranslation(lang !== "ru");
   });
 </script>
 
