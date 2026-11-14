@@ -29,9 +29,13 @@
   import SettingsPanel from "$lib/components/SettingsPanel.svelte";
   import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
   import StarField from "$lib/components/StarField.svelte";
+  import CommandPalette from "$lib/components/CommandPalette.svelte";
+  import HomePanel from "$lib/components/HomePanel.svelte";
+  import { loadFavorites } from "$lib/favorites.svelte";
+  import { checkForUpdate, type UpdateInfo } from "$lib/updates";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "manager" | "system" | "monitor" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
+  type TabId = "home" | "apps" | "manager" | "system" | "monitor" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -44,6 +48,7 @@
   };
 
   const NAV_META = [
+    { id: "home", icon: "home" },
     { id: "apps", icon: "grid" },
     { id: "manager", icon: "package" },
     { id: "system", icon: "terminal" },
@@ -68,7 +73,10 @@
   let accepted = $state(false);
   let disclaimerKnown = $state(false);
   let welcomeLeaving = $state(false);
-  let activeTab = $state<TabId>("apps");
+  let activeTab = $state<TabId>("home");
+  let paletteOpen = $state(false);
+  let update = $state<UpdateInfo | null>(null);
+  let checkingUpdate = $state(false);
 
   let catalogApps = $state<CatalogApp[]>([]);
   let catalogVersion = $state(0);
@@ -163,6 +171,8 @@
     accepted = disclaimerKnown && localStorage.getItem(WELCOME_KEY) === "1";
     booted = true;
 
+    loadFavorites();
+    window.setTimeout(() => void runUpdateCheck(false), 4000);
     loadCatalog();
     api
       .adminStatus()
@@ -208,6 +218,49 @@
       catalogError = humanizeError(caught);
     } finally {
       catalogLoading = false;
+    }
+  }
+
+  async function runUpdateCheck(manual: boolean) {
+    if (checkingUpdate) return;
+    checkingUpdate = true;
+    try {
+      update = await checkForUpdate();
+      if (update.newer) {
+        notify("info", t("home.update.new"), `v${update.latest}`);
+      } else if (manual) {
+        notify("success", t("home.update.ok"), `v${update.latest}`);
+      }
+    } catch {
+      if (manual) notify("error", t("home.update.fail"));
+    } finally {
+      checkingUpdate = false;
+    }
+  }
+
+  function onGlobalKey(event: KeyboardEvent) {
+    if (!accepted) return;
+    const mod = event.ctrlKey || event.metaKey;
+    if (!mod) return;
+    const key = event.key.toLowerCase();
+    if (key === "p" && event.shiftKey) {
+      event.preventDefault();
+      paletteOpen = !paletteOpen;
+      return;
+    }
+    if (key === "k" && activeTab !== "apps") {
+      event.preventDefault();
+      paletteOpen = !paletteOpen;
+      return;
+    }
+    if (/^[0-9]$/.test(event.key) && !event.shiftKey && !event.altKey) {
+      const index = event.key === "0" ? 9 : Number(event.key) - 1;
+      const target = navItems[index];
+      if (target) {
+        event.preventDefault();
+        paletteOpen = false;
+        switchTab(target.id);
+      }
     }
   }
 
@@ -377,6 +430,8 @@
   }
 </script>
 
+<svelte:window onkeydown={onGlobalKey} />
+
 <div class="app-root">
   <div class="ambient ambient-a"></div>
   <div class="ambient ambient-b"></div>
@@ -400,7 +455,19 @@
 
     <main class="workspace">
       <div class="workspace-scroll" class:with-dock={dockVisible}>
-        {#if activeTab === "apps"}
+        {#if activeTab === "home"}
+          <HomePanel
+            tabs={navItems}
+            selectedCount={selectedCount}
+            catalogCount={catalogApps.length}
+            {admin}
+            {update}
+            checking={checkingUpdate}
+            onNavigate={switchTab}
+            onCheckUpdate={() => runUpdateCheck(true)}
+            onOpenPalette={() => (paletteOpen = true)}
+          />
+        {:else if activeTab === "apps"}
           <SoftwareHub
             apps={catalogApps}
             loading={catalogLoading}
@@ -508,6 +575,19 @@
     onExit={exitApp}
   />
 {/if}
+
+<CommandPalette
+  open={paletteOpen && accepted}
+  tabs={navItems}
+  apps={catalogApps}
+  onClose={() => (paletteOpen = false)}
+  onNavigate={switchTab}
+  onToggleApp={(app) => {
+    switchTab("apps");
+    toggleSelect(app);
+  }}
+  onCheckUpdate={() => runUpdateCheck(true)}
+/>
 
 {#if selectedApp}
   <AppDetails app={selectedApp} onClose={() => (selectedApp = null)} />

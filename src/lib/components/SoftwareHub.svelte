@@ -2,6 +2,8 @@
   import type { CatalogApp, JobState } from "$lib/api";
   import AppCard from "./AppCard.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "$lib/i18n.svelte";
+  import { favorites, isFavorite, toggleFavorite } from "$lib/favorites.svelte";
 
   type Category = {
     id: CatalogApp["category"];
@@ -62,6 +64,7 @@
   } = $props();
 
   let query = $state("");
+  let onlyFavs = $state(false);
   let searchInput = $state<HTMLInputElement>();
 
   function handleShortcut(event: KeyboardEvent) {
@@ -75,6 +78,7 @@
   let normalizedQuery = $derived(query.trim().toLowerCase());
   let filtered = $derived(
     apps.filter((app) => {
+      if (onlyFavs && !favorites.ids.includes(app.id)) return false;
       if (!normalizedQuery) return true;
       const haystack = [
         app.name,
@@ -136,6 +140,16 @@
           <Icon name="x" size={13} />
         </button>
       {/if}
+      <button
+        type="button"
+        class="fav-filter"
+        class:on={onlyFavs}
+        aria-pressed={onlyFavs}
+        onclick={() => (onlyFavs = !onlyFavs)}
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill={onlyFavs ? "currentColor" : "none"} stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" /></svg>
+        {t("hub.favs")}{favorites.ids.length ? ` · ${favorites.ids.length}` : ""}
+      </button>
       <span class="search-key">Ctrl K</span>
     </div>
     <img class="hero-art" src="/art/hero-apps.svg" alt="" />
@@ -242,6 +256,8 @@
                 job={jobs[app.id]}
                 selected={selectedSet.has(app.id)}
                 disabled={selectionDisabled}
+                favorite={favorites.ids.includes(app.id)}
+                onToggleFavorite={(item) => toggleFavorite(item.id)}
                 onToggleSelect={onToggleSelect}
                 onDetails={onDetails}
               />
@@ -706,4 +722,23 @@
       display: none;
     }
   }
+
+  .fav-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted-strong);
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 160ms, border-color 160ms, background 160ms;
+  }
+
+  .fav-filter:hover { border-color: var(--border-strong); color: var(--text); }
+  .fav-filter.on { color: #fbbf24; border-color: rgb(251 191 36 / 0.5); background: rgb(251 191 36 / 0.08); }
 </style>

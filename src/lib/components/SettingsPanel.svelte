@@ -3,10 +3,11 @@
   import Icon from "./Icon.svelte";
   import ToggleSwitch from "./ToggleSwitch.svelte";
   import { t, LANGS } from "$lib/i18n.svelte";
+  import { APP_VERSION } from "$lib/version";
+  import { favorites, setFavorites } from "$lib/favorites.svelte";
   import { THEMES, resetSettings, saveSettings, settings } from "$lib/settings.svelte";
   import type { ToastTone } from "$lib/api";
 
-  const APP_VERSION = "1.1.0";
 
   let {
     onNotify,
@@ -83,6 +84,40 @@
     saveSettings();
   }
 
+  let importInput = $state<HTMLInputElement>();
+
+  function exportSettings() {
+    const payload = JSON.stringify({ app: "setup-hub", version: APP_VERSION, settings, favorites: favorites.ids }, null, 2);
+    const url = URL.createObjectURL(new Blob([payload], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "setup-hub-settings.json";
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    onNotify("success", t("settings.export.ok"));
+  }
+
+  async function importSettings(event: Event) {
+    const file = (event.currentTarget as HTMLInputElement).files?.[0];
+    (event.currentTarget as HTMLInputElement).value = "";
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (data?.app !== "setup-hub" || typeof data.settings !== "object") throw new Error("format");
+      const incoming = data.settings as Record<string, unknown>;
+      if (THEMES.some((theme) => theme.id === incoming.theme)) settings.theme = incoming.theme as typeof settings.theme;
+      if (LANGS.some((lang) => lang.id === incoming.lang)) settings.lang = incoming.lang as typeof settings.lang;
+      for (const key of ["animations", "blur", "grid", "compact"] as const) {
+        if (typeof incoming[key] === "boolean") settings[key] = incoming[key] as boolean;
+      }
+      if (Array.isArray(data.favorites)) setFavorites(data.favorites as string[]);
+      saveSettings();
+      onNotify("success", t("settings.import.ok"));
+    } catch {
+      onNotify("error", t("settings.import.fail"));
+    }
+  }
+
   function setLang(id: (typeof LANGS)[number]["id"]) {
     settings.lang = id;
     saveSettings();
@@ -123,6 +158,24 @@
     </div>
     <img class="hero-art" src="/art/hero-settings.svg" alt="" />
   </header>
+
+  <section class="group">
+    <div class="group-head">
+      <h2>{t("settings.data")}</h2>
+      <p>{t("settings.data.hint")}</p>
+    </div>
+    <div class="data-row">
+      <button type="button" class="lang-chip" onclick={exportSettings}>
+        <Icon name="download" size={15} />
+        <span>{t("settings.export")}</span>
+      </button>
+      <button type="button" class="lang-chip" onclick={() => importInput?.click()}>
+        <Icon name="upload" size={15} />
+        <span>{t("settings.import")}</span>
+      </button>
+      <input bind:this={importInput} type="file" accept="application/json,.json" hidden onchange={importSettings} />
+    </div>
+  </section>
 
   <section class="group">
     <div class="group-head">
@@ -1051,6 +1104,12 @@
     .hero-art {
       display: none;
     }
+  }
+
+  .data-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .lang-grid {

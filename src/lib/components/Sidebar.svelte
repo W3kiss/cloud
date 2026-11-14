@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from "./Icon.svelte";
   import { t } from "$lib/i18n.svelte";
+  import { APP_VERSION } from "$lib/version";
 
   export type NavItem = {
     id: string;
@@ -88,7 +89,7 @@
   </button>
 
   <div class="version-row">
-    <span>v1.1.0</span>
+    <span>v{APP_VERSION}</span>
   </div>
 </aside>
 

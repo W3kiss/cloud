@@ -8,6 +8,10 @@
 
   const paths: Record<string, string[]> = {
     logo: ["M12 2l9 5v10l-9 5-9-5V7l9-5Z", "m8.5 12 2.5 2.5 4.5-4.5"],
+    star: ["M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"],
+    home: ["M3 11l9-8 9 8", "M5 10v10h5v-6h4v6h5V10"],
+    command: ["M9 9V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V9Z"],
+    upload: ["M12 16V4", "m7 9 5-5 5 5", "M4 20h16"],
     grid: ["M4 4h6v6H4z", "M14 4h6v6h-6z", "M4 14h6v6H4z", "M14 14h6v6h-6z"],
     sliders: [
       "M4 6h16",

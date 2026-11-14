@@ -2,6 +2,7 @@
   import type { CatalogApp, JobState } from "$lib/api";
   import { logoFor } from "$lib/logos";
   import Icon from "./Icon.svelte";
+  import { t } from "$lib/i18n.svelte";
   import ProgressBar from "./ProgressBar.svelte";
 
   let {
@@ -10,6 +11,8 @@
     job = undefined,
     selected = false,
     disabled = false,
+    favorite = false,
+    onToggleFavorite = () => {},
     onToggleSelect,
     onDetails,
   }: {
@@ -18,6 +21,8 @@
     job?: JobState;
     selected?: boolean;
     disabled?: boolean;
+    favorite?: boolean;
+    onToggleFavorite?: (app: CatalogApp) => void;
     onToggleSelect: (app: CatalogApp) => void;
     onDetails: (app: CatalogApp) => void;
   } = $props();
@@ -100,6 +105,23 @@
       {/if}
     </div>
     <div class="badge-row">
+      <button
+        type="button"
+        class="fav-btn"
+        class:on={favorite}
+        title={favorite ? t("hub.fav.remove") : t("hub.fav.add")}
+        aria-label={favorite ? t("hub.fav.remove") : t("hub.fav.add")}
+        aria-pressed={favorite}
+        onclick={(event) => {
+          event.stopPropagation();
+          onToggleFavorite(app);
+        }}
+        onkeydown={(event) => event.stopPropagation()}
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill={favorite ? "currentColor" : "none"} stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+          <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" />
+        </svg>
+      </button>
       <span class="select-mark" class:on={selected} aria-hidden="true">
         {#if selected}
           <Icon name="check" size={10} stroke={2.6} />
@@ -574,5 +596,29 @@
 
   .app-card.running {
     cursor: default;
+  }
+
+  .fav-btn {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    color: rgb(var(--fg) / 0.4);
+    background: transparent;
+    cursor: pointer;
+    transition: color 160ms, background 160ms, transform 160ms;
+  }
+
+  .fav-btn:hover {
+    color: var(--text);
+    background: rgb(var(--fg) / 0.08);
+    transform: scale(1.1);
+  }
+
+  .fav-btn.on {
+    color: #fbbf24;
   }
 </style>
