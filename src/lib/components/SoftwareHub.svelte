@@ -3,7 +3,8 @@
   import AppCard from "./AppCard.svelte";
   import Icon from "./Icon.svelte";
   import { t } from "$lib/i18n.svelte";
-  import { favorites, isFavorite, toggleFavorite } from "$lib/favorites.svelte";
+  import { favorites, toggleFavorite } from "$lib/favorites.svelte";
+  import { APP_PACKS } from "$lib/packs";
 
   type Category = {
     id: CatalogApp["category"];
@@ -95,6 +96,21 @@
 
   let readyCount = $derived(apps.filter((app) => !app.placeholder).length);
 
+  let packs = $derived(
+    APP_PACKS.map((pack) => {
+      const members = apps.filter((app) => app.presets.includes(pack.id));
+      const chosen = members.filter((app) => selectedSet.has(app.id)).length;
+      return { ...pack, members, chosen, full: members.length > 0 && chosen === members.length };
+    }).filter((pack) => pack.members.length > 0),
+  );
+
+  function togglePack(pack: (typeof packs)[number]) {
+    if (selectionDisabled) return;
+    for (const app of pack.members) {
+      if (pack.full ? selectedSet.has(app.id) : !selectedSet.has(app.id)) onToggleSelect(app);
+    }
+  }
+
   function appsFor(category: Category): CatalogApp[] {
     return filtered.filter((app) => app.category === category.id);
   }
@@ -154,6 +170,32 @@
     </div>
     <img class="hero-art" src="/art/hero-apps.svg" alt="" />
   </header>
+
+  <section class="packs" aria-label={t("pack.title")}>
+    <div class="packs-head">
+      <h2>{t("pack.title")}</h2>
+      <p>{t("pack.hint")}</p>
+    </div>
+    <div class="pack-row">
+      {#each packs as pack (pack.id)}
+        <button
+          type="button"
+          class="pack"
+          class:on={pack.full}
+          disabled={selectionDisabled}
+          aria-pressed={pack.full}
+          onclick={() => togglePack(pack)}
+        >
+          <span class="pack-ico"><Icon name={pack.full ? "check" : pack.icon} size={17} /></span>
+          <span class="pack-copy">
+            <strong>{t(`pack.${pack.id}`)}</strong>
+            <small>{t(`pack.${pack.id}.d`)}</small>
+          </span>
+          <span class="pack-count">{pack.chosen}/{pack.members.length}</span>
+        </button>
+      {/each}
+    </div>
+  </section>
 
   <div class="stats">
     <div class="stat">
@@ -741,4 +783,37 @@
 
   .fav-filter:hover { border-color: var(--border-strong); color: var(--text); }
   .fav-filter.on { color: #fbbf24; border-color: rgb(251 191 36 / 0.5); background: rgb(251 191 36 / 0.08); }
+
+  .packs { margin: 0 0 22px; }
+
+  .packs-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .packs-head h2 { margin: 0; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-strong); }
+  .packs-head p { margin: 0; color: var(--muted); font-size: 12px; }
+
+  .pack-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+
+  .pack {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    background: var(--surface);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 160ms, background 160ms, transform 160ms;
+  }
+
+  .pack:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); }
+  .pack:disabled { opacity: 0.55; cursor: default; }
+  .pack.on { border-color: var(--accent); background: var(--accent-soft); }
+
+  .pack-ico { display: grid; width: 34px; height: 34px; flex: none; place-items: center; border-radius: 10px; background: var(--surface-strong); }
+  .pack-copy { display: grid; flex: 1; min-width: 0; gap: 2px; }
+  .pack-copy strong { font-size: 14px; }
+  .pack-copy small { overflow: hidden; color: var(--muted); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+  .pack-count { color: var(--muted-strong); font-size: 12px; font-variant-numeric: tabular-nums; }
 </style>

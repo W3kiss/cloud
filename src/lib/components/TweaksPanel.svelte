@@ -2,6 +2,8 @@
   import { onMount } from "svelte";
   import { api, humanizeError, type ToastTone, type TweakStatus } from "$lib/api";
   import Icon from "./Icon.svelte";
+  import { t } from "$lib/i18n.svelte";
+  import { TWEAK_PACKS } from "$lib/packs";
   import ToggleSwitch from "./ToggleSwitch.svelte";
 
   type TweakDefinition = {
@@ -267,6 +269,40 @@
     }
   }
 
+  let packBusy = $state("");
+
+  async function applyPack(packId: string) {
+    const pack = TWEAK_PACKS.find((item) => item.id === packId);
+    if (!pack || packBusy) return;
+    packBusy = packId;
+    let applied = 0;
+    let skipped = 0;
+    try {
+      for (const id of pack.tweaks) {
+        const definition = tweaks.find((item) => item.id === id);
+        if (!definition || statusOf(id).enabled) continue;
+        if (definition.requiresAdmin && !admin) {
+          skipped += 1;
+          continue;
+        }
+        try {
+          await api.applyTweak(id, true);
+          statuses = statuses.map((item) => (item.id === id ? { ...item, enabled: true } : item));
+          applied += 1;
+        } catch (caught) {
+          onNotify("error", definition.title, humanizeError(caught));
+        }
+      }
+      onNotify(
+        "success",
+        `${t("tpack.done")}: ${t(`tpack.${packId}`)}`,
+        skipped > 0 ? `${applied} ✓ · ${t("tpack.skipped")}: ${skipped}` : `${applied} ✓`,
+      );
+    } finally {
+      packBusy = "";
+    }
+  }
+
   async function restartExplorer() {
     explorerBusy = true;
     try {
@@ -340,6 +376,33 @@
       <span class="ok-dot"></span>
       Приложение запущено с правами администратора — все модули доступны.
     </div>
+  {/if}
+
+  {#if !loading && !loadError}
+    <section class="tpacks">
+      <div class="tpacks-head">
+        <h2>{t("tpack.title")}</h2>
+        <p>{t("tpack.hint")}</p>
+      </div>
+      <div class="tpack-row">
+        {#each TWEAK_PACKS as pack (pack.id)}
+          <button type="button" class="tpack" disabled={packBusy !== ""} onclick={() => applyPack(pack.id)}>
+            <span class="tpack-ico"><Icon name={pack.icon} size={18} /></span>
+            <span class="tpack-copy">
+              <strong>{t(`tpack.${pack.id}`)}</strong>
+              <small>{t(`tpack.${pack.id}.d`)}</small>
+            </span>
+            <span class="tpack-go">
+              {#if packBusy === pack.id}
+                <span class="mini-spinner"></span>
+              {:else}
+                {t("tpack.apply")}
+              {/if}
+            </span>
+          </button>
+        {/each}
+      </div>
+    </section>
   {/if}
 
   {#if loading}
@@ -1026,4 +1089,23 @@
     pointer-events: none;
     -webkit-user-drag: none;
   }
+
+  .tpacks { margin: 0 0 20px; }
+  .tpacks-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .tpacks-head h2 { margin: 0; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-strong); }
+  .tpacks-head p { margin: 0; color: var(--muted); font-size: 12px; }
+  .tpack-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .tpack {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border: 1px solid var(--border); border-radius: 14px; color: var(--text);
+    background: var(--surface); font: inherit; text-align: left; cursor: pointer;
+    transition: border-color 160ms, background 160ms, transform 160ms;
+  }
+  .tpack:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); }
+  .tpack:disabled { opacity: 0.6; cursor: default; }
+  .tpack-ico { display: grid; width: 36px; height: 36px; flex: none; place-items: center; border-radius: 10px; background: var(--surface-strong); }
+  .tpack-copy { display: grid; flex: 1; min-width: 0; gap: 2px; }
+  .tpack-copy strong { font-size: 14px; }
+  .tpack-copy small { color: var(--muted); font-size: 11.5px; }
+  .tpack-go { padding: 5px 11px; border-radius: 999px; background: var(--surface-strong); font-size: 12px; white-space: nowrap; }
 </style>
