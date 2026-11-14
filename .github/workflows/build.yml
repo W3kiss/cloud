@@ -76,4 +76,4 @@ jobs:
           foreach ($old in (gh release list --limit 100 --json tagName --jq '.[].tagName')) {
             if ($old -and $old -ne $env:TAG) { gh release delete $old --cleanup-tag --yes }
           }
-          gh release create $env:TAG (Get-ChildItem $out | ForEach-Object { $_.FullName }) --target $env:TARGET --title "Setup Hub $env:TAG" --notes "Setup Hub 1.0 - Windows utility: software hub, tweaks, Windows-to-USB, backups, maintenance and monitoring. Download Setup-Hub_portable.exe to run without installation, or the installer. Checksums are in SHA256SUMS.txt. Run as administrator for tweaks, services and USB writing."
+          gh release create $env:TAG (Get-ChildItem $out | ForEach-Object { $_.FullName }) --target $env:TARGET --title "Setup Hub $env:TAG" --notes "Setup Hub $env:TAG - Windows utility: software hub, tweaks, Windows-to-USB, backups, maintenance and monitoring. Download Setup-Hub_portable.exe to run without installation, or the installer. Checksums are in SHA256SUMS.txt. Run as administrator for tweaks, services and USB writing."
