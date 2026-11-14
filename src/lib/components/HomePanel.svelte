@@ -51,6 +51,7 @@
 
 <div class="home">
   <header class="hero">
+    <img class="hero-pic" src="/art/hero-home.svg" alt="" />
     <p class="eyebrow">Setup Hub · v{APP_VERSION}</p>
     <h1>{t("home.title")}</h1>
     <p class="lead">{t("home.sub")}</p>
@@ -116,6 +117,8 @@
   }
 
   .hero {
+    position: relative;
+    overflow: hidden;
     padding: 34px 32px;
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
@@ -123,6 +126,21 @@
       radial-gradient(circle at 85% 0%, rgb(var(--fg) / 0.08), transparent 45%),
       rgb(var(--panel) / 0.6);
   }
+
+  .hero-pic {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(320px, 42%);
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+    pointer-events: none;
+    mask-image: linear-gradient(to left, #000 40%, transparent);
+    -webkit-mask-image: linear-gradient(to left, #000 40%, transparent);
+  }
+
+  .hero > :not(.hero-pic) { position: relative; }
 
   .eyebrow {
     margin: 0 0 10px;

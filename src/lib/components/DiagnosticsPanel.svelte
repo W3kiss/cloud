@@ -68,6 +68,7 @@
         <Icon name="download" size={16} />Отчёт для отладки
       </button>
     </div>
+    <img class="hero-art" src="/art/hero-diagnostics.svg" alt="" />
   </header>
 
   {#if checks.length}
@@ -100,6 +101,7 @@
 
 <style>
   .diag-page { padding-bottom: 40px; }
+  .hero-art { width: 220px; max-width: 30%; border-radius: var(--radius-lg); opacity: 0.9; }
   .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 14px 4px 0; animation: fade-up 500ms var(--ease-out) both; }
   .page-head > div:first-child { max-width: 640px; }
   .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }

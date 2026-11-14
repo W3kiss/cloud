@@ -267,7 +267,7 @@
       <h1>Управление <span>ПО</span></h1>
       <p class="lead">Обновление, массовое удаление и перенос настроек на новый ПК. Все операции выполняются через winget в фоне.</p>
     </div>
-    <img class="hero-art" src="/art/hero-apps.svg" alt="" />
+    <img class="hero-art" src="/art/hero-manager.svg" alt="" />
   </header>
 
   <div class="tabs">

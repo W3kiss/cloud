@@ -119,7 +119,7 @@
       <h1>Монитор <span>и тесты</span></h1>
       <p class="lead">Загрузка процессора, памяти и видеокарты в реальном времени, быстрый тест диска и проверка стабильности.</p>
     </div>
-    <img class="hero-art" src="/art/hero-tweaks.svg" alt="" />
+    <img class="hero-art" src="/art/hero-monitor.svg" alt="" />
   </header>
 
   <div class="widgets">
