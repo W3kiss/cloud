@@ -2,6 +2,8 @@
   import type { CatalogApp, JobState } from "$lib/api";
   import AppCard from "./AppCard.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "$lib/i18n.svelte";
+  import { favorites, isFavorite, toggleFavorite } from "$lib/favorites.svelte";
 
   type Category = {
     id: CatalogApp["category"];
@@ -26,13 +28,13 @@
     {
       id: "gaming",
       title: "Gaming & Launchers",
-      subtitle: "Игровые библиотеки и шаблоны лаунчеров с прямыми ссылками.",
+      subtitle: "Игровые лаунчеры, магазины и утилиты для видеокарты.",
       icon: "gamepad",
     },
     {
       id: "production",
-      title: "Production & Custom",
-      subtitle: "Медиа-станции и установщики с пользовательскими параметрами.",
+      title: "Creative & Media",
+      subtitle: "Монтаж, графика, 3D и инструменты для творчества.",
       icon: "film",
     },
   ];
@@ -62,6 +64,7 @@
   } = $props();
 
   let query = $state("");
+  let onlyFavs = $state(false);
   let searchInput = $state<HTMLInputElement>();
 
   function handleShortcut(event: KeyboardEvent) {
@@ -75,6 +78,7 @@
   let normalizedQuery = $derived(query.trim().toLowerCase());
   let filtered = $derived(
     apps.filter((app) => {
+      if (onlyFavs && !favorites.ids.includes(app.id)) return false;
       if (!normalizedQuery) return true;
       const haystack = [
         app.name,
@@ -90,7 +94,6 @@
   );
 
   let readyCount = $derived(apps.filter((app) => !app.placeholder).length);
-  let templateCount = $derived(apps.filter((app) => app.placeholder).length);
 
   function appsFor(category: Category): CatalogApp[] {
     return filtered.filter((app) => app.category === category.id);
@@ -137,8 +140,19 @@
           <Icon name="x" size={13} />
         </button>
       {/if}
+      <button
+        type="button"
+        class="fav-filter"
+        class:on={onlyFavs}
+        aria-pressed={onlyFavs}
+        onclick={() => (onlyFavs = !onlyFavs)}
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill={onlyFavs ? "currentColor" : "none"} stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" /></svg>
+        {t("hub.favs")}{favorites.ids.length ? ` · ${favorites.ids.length}` : ""}
+      </button>
       <span class="search-key">Ctrl K</span>
     </div>
+    <img class="hero-art" src="/art/hero-apps.svg" alt="" />
   </header>
 
   <div class="stats">
@@ -152,8 +166,8 @@
     <div class="stat">
       <span class="stat-icon"><Icon name="spark" size={15} /></span>
       <span class="stat-copy">
-        <strong>{templateCount}</strong>
-        <small>шаблонов с параметрами</small>
+        <strong>{apps.length}</strong>
+        <small>программ в каталоге</small>
       </span>
     </div>
     <div class="stat">
@@ -242,6 +256,8 @@
                 job={jobs[app.id]}
                 selected={selectedSet.has(app.id)}
                 disabled={selectionDisabled}
+                favorite={favorites.ids.includes(app.id)}
+                onToggleFavorite={(item) => toggleFavorite(item.id)}
                 onToggleSelect={onToggleSelect}
                 onDetails={onDetails}
               />
@@ -276,7 +292,7 @@
     align-items: center;
     gap: 8px;
     margin: 0;
-    color: rgba(255, 255, 255, 0.62);
+    color: rgb(var(--fg) / 0.62);
     font-size: 9.5px;
     font-weight: 650;
     letter-spacing: 0.18em;
@@ -288,7 +304,7 @@
     height: 6px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.65);
+    box-shadow: 0 0 10px rgb(var(--fg) / 0.65);
     animation: pulse-dot 2.2s ease-in-out infinite;
   }
 
@@ -324,11 +340,11 @@
     align-items: center;
     gap: 9px;
     padding: 0 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(var(--fg) / 0.1);
     border-radius: 15px;
-    color: rgba(255, 255, 255, 0.35);
-    background: rgba(8, 8, 10, 0.62);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    color: rgb(var(--fg) / 0.35);
+    background: rgb(var(--panel) / 0.62);
+    box-shadow: inset 0 1px 0 rgb(var(--fg) / 0.04);
     transition:
       border-color 220ms ease,
       box-shadow 220ms ease,
@@ -336,11 +352,11 @@
   }
 
   .search-shell:focus-within {
-    border-color: rgba(255, 255, 255, 0.4);
-    background: rgba(14, 14, 17, 0.84);
+    border-color: rgb(var(--fg) / 0.4);
+    background: rgb(var(--panel) / 0.84);
     box-shadow:
-      0 0 0 3px rgba(255, 255, 255, 0.055),
-      0 0 26px rgba(255, 255, 255, 0.05);
+      0 0 0 3px rgb(var(--fg) / 0.055),
+      0 0 26px rgb(var(--fg) / 0.05);
   }
 
   .search-shell input {
@@ -354,7 +370,7 @@
   }
 
   .search-shell input::placeholder {
-    color: rgba(255, 255, 255, 0.28);
+    color: rgb(var(--fg) / 0.28);
   }
 
   .clear-search {
@@ -364,14 +380,14 @@
     place-items: center;
     border-radius: 7px;
     color: var(--muted);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgb(var(--fg) / 0.06);
   }
 
   .search-key {
     padding: 3px 6px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 6px;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgb(var(--fg) / 0.3);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 8px;
   }
@@ -391,9 +407,9 @@
     align-items: center;
     gap: 11px;
     padding: 12px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgb(var(--fg) / 0.06);
     border-radius: 15px;
-    background: rgba(255, 255, 255, 0.018);
+    background: rgb(var(--fg) / 0.018);
   }
 
   .stat-icon {
@@ -402,10 +418,10 @@
     height: 32px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 10px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
   }
 
   .stat-copy {
@@ -428,7 +444,7 @@
 
   .stat-note {
     justify-content: flex-end;
-    color: rgba(255, 255, 255, 0.36);
+    color: rgb(var(--fg) / 0.36);
     font-size: 9.5px;
     line-height: 1.35;
     text-align: right;
@@ -438,7 +454,7 @@
     width: 26px;
     height: 1px;
     flex: 0 0 auto;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62));
+    background: linear-gradient(90deg, transparent, rgb(var(--fg) / 0.62));
   }
 
   .category {
@@ -460,11 +476,11 @@
     height: 42px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgb(var(--fg) / 0.12);
     border-radius: 13px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.035);
-    box-shadow: 0 0 22px rgba(255, 255, 255, 0.03);
+    background: rgb(var(--fg) / 0.035);
+    box-shadow: 0 0 22px rgb(var(--fg) / 0.03);
   }
 
   .category-copy {
@@ -490,17 +506,17 @@
     height: 20px;
     padding: 0 5px;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgb(var(--fg) / 0.14);
     border-radius: 999px;
-    color: rgba(255, 255, 255, 0.66);
-    background: rgba(255, 255, 255, 0.035);
+    color: rgb(var(--fg) / 0.66);
+    background: rgb(var(--fg) / 0.035);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 8.5px;
   }
 
   .category-copy p {
     margin: 3px 0 0;
-    color: rgba(255, 255, 255, 0.36);
+    color: rgb(var(--fg) / 0.36);
     font-size: 10.5px;
   }
 
@@ -508,7 +524,7 @@
     height: 1px;
     flex: 1;
     margin-left: 8px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), transparent);
+    background: linear-gradient(90deg, rgb(var(--fg) / 0.16), transparent);
   }
 
   .card-grid {
@@ -523,9 +539,9 @@
     gap: 16px;
     margin: 30px 4px;
     padding: 20px 22px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgb(var(--fg) / 0.02);
     animation: fade-up 400ms var(--ease-out) both;
   }
 
@@ -542,7 +558,7 @@
     place-items: center;
     border-radius: 14px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(var(--fg) / 0.05);
   }
 
   .state-error .state-icon {
@@ -569,18 +585,18 @@
     gap: 7px;
     margin-left: auto;
     padding: 0 13px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgb(var(--fg) / 0.12);
     border-radius: 10px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
     font-size: 10.5px;
     font-weight: 600;
     white-space: nowrap;
   }
 
   .state-action:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: rgb(var(--fg) / 0.3);
+    background: rgb(var(--fg) / 0.08);
   }
 
   .loading-block {
@@ -599,7 +615,7 @@
   .loader {
     width: 14px;
     height: 14px;
-    border: 1.5px solid rgba(255, 255, 255, 0.16);
+    border: 1.5px solid rgb(var(--fg) / 0.16);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.85s linear infinite;
@@ -619,9 +635,9 @@
     gap: 10px;
     padding: 18px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgb(var(--fg) / 0.05);
     border-radius: 22px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgb(var(--fg) / 0.02);
     animation: fade-up 400ms var(--ease-out) both;
     animation-delay: calc(var(--i) * 35ms);
   }
@@ -632,7 +648,7 @@
     background: linear-gradient(
       100deg,
       transparent 20%,
-      rgba(255, 255, 255, 0.035) 48%,
+      rgb(var(--fg) / 0.035) 48%,
       transparent 72%
     );
     content: "";
@@ -643,13 +659,13 @@
     width: 48px;
     height: 48px;
     border-radius: 15px;
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
   }
 
   .skeleton-line {
     height: 9px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
   }
 
   .skeleton-line:first-of-type {
@@ -689,4 +705,40 @@
       display: none;
     }
   }
+  .hero-art {
+    flex: none;
+    width: 206px;
+    height: 116px;
+    object-fit: cover;
+    border: 1px solid rgb(var(--fg) / 0.14);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  @media (max-width: 980px) {
+    .hero-art {
+      display: none;
+    }
+  }
+
+  .fav-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted-strong);
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 160ms, border-color 160ms, background 160ms;
+  }
+
+  .fav-filter:hover { border-color: var(--border-strong); color: var(--text); }
+  .fav-filter.on { color: #fbbf24; border-color: rgb(251 191 36 / 0.5); background: rgb(251 191 36 / 0.08); }
 </style>

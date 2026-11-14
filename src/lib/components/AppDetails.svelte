@@ -71,7 +71,7 @@
         {/if}
       </div>
       <div class="details-title">
-        <span class="eyebrow">Custom configuration template</span>
+        <span class="eyebrow">Параметры установки</span>
         <h2 id="details-title">{app.name}</h2>
         <p>{app.summary}</p>
       </div>
@@ -79,15 +79,6 @@
         <Icon name="x" size={17} />
       </button>
     </header>
-
-    <div class="template-note">
-      <Icon name="info" size={15} />
-      <span>
-        Это шаблон. Укажите реальный <code>downloadUrl</code>, проверьте
-        <code>installerArgs</code> и установите <code>placeholder: false</code>
-        в <code>src-tauri/catalog.json</code>.
-      </span>
-    </div>
 
     <div class="grid">
       <section class="panel">
@@ -165,7 +156,7 @@
     padding: 26px;
     overflow-y: auto;
     place-items: center;
-    background: rgba(4, 4, 6, 0.64);
+    background: rgb(var(--panel) / 0.64);
     backdrop-filter: blur(16px) saturate(120%);
     -webkit-backdrop-filter: blur(16px) saturate(120%);
     animation: fade-in 180ms ease both;
@@ -184,14 +175,14 @@
     max-height: calc(100vh - 52px);
     padding: 26px;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.11);
+    border: 1px solid rgb(var(--fg) / 0.11);
     border-radius: 26px;
     background:
-      linear-gradient(150deg, rgba(255, 255, 255, 0.06), transparent 42%),
-      linear-gradient(180deg, rgba(17, 17, 20, 0.97), rgba(9, 9, 12, 0.99));
+      linear-gradient(150deg, rgb(var(--fg) / 0.06), transparent 42%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.97), rgb(var(--panel) / 0.99));
     box-shadow:
       0 36px 100px rgba(0, 0, 0, 0.64),
-      inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      inset 0 1px 0 rgb(var(--fg) / 0.09);
     animation: scale-in 300ms var(--ease-out) both;
   }
 
@@ -202,7 +193,7 @@
     width: 240px;
     height: 240px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.065);
+    background: rgb(var(--fg) / 0.065);
     filter: blur(70px);
     pointer-events: none;
   }
@@ -220,12 +211,12 @@
     height: 52px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgb(var(--fg) / 0.16);
     border-radius: 16px;
     color: var(--text);
     background:
-      radial-gradient(circle at 30% 16%, rgba(255, 255, 255, 0.12), transparent 42%),
-      rgba(255, 255, 255, 0.045);
+      radial-gradient(circle at 30% 16%, rgb(var(--fg) / 0.12), transparent 42%),
+      rgb(var(--fg) / 0.045);
   }
 
   .details-icon img {
@@ -246,7 +237,7 @@
   }
 
   .eyebrow {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgb(var(--fg) / 0.6);
     font-size: 9px;
     font-weight: 650;
     letter-spacing: 0.16em;
@@ -274,10 +265,10 @@
     margin-left: auto;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 10px;
     color: var(--muted);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
     transition:
       color 180ms ease,
       background 180ms ease;
@@ -285,7 +276,7 @@
 
   .close:hover {
     color: var(--text);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgb(var(--fg) / 0.08);
   }
 
   .template-note {
@@ -294,10 +285,10 @@
     gap: 9px;
     margin-top: 20px;
     padding: 12px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgb(var(--fg) / 0.12);
     border-radius: 13px;
     color: var(--muted-strong);
-    background: rgba(255, 255, 255, 0.025);
+    background: rgb(var(--fg) / 0.025);
     font-size: 10.5px;
     line-height: 1.55;
   }
@@ -305,14 +296,14 @@
   .template-note :global(svg) {
     flex: 0 0 auto;
     margin-top: 1px;
-    color: rgba(255, 255, 255, 0.66);
+    color: rgb(var(--fg) / 0.66);
   }
 
   code {
     padding: 1px 4px;
     border-radius: 5px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.055);
+    background: rgb(var(--fg) / 0.055);
     font-size: 9.5px;
   }
 
@@ -325,9 +316,9 @@
 
   .panel {
     padding: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid rgb(var(--fg) / 0.07);
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.022);
+    background: rgb(var(--fg) / 0.022);
   }
 
   .panel-head {
@@ -343,9 +334,9 @@
 
   .badge {
     padding: 3px 7px;
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border: 1px solid rgb(var(--fg) / 0.09);
     border-radius: 999px;
-    color: rgba(255, 255, 255, 0.42);
+    color: rgb(var(--fg) / 0.42);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 8px;
     letter-spacing: 0.08em;
@@ -380,16 +371,16 @@
     align-items: center;
     gap: 5px;
     padding: 0 9px;
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border: 1px solid rgb(var(--fg) / 0.09);
     border-radius: 8px;
     color: var(--muted);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
     font-size: 9.5px;
   }
 
   .copy:hover {
     color: var(--text);
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .chips {
@@ -404,13 +395,13 @@
 
   .empty {
     margin: 0;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgb(var(--fg) / 0.3);
     font-size: 10px;
   }
 
   .hint {
     margin: 10px 0 0;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgb(var(--fg) / 0.3);
     font-size: 9px;
     line-height: 1.5;
   }
@@ -431,13 +422,13 @@
     flex-direction: column;
     gap: 4px;
     padding: 9px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.055);
+    border: 1px solid rgb(var(--fg) / 0.055);
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.18);
   }
 
   .config-item span {
-    color: rgba(255, 255, 255, 0.32);
+    color: rgb(var(--fg) / 0.32);
     font-size: 8.5px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -458,14 +449,14 @@
     gap: 14px;
     margin-top: 18px;
     padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgb(var(--fg) / 0.06);
   }
 
   .foot-note {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: rgba(255, 255, 255, 0.28);
+    color: rgb(var(--fg) / 0.28);
     font-size: 9px;
   }
 
@@ -473,17 +464,17 @@
     height: 38px;
     margin-left: auto;
     padding: 0 20px;
-    border: 1px solid rgba(255, 255, 255, 0.78);
+    border: 1px solid rgb(var(--fg) / 0.78);
     border-radius: 11px;
     color: #09090b;
     background: linear-gradient(145deg, #ffffff, #dcdce0);
     font-size: 11px;
     font-weight: 650;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px rgb(var(--fg) / 0.1);
   }
 
   .done:hover {
-    box-shadow: 0 0 28px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 28px rgb(var(--fg) / 0.2);
   }
 
   @media (max-width: 640px) {

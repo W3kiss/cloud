@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { t } from "$lib/i18n.svelte";
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import {
     api,
     humanizeError,
     DISCLAIMER_KEY,
+    WELCOME_KEY,
     type CatalogApp,
     type InstallProgress,
     type JobState,
@@ -18,9 +20,22 @@
   import WelcomeGate from "$lib/components/WelcomeGate.svelte";
   import AppDetails from "$lib/components/AppDetails.svelte";
   import ToastStack from "$lib/components/ToastStack.svelte";
+  import StrippedPanel from "$lib/components/StrippedPanel.svelte";
+  import UsbPanel from "$lib/components/UsbPanel.svelte";
+  import DiagnosticsPanel from "$lib/components/DiagnosticsPanel.svelte";
+  import SoftwareManager from "$lib/components/SoftwareManager.svelte";
+  import SystemPanel from "$lib/components/SystemPanel.svelte";
+  import MonitorPanel from "$lib/components/MonitorPanel.svelte";
+  import SettingsPanel from "$lib/components/SettingsPanel.svelte";
+  import AuthorsPanel from "$lib/components/AuthorsPanel.svelte";
+  import StarField from "$lib/components/StarField.svelte";
+  import CommandPalette from "$lib/components/CommandPalette.svelte";
+  import HomePanel from "$lib/components/HomePanel.svelte";
+  import { loadFavorites } from "$lib/favorites.svelte";
+  import { checkForUpdate, type UpdateInfo } from "$lib/updates";
   import Icon from "$lib/components/Icon.svelte";
 
-  type TabId = "apps" | "tweaks" | "backup";
+  type TabId = "home" | "apps" | "manager" | "system" | "monitor" | "tweaks" | "stripped" | "usb" | "backup" | "diagnostics" | "settings" | "authors";
 
   type DownloadBatch = {
     total: number;
@@ -32,31 +47,36 @@
     finished: boolean;
   };
 
-  const navItems = [
-    {
-      id: "apps",
-      label: "Software Hub",
-      hint: "Каталог и установка",
-      icon: "grid",
-    },
-    {
-      id: "tweaks",
-      label: "Windows Tweaks",
-      hint: "Оптимизация системы",
-      icon: "sliders",
-    },
-    {
-      id: "backup",
-      label: "Backups",
-      hint: "Восстановление AppData",
-      icon: "archive",
-    },
+  const NAV_META = [
+    { id: "home", icon: "home" },
+    { id: "apps", icon: "grid" },
+    { id: "manager", icon: "package" },
+    { id: "system", icon: "terminal" },
+    { id: "monitor", icon: "gamepad" },
+    { id: "tweaks", icon: "sliders" },
+    { id: "stripped", icon: "rocket" },
+    { id: "usb", icon: "usb" },
+    { id: "backup", icon: "archive" },
+    { id: "diagnostics", icon: "shield" },
+    { id: "settings", icon: "settings" },
+    { id: "authors", icon: "user" },
   ];
+  const navItems = $derived(
+    NAV_META.map((item) => ({
+      ...item,
+      label: t(`nav.${item.id}`),
+      hint: t(`nav.${item.id}.hint`),
+    })),
+  );
 
   let booted = $state(false);
   let accepted = $state(false);
+  let disclaimerKnown = $state(false);
   let welcomeLeaving = $state(false);
-  let activeTab = $state<TabId>("apps");
+  let activeTab = $state<TabId>("home");
+  let paletteOpen = $state(false);
+  let update = $state<UpdateInfo | null>(null);
+  let checkingUpdate = $state(false);
 
   let catalogApps = $state<CatalogApp[]>([]);
   let catalogVersion = $state(0);
@@ -147,9 +167,12 @@
     let disposed = false;
     let unlisten: UnlistenFn | undefined;
 
-    accepted = localStorage.getItem(DISCLAIMER_KEY) === "1";
+    disclaimerKnown = localStorage.getItem(DISCLAIMER_KEY) === "1";
+    accepted = disclaimerKnown && localStorage.getItem(WELCOME_KEY) === "1";
     booted = true;
 
+    loadFavorites();
+    window.setTimeout(() => void runUpdateCheck(false), 4000);
     loadCatalog();
     api
       .adminStatus()
@@ -195,6 +218,49 @@
       catalogError = humanizeError(caught);
     } finally {
       catalogLoading = false;
+    }
+  }
+
+  async function runUpdateCheck(manual: boolean) {
+    if (checkingUpdate) return;
+    checkingUpdate = true;
+    try {
+      update = await checkForUpdate();
+      if (update.newer) {
+        notify("info", t("home.update.new"), `v${update.latest}`);
+      } else if (manual) {
+        notify("success", t("home.update.ok"), `v${update.latest}`);
+      }
+    } catch {
+      if (manual) notify("error", t("home.update.fail"));
+    } finally {
+      checkingUpdate = false;
+    }
+  }
+
+  function onGlobalKey(event: KeyboardEvent) {
+    if (!accepted) return;
+    const mod = event.ctrlKey || event.metaKey;
+    if (!mod) return;
+    const key = event.key.toLowerCase();
+    if (key === "p" && event.shiftKey) {
+      event.preventDefault();
+      paletteOpen = !paletteOpen;
+      return;
+    }
+    if (key === "k" && activeTab !== "apps") {
+      event.preventDefault();
+      paletteOpen = !paletteOpen;
+      return;
+    }
+    if (/^[0-9]$/.test(event.key) && !event.shiftKey && !event.altKey) {
+      const index = event.key === "0" ? 9 : Number(event.key) - 1;
+      const target = navItems[index];
+      if (target) {
+        event.preventDefault();
+        paletteOpen = false;
+        switchTab(target.id);
+      }
     }
   }
 
@@ -337,14 +403,15 @@
 
   function acceptDisclaimer() {
     localStorage.setItem(DISCLAIMER_KEY, "1");
+    localStorage.setItem(WELCOME_KEY, "1");
     welcomeLeaving = true;
     window.setTimeout(() => {
       accepted = true;
       welcomeLeaving = false;
       notify(
         "success",
-        "Добро пожаловать в Setup Hub",
-        "Выберите приложения в каталоге и скачайте их одной очередью.",
+        t("welcome.toast"),
+        t("welcome.toast.sub"),
       );
     }, 240);
   }
@@ -363,11 +430,14 @@
   }
 </script>
 
+<svelte:window onkeydown={onGlobalKey} />
+
 <div class="app-root">
   <div class="ambient ambient-a"></div>
   <div class="ambient ambient-b"></div>
   <div class="ambient ambient-c"></div>
   <div class="grid-overlay"></div>
+  <StarField />
 
   <div
     class="app-frame"
@@ -385,7 +455,19 @@
 
     <main class="workspace">
       <div class="workspace-scroll" class:with-dock={dockVisible}>
-        {#if activeTab === "apps"}
+        {#if activeTab === "home"}
+          <HomePanel
+            tabs={navItems}
+            selectedCount={selectedCount}
+            catalogCount={catalogApps.length}
+            {admin}
+            {update}
+            checking={checkingUpdate}
+            onNavigate={switchTab}
+            onCheckUpdate={() => runUpdateCheck(true)}
+            onOpenPalette={() => (paletteOpen = true)}
+          />
+        {:else if activeTab === "apps"}
           <SoftwareHub
             apps={catalogApps}
             loading={catalogLoading}
@@ -398,8 +480,24 @@
             onDetails={(app) => (selectedApp = app)}
             onRetry={loadCatalog}
           />
+        {:else if activeTab === "manager"}
+          <SoftwareManager onNotify={notify} />
+        {:else if activeTab === "system"}
+          <SystemPanel onNotify={notify} />
+        {:else if activeTab === "monitor"}
+          <MonitorPanel onNotify={notify} />
         {:else if activeTab === "tweaks"}
           <TweaksPanel onNotify={notify} />
+        {:else if activeTab === "stripped"}
+          <StrippedPanel onNotify={notify} onLeave={() => switchTab("tweaks")} />
+        {:else if activeTab === "usb"}
+          <UsbPanel onNotify={notify} />
+        {:else if activeTab === "diagnostics"}
+          <DiagnosticsPanel onNotify={notify} />
+        {:else if activeTab === "settings"}
+          <SettingsPanel onNotify={notify} />
+        {:else if activeTab === "authors"}
+          <AuthorsPanel />
         {:else}
           <BackupPanel onNotify={notify} />
         {/if}
@@ -472,10 +570,24 @@
 {#if booted && !accepted}
   <WelcomeGate
     leaving={welcomeLeaving}
+    skipTerms={disclaimerKnown}
     onAccept={acceptDisclaimer}
     onExit={exitApp}
   />
 {/if}
+
+<CommandPalette
+  open={paletteOpen && accepted}
+  tabs={navItems}
+  apps={catalogApps}
+  onClose={() => (paletteOpen = false)}
+  onNavigate={switchTab}
+  onToggleApp={(app) => {
+    switchTab("apps");
+    toggleSelect(app);
+  }}
+  onCheckUpdate={() => runUpdateCheck(true)}
+/>
 
 {#if selectedApp}
   <AppDetails app={selectedApp} onClose={() => (selectedApp = null)} />
@@ -503,8 +615,8 @@
     height: 100vh;
     overflow: hidden;
     background:
-      radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.06), transparent 45%),
-      linear-gradient(180deg, rgba(11, 11, 13, 0.94), rgba(4, 4, 6, 0.98));
+      radial-gradient(circle at 50% -20%, rgb(var(--fg) / 0.06), transparent 45%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.94), rgb(var(--panel) / 0.98));
   }
 
   .grid-overlay {
@@ -512,8 +624,8 @@
     inset: 0;
     opacity: 0.13;
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      linear-gradient(rgb(var(--fg) / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--fg) / 0.035) 1px, transparent 1px);
     background-size: 42px 42px;
     mask-image: radial-gradient(circle at 50% 0%, #000 0%, transparent 72%);
     pointer-events: none;
@@ -531,7 +643,7 @@
     left: 22%;
     width: 42vw;
     height: 42vw;
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .ambient-b {
@@ -539,7 +651,7 @@
     bottom: -20%;
     width: 38vw;
     height: 38vw;
-    background: rgba(255, 255, 255, 0.022);
+    background: rgb(var(--fg) / 0.022);
   }
 
   .ambient-c {
@@ -547,7 +659,7 @@
     left: 8%;
     width: 24vw;
     height: 24vw;
-    background: rgba(255, 255, 255, 0.016);
+    background: rgb(var(--fg) / 0.016);
   }
 
   .app-frame {
@@ -583,7 +695,7 @@
     right: 10%;
     left: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+    background: linear-gradient(90deg, transparent, rgb(var(--fg) / 0.14), transparent);
     content: "";
     pointer-events: none;
   }
@@ -609,22 +721,22 @@
     z-index: 60;
     padding: 15px 18px 0;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgb(var(--fg) / 0.14);
     border-radius: 20px;
     background:
-      linear-gradient(155deg, rgba(255, 255, 255, 0.055), transparent 42%),
-      linear-gradient(180deg, rgba(22, 22, 26, 0.94), rgba(9, 9, 12, 0.97));
+      linear-gradient(155deg, rgb(var(--fg) / 0.055), transparent 42%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.94), rgb(var(--panel) / 0.97));
     box-shadow:
       0 28px 64px rgba(0, 0, 0, 0.56),
-      0 0 0 1px rgba(255, 255, 255, 0.025),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      0 0 0 1px rgb(var(--fg) / 0.025),
+      inset 0 1px 0 rgb(var(--fg) / 0.08);
     backdrop-filter: blur(28px) saturate(115%);
     -webkit-backdrop-filter: blur(28px) saturate(115%);
     animation: dock-in 340ms var(--ease-out) both;
   }
 
   .download-dock.done {
-    border-color: rgba(255, 255, 255, 0.22);
+    border-color: rgb(var(--fg) / 0.22);
   }
 
   .download-dock.failed {
@@ -643,13 +755,13 @@
     height: 42px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgb(var(--fg) / 0.16);
     border-radius: 13px;
     color: var(--text);
     background:
-      radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.14), transparent 46%),
-      rgba(255, 255, 255, 0.055);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      radial-gradient(circle at 32% 18%, rgb(var(--fg) / 0.14), transparent 46%),
+      rgb(var(--fg) / 0.055);
+    box-shadow: inset 0 1px 0 rgb(var(--fg) / 0.08);
   }
 
   .download-dock.failed .dock-icon {
@@ -661,7 +773,7 @@
   .dock-spinner {
     width: 17px;
     height: 17px;
-    border: 1.7px solid rgba(255, 255, 255, 0.16);
+    border: 1.7px solid rgb(var(--fg) / 0.16);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -689,7 +801,7 @@
 
   .dock-percent {
     flex: 0 0 auto;
-    color: rgba(255, 255, 255, 0.58);
+    color: rgb(var(--fg) / 0.58);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 10px;
     letter-spacing: 0.06em;
@@ -735,31 +847,31 @@
   }
 
   .dock-button.ghost {
-    border: 1px solid rgba(255, 255, 255, 0.11);
+    border: 1px solid rgb(var(--fg) / 0.11);
     color: var(--muted-strong);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .dock-button.ghost:hover {
-    border-color: rgba(255, 255, 255, 0.28);
+    border-color: rgb(var(--fg) / 0.28);
     color: var(--text);
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .dock-button.primary {
-    border: 1px solid rgba(255, 255, 255, 0.88);
+    border: 1px solid rgb(var(--fg) / 0.88);
     color: #09090b;
     background: linear-gradient(145deg, #ffffff, #d9d9de);
     box-shadow:
-      0 0 24px rgba(255, 255, 255, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      0 0 24px rgb(var(--fg) / 0.14),
+      inset 0 1px 0 rgb(var(--fg) / 0.65);
   }
 
   .dock-button.primary:hover {
     background: linear-gradient(145deg, #ffffff, #e8e8eb);
     box-shadow:
-      0 0 32px rgba(255, 255, 255, 0.24),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      0 0 32px rgb(var(--fg) / 0.24),
+      inset 0 1px 0 rgb(var(--fg) / 0.8);
     transform: translateY(-1px);
   }
 
@@ -769,10 +881,10 @@
     align-items: center;
     gap: 7px;
     padding: 0 11px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 10px;
     color: var(--muted);
-    background: rgba(255, 255, 255, 0.025);
+    background: rgb(var(--fg) / 0.025);
     font-size: 9.5px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -783,7 +895,7 @@
     height: 6px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 8px rgb(var(--fg) / 0.6);
     animation: pulse-dot 1.3s ease-in-out infinite;
   }
 
@@ -792,7 +904,7 @@
     height: 3px;
     margin: 15px -18px 0;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .dock-progress-fill {
@@ -801,7 +913,7 @@
     border-radius: 0 999px 999px 0;
     background: linear-gradient(90deg, #73737c, #dfdfe3 45%, #ffffff 72%, #a6a6ae);
     background-size: 220% 100%;
-    box-shadow: 0 0 14px rgba(255, 255, 255, 0.34);
+    box-shadow: 0 0 14px rgb(var(--fg) / 0.34);
     transition: width 260ms linear;
   }
 
@@ -819,7 +931,7 @@
     background: linear-gradient(
       100deg,
       transparent 30%,
-      rgba(255, 255, 255, 0.28) 50%,
+      rgb(var(--fg) / 0.28) 50%,
       transparent 70%
     );
     transform: translateX(-100%);
@@ -857,7 +969,7 @@
     justify-content: center;
     gap: 11px;
     background:
-      radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.04), transparent 28%),
+      radial-gradient(circle at 50% 45%, rgb(var(--fg) / 0.04), transparent 28%),
       #060608;
     animation: fade-in 180ms ease both;
   }
@@ -867,11 +979,11 @@
     width: 64px;
     height: 64px;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 1px solid rgb(var(--fg) / 0.28);
     border-radius: 20px;
     color: var(--accent);
-    background: rgba(255, 255, 255, 0.045);
-    box-shadow: 0 0 38px rgba(255, 255, 255, 0.08);
+    background: rgb(var(--fg) / 0.045);
+    box-shadow: 0 0 38px rgb(var(--fg) / 0.08);
     animation: breathe 2.4s ease-in-out infinite;
   }
 
@@ -889,7 +1001,7 @@
     margin-top: 4px;
     overflow: hidden;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 
   .boot-line i {
@@ -902,7 +1014,7 @@
   }
 
   .boot-note {
-    color: rgba(255, 255, 255, 0.26);
+    color: rgb(var(--fg) / 0.26);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 8px;
     letter-spacing: 0.1em;

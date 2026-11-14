@@ -1,0 +1,79 @@
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Create a GitHub Release with this tag (e.g. v0.1.0). Leave empty for a build only."
+        required: false
+        default: ""
+  push:
+    branches: [feat-ui-authors-tweaks, main]
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --release
+        continue-on-error: false
+
+      - name: Clippy (non-blocking)
+        working-directory: src-tauri
+        run: cargo clippy --release
+        continue-on-error: true
+
+      - name: Svelte type check (non-blocking)
+        run: npx svelte-kit sync && npx svelte-check --threshold error
+        continue-on-error: true
+
+      - run: npm run tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: setup-hub-windows
+          path: |
+            src-tauri/target/release/setup-hub.exe
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
+          if-no-files-found: warn
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release_tag != ''
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag || github.ref_name }}
+          TARGET: ${{ github.sha }}
+        run: |
+          $out = "release-assets"
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          Copy-Item src-tauri/target/release/setup-hub.exe "$out/Setup-Hub_portable.exe"
+          Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe | ForEach-Object { Copy-Item $_.FullName "$out/Setup-Hub_installer.exe" }
+          Get-ChildItem src-tauri/target/release/bundle/msi/*.msi | ForEach-Object { Copy-Item $_.FullName "$out/Setup-Hub_installer.msi" }
+          Get-FileHash "$out/*" -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } | Set-Content "$out/SHA256SUMS.txt"
+          # Clear out every earlier (beta / pre-release) release so only the final one remains.
+          foreach ($old in (gh release list --limit 100 --json tagName --jq '.[].tagName')) {
+            if ($old -and $old -ne $env:TAG) { gh release delete $old --cleanup-tag --yes }
+          }
+          gh release create $env:TAG (Get-ChildItem $out | ForEach-Object { $_.FullName }) --target $env:TARGET --title "Setup Hub $env:TAG" --notes "Setup Hub 1.0 - Windows utility: software hub, tweaks, Windows-to-USB, backups, maintenance and monitoring. Download Setup-Hub_portable.exe to run without installation, or the installer. Checksums are in SHA256SUMS.txt. Run as administrator for tweaks, services and USB writing."

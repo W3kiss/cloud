@@ -2,6 +2,7 @@
   import type { CatalogApp, JobState } from "$lib/api";
   import { logoFor } from "$lib/logos";
   import Icon from "./Icon.svelte";
+  import { t } from "$lib/i18n.svelte";
   import ProgressBar from "./ProgressBar.svelte";
 
   let {
@@ -10,6 +11,8 @@
     job = undefined,
     selected = false,
     disabled = false,
+    favorite = false,
+    onToggleFavorite = () => {},
     onToggleSelect,
     onDetails,
   }: {
@@ -18,6 +21,8 @@
     job?: JobState;
     selected?: boolean;
     disabled?: boolean;
+    favorite?: boolean;
+    onToggleFavorite?: (app: CatalogApp) => void;
     onToggleSelect: (app: CatalogApp) => void;
     onDetails: (app: CatalogApp) => void;
   } = $props();
@@ -45,7 +50,7 @@
         ? app.downloadUrl
             .replace(/^https:\/\//, "")
             .split("/")[0]
-        : "placeholder"),
+        : "—"),
   );
 
   let running = $derived(job?.status === "running");
@@ -67,10 +72,21 @@
 
 <article
   class="app-card"
-  class:template={app.placeholder}
   class:selected
   class:running
   style={`--i:${index};`}
+  role="button"
+  tabindex="0"
+  aria-pressed={selected}
+  onclick={() => {
+    if (!locked) onToggleSelect(app);
+  }}
+  onkeydown={(event) => {
+    if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      if (!locked) onToggleSelect(app);
+    }
+  }}
 >
   <div class="card-aura" aria-hidden="true"></div>
 
@@ -89,17 +105,29 @@
       {/if}
     </div>
     <div class="badge-row">
-      {#if !app.placeholder}
-        <span class="select-mark" class:on={selected} aria-hidden="true">
-          {#if selected}
-            <Icon name="check" size={10} stroke={2.6} />
-          {/if}
-        </span>
-      {/if}
+      <button
+        type="button"
+        class="fav-btn"
+        class:on={favorite}
+        title={favorite ? t("hub.fav.remove") : t("hub.fav.add")}
+        aria-label={favorite ? t("hub.fav.remove") : t("hub.fav.add")}
+        aria-pressed={favorite}
+        onclick={(event) => {
+          event.stopPropagation();
+          onToggleFavorite(app);
+        }}
+        onkeydown={(event) => event.stopPropagation()}
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill={favorite ? "currentColor" : "none"} stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+          <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" />
+        </svg>
+      </button>
+      <span class="select-mark" class:on={selected} aria-hidden="true">
+        {#if selected}
+          <Icon name="check" size={10} stroke={2.6} />
+        {/if}
+      </span>
       <span class="badge kind">{kindLabel}</span>
-      {#if app.placeholder}
-        <span class="badge template-badge">TEMPLATE</span>
-      {/if}
     </div>
   </header>
 
@@ -117,20 +145,17 @@
     <ProgressBar percent={job?.percent ?? null} phase={job?.phase ?? "Установка"} />
   {:else}
     <footer class="card-foot">
-      {#if app.placeholder}
-        <button type="button" class="action ghost" onclick={() => onDetails(app)}>
-          <Icon name="sliders" size={15} />
-          Параметры
-          <Icon name="arrow" size={13} className="arrow" />
-        </button>
-      {:else}
+      {#if true}
         <button
           type="button"
           class="action select"
           class:selected
           disabled={locked}
           aria-pressed={selected}
-          onclick={() => onToggleSelect(app)}
+          onclick={(event) => {
+            event.stopPropagation();
+            onToggleSelect(app);
+          }}
         >
           {#if selected}
             <Icon name="check" size={15} stroke={2.2} />
@@ -169,13 +194,13 @@
     flex-direction: column;
     padding: 18px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.075);
+    border: 1px solid rgb(var(--fg) / 0.075);
     border-radius: 22px;
     background:
-      linear-gradient(155deg, rgba(255, 255, 255, 0.042), transparent 38%),
-      linear-gradient(180deg, rgba(17, 17, 20, 0.9), rgba(10, 10, 12, 0.95));
+      linear-gradient(155deg, rgb(var(--fg) / 0.042), transparent 38%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.9), rgb(var(--panel) / 0.95));
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgb(var(--fg) / 0.05),
       0 14px 36px rgba(0, 0, 0, 0.24);
     transform: translateZ(0);
     transform-origin: center center;
@@ -191,10 +216,10 @@
 
   .app-card.template {
     border-style: dashed;
-    border-color: rgba(255, 255, 255, 0.13);
+    border-color: rgb(var(--fg) / 0.13);
     background:
-      linear-gradient(155deg, rgba(255, 255, 255, 0.026), transparent 42%),
-      linear-gradient(180deg, rgba(14, 14, 17, 0.78), rgba(9, 9, 11, 0.88));
+      linear-gradient(155deg, rgb(var(--fg) / 0.026), transparent 42%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.78), rgb(var(--panel) / 0.88));
   }
 
   .app-card::before {
@@ -205,10 +230,10 @@
     padding: 1px;
     background: linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.9),
+      rgb(var(--fg) / 0.9),
       transparent 34%,
       transparent 66%,
-      rgba(255, 255, 255, 0.34)
+      rgb(var(--fg) / 0.34)
     );
     content: "";
     opacity: 0;
@@ -226,11 +251,11 @@
 
   .app-card:hover {
     z-index: 3;
-    border-color: rgba(255, 255, 255, 0.24);
+    border-color: rgb(var(--fg) / 0.24);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.09),
+      inset 0 1px 0 rgb(var(--fg) / 0.09),
       0 26px 54px rgba(0, 0, 0, 0.44),
-      0 0 34px rgba(255, 255, 255, 0.055);
+      0 0 34px rgb(var(--fg) / 0.055);
     transform: translateY(-4px) scale(1.02);
   }
 
@@ -239,14 +264,14 @@
   }
 
   .app-card.selected {
-    border-color: rgba(255, 255, 255, 0.55);
+    border-color: rgb(var(--fg) / 0.55);
     background:
-      linear-gradient(155deg, rgba(255, 255, 255, 0.075), transparent 42%),
-      linear-gradient(180deg, rgba(26, 26, 30, 0.94), rgba(12, 12, 15, 0.97));
+      linear-gradient(155deg, rgb(var(--fg) / 0.075), transparent 42%),
+      linear-gradient(180deg, rgba(26, 26, 30, 0.94), rgb(var(--panel) / 0.97));
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      inset 0 1px 0 rgb(var(--fg) / 0.12),
       0 20px 46px rgba(0, 0, 0, 0.38),
-      0 0 32px rgba(255, 255, 255, 0.09);
+      0 0 32px rgb(var(--fg) / 0.09);
   }
 
   .app-card.selected::before {
@@ -260,7 +285,7 @@
     width: 170px;
     height: 170px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
     filter: blur(52px);
     opacity: 0.32;
     transition:
@@ -291,22 +316,22 @@
     height: 50px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgb(var(--fg) / 0.14);
     border-radius: 15px;
-    color: rgba(255, 255, 255, 0.88);
+    color: rgb(var(--fg) / 0.88);
     background:
-      radial-gradient(circle at 30% 16%, rgba(255, 255, 255, 0.13), transparent 42%),
+      radial-gradient(circle at 30% 16%, rgb(var(--fg) / 0.13), transparent 42%),
       linear-gradient(145deg, #252529, #111114 70%);
     box-shadow:
       0 10px 22px rgba(0, 0, 0, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.11);
+      inset 0 1px 0 rgb(var(--fg) / 0.11);
     transition:
       border-color 280ms ease,
       transform 280ms var(--ease-out);
   }
 
   .app-card:hover .icon-tile {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgb(var(--fg) / 0.3);
     transform: translateY(-1px);
   }
 
@@ -342,7 +367,7 @@
     height: 18px;
     margin-right: 2px;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgb(var(--fg) / 0.16);
     border-radius: 50%;
     color: #09090b;
     background: transparent;
@@ -360,10 +385,10 @@
 
   .badge {
     padding: 4px 7px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 999px;
-    color: rgba(255, 255, 255, 0.45);
-    background: rgba(255, 255, 255, 0.025);
+    color: rgb(var(--fg) / 0.45);
+    background: rgb(var(--fg) / 0.025);
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 8px;
     font-weight: 600;
@@ -371,15 +396,15 @@
   }
 
   .badge.kind {
-    border-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.56);
-    background: rgba(255, 255, 255, 0.035);
+    border-color: rgb(var(--fg) / 0.1);
+    color: rgb(var(--fg) / 0.56);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .template-badge {
     border-style: dashed;
-    border-color: rgba(255, 255, 255, 0.18);
-    color: rgba(255, 255, 255, 0.5);
+    border-color: rgb(var(--fg) / 0.18);
+    color: rgb(var(--fg) / 0.5);
     background: transparent;
   }
 
@@ -416,7 +441,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 13px;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgb(var(--fg) / 0.3);
   }
 
   .meta-row code {
@@ -460,33 +485,33 @@
   }
 
   .action.select {
-    border: 1px solid rgba(255, 255, 255, 0.13);
+    border: 1px solid rgb(var(--fg) / 0.13);
     color: var(--muted-strong);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .action.select:hover:not(:disabled) {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgb(var(--fg) / 0.3);
     color: var(--text);
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
     transform: translateY(-1px);
   }
 
   .action.select.selected {
-    border-color: rgba(255, 255, 255, 0.85);
+    border-color: rgb(var(--fg) / 0.85);
     color: #0a0a0c;
     background: linear-gradient(145deg, #ffffff, #d8d8dc);
     box-shadow:
-      0 0 20px rgba(255, 255, 255, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      0 0 20px rgb(var(--fg) / 0.14),
+      inset 0 1px 0 rgb(var(--fg) / 0.6);
   }
 
   .action.select.selected:hover:not(:disabled) {
     color: #0a0a0c;
     background: linear-gradient(145deg, #ffffff, #e7e7ea);
     box-shadow:
-      0 0 28px rgba(255, 255, 255, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      0 0 28px rgb(var(--fg) / 0.22),
+      inset 0 1px 0 rgb(var(--fg) / 0.7);
   }
 
   .action:disabled {
@@ -497,25 +522,25 @@
   .select-ring {
     width: 12px;
     height: 12px;
-    border: 1.5px solid rgba(255, 255, 255, 0.42);
+    border: 1.5px solid rgb(var(--fg) / 0.42);
     border-radius: 50%;
     transition: border-color 200ms ease;
   }
 
   .action.select:hover:not(:disabled) .select-ring {
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: rgb(var(--fg) / 0.8);
   }
 
   .action.ghost {
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(var(--fg) / 0.1);
     color: var(--muted-strong);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--fg) / 0.035);
   }
 
   .action.ghost:hover {
-    border-color: rgba(255, 255, 255, 0.26);
+    border-color: rgb(var(--fg) / 0.26);
     color: var(--text);
-    background: rgba(255, 255, 255, 0.065);
+    background: rgb(var(--fg) / 0.065);
   }
 
   .action :global(.arrow) {
@@ -529,7 +554,7 @@
 
   .config-count {
     margin-left: auto;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgb(var(--fg) / 0.3);
     font-size: 9px;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -540,7 +565,7 @@
     align-items: center;
     gap: 5px;
     margin-left: auto;
-    color: rgba(255, 255, 255, 0.58);
+    color: rgb(var(--fg) / 0.58);
     font-size: 9px;
     white-space: nowrap;
   }
@@ -562,5 +587,38 @@
   .job-error :global(svg) {
     flex: 0 0 auto;
     margin-top: 1px;
+  }
+
+  .app-card {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .app-card.running {
+    cursor: default;
+  }
+
+  .fav-btn {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    color: rgb(var(--fg) / 0.4);
+    background: transparent;
+    cursor: pointer;
+    transition: color 160ms, background 160ms, transform 160ms;
+  }
+
+  .fav-btn:hover {
+    color: var(--text);
+    background: rgb(var(--fg) / 0.08);
+    transform: scale(1.1);
+  }
+
+  .fav-btn.on {
+    color: #fbbf24;
   }
 </style>

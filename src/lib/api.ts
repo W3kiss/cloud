@@ -1,5 +1,134 @@
 import { invoke } from "@tauri-apps/api/core";
 
+export interface UsbDisk {
+  number: number;
+  name: string;
+  sizeGb: number;
+  style: string;
+  letters: string;
+}
+
+export interface DiagCheck {
+  id: string;
+  title: string;
+  status: "ok" | "warn" | "fail";
+  detail: string;
+  code: string;
+  fixable: boolean;
+}
+
+export interface AppFolder {
+  root: "roaming" | "local";
+  name: string;
+  sizeMb: number;
+  files: number;
+  modified: number;
+  known: string | null;
+  running: boolean;
+}
+
+export interface BackupEntry {
+  root: "roaming" | "local";
+  name: string;
+  files: number;
+  bytes: number;
+}
+
+export interface BackupManifest {
+  version: number;
+  created: number;
+  computer: string;
+  entries: BackupEntry[];
+}
+
+export interface BackupRequest {
+  root: string;
+  name: string;
+}
+
+export interface Package {
+  id: string;
+  name: string;
+  version: string;
+  available: string;
+  source: string;
+}
+
+export interface ServiceInfo {
+  name: string;
+  display: string;
+  state: string;
+  mode: string;
+  delayed: boolean;
+  path: string;
+  thirdParty: boolean;
+  protected: boolean;
+}
+
+export interface StartupItem {
+  id: string;
+  name: string;
+  command: string;
+  location: string;
+  enabled: boolean;
+}
+
+export interface JunkCategory {
+  id: string;
+  title: string;
+  hint: string;
+  sizeMb: number;
+  files: number;
+  requiresAdmin: boolean;
+  recommended: boolean;
+}
+
+export interface CleanReport {
+  freedMb: number;
+  skippedFiles: number;
+  notes: string[];
+}
+
+export interface MenuItem {
+  scope: "files" | "folders" | "desktop";
+  key: string;
+  label: string;
+  command: string;
+  icon: string;
+  disabled: boolean;
+  extended: boolean;
+  origin: "user" | "machine";
+  ours: boolean;
+}
+
+export interface HwStats {
+  cpu: number;
+  cpuName: string;
+  cpuTemp: number | null;
+  ramUsedGb: number;
+  ramTotalGb: number;
+  ramPercent: number;
+  gpu: number | null;
+  gpuName: string | null;
+  gpuTemp: number | null;
+}
+
+export interface DiskResult {
+  drive: string;
+  sizeMb: number;
+  seqWriteMbs: number;
+  seqReadMbs: number;
+  randReadIops: number;
+  randReadMbs: number;
+}
+
+export interface StressResult {
+  threads: number;
+  seconds: number;
+  score: number;
+  throttlePercent: number;
+}
+
 export type AppCategory = "system" | "browsers" | "gaming" | "production";
 export type InstallKind = "winget" | "download" | "custom";
 
@@ -56,13 +185,73 @@ export interface ToastItem {
 }
 
 export const DISCLAIMER_KEY = "setup-hub.disclaimer.accepted.v1";
+export const WELCOME_KEY = "setup-hub.welcome.done.v1";
 
 export const api = {
   catalog: () => invoke<Catalog>("bundled_catalog"),
+  installWinget: (wingetId: string) =>
+    invoke<string>("install_winget", { wingetId }),
   installEntry: (appId: string) => invoke<string>("install_entry", { appId }),
   tweakStates: () => invoke<TweakStatus[]>("tweak_states"),
   applyTweak: (id: string, enabled: boolean) =>
     invoke<string>("apply_tweak", { id, enabled }),
+  strippedStates: () => invoke<TweakStatus[]>("stripped_states"),
+  applyStripped: (id: string, enabled: boolean) =>
+    invoke<string>("apply_stripped", { id, enabled }),
+  createRestorePoint: () => invoke<string>("create_restore_point"),
+  downloadWindowsIso: (product: string, language: string) =>
+    invoke<string>("download_windows_iso", { product, language }),
+  cancelIsoDownload: () => invoke<void>("cancel_iso_download"),
+  deleteCachedIso: (path: string) => invoke<void>("delete_cached_iso", { path }),
+  listUsbDisks: () => invoke<UsbDisk[]>("list_usb_disks"),
+  createUsbInstaller: (
+    isoPath: string,
+    diskNumber: number,
+    variant: string,
+    scheme: string,
+  ) =>
+    invoke<string>("create_usb_installer", { isoPath, diskNumber, variant, scheme }),
+  startMonitor: () => invoke<void>("start_monitor"),
+  stopMonitor: () => invoke<void>("stop_monitor"),
+  listDrives: () => invoke<string[]>("list_drives"),
+  cancelBench: () => invoke<void>("cancel_bench"),
+  runDiskBench: (drive: string, sizeMb: number) =>
+    invoke<DiskResult>("run_disk_bench", { drive, sizeMb }),
+  runCpuStress: (seconds: number) => invoke<StressResult>("run_cpu_stress", { seconds }),
+  listServices: () => invoke<ServiceInfo[]>("list_services"),
+  setServiceMode: (name: string, mode: string) =>
+    invoke<string>("set_service_mode", { name, mode }),
+  listStartup: () => invoke<StartupItem[]>("list_startup"),
+  setStartupEnabled: (location: string, name: string, enabled: boolean) =>
+    invoke<string>("set_startup_enabled", { location, name, enabled }),
+  scanJunk: () => invoke<JunkCategory[]>("scan_junk"),
+  cleanJunk: (ids: string[]) => invoke<CleanReport>("clean_junk", { ids }),
+  emptyRecycleBin: () => invoke<string>("empty_recycle_bin"),
+  listMenu: () => invoke<MenuItem[]>("list_menu"),
+  addMenuItem: (scope: string, key: string, label: string, command: string, icon: string, extended: boolean) =>
+    invoke<string>("add_menu_item", { scope, key, label, command, icon, extended }),
+  setMenuDisabled: (scope: string, key: string, origin: string, disabled: boolean) =>
+    invoke<string>("set_menu_disabled", { scope, key, origin, disabled }),
+  removeMenuItem: (scope: string, key: string) =>
+    invoke<string>("remove_menu_item", { scope, key }),
+  listInstalled: () => invoke<Package[]>("list_installed"),
+  listUpdates: () => invoke<Package[]>("list_updates"),
+  upgradePackage: (id: string) => invoke<string>("upgrade_package", { id }),
+  uninstallPackage: (id: string) => invoke<string>("uninstall_package", { id }),
+  writePreset: (path: string, content: string) =>
+    invoke<void>("write_preset", { path, content }),
+  readPreset: (path: string) => invoke<string>("read_preset", { path }),
+  scanAppdata: () => invoke<AppFolder[]>("scan_appdata"),
+  createBackup: (items: BackupRequest[], destination: string, includeCache: boolean) =>
+    invoke<string>("create_backup", { items, destination, includeCache }),
+  inspectBackup: (path: string) => invoke<BackupManifest>("inspect_backup", { path }),
+  restoreArchive: (path: string, selected: BackupRequest[]) =>
+    invoke<string>("restore_archive", { path, selected }),
+  runDiagnostics: () => invoke<DiagCheck[]>("run_diagnostics"),
+  fixDiagnostic: (id: string) => invoke<string>("fix_diagnostic", { id }),
+  exportDiagnostics: () => invoke<string>("export_diagnostics"),
+  logFrontendError: (message: string) =>
+    invoke<void>("log_frontend_error", { message }),
   restartExplorer: () => invoke<string>("restart_explorer"),
   adminStatus: () => invoke<boolean>("admin_status"),
   restartElevated: () => invoke<void>("restart_elevated"),

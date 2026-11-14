@@ -67,21 +67,21 @@
     align-items: flex-start;
     gap: 10px;
     padding: 13px 13px 13px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.11);
+    border: 1px solid rgb(var(--fg) / 0.11);
     border-radius: 15px;
     background:
-      linear-gradient(150deg, rgba(255, 255, 255, 0.055), transparent 44%),
-      rgba(15, 15, 18, 0.95);
+      linear-gradient(150deg, rgb(var(--fg) / 0.055), transparent 44%),
+      rgb(var(--panel) / 0.95);
     box-shadow:
       0 18px 46px rgba(0, 0, 0, 0.48),
-      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      inset 0 1px 0 rgb(var(--fg) / 0.07);
     backdrop-filter: blur(20px);
     animation: toast-in 260ms var(--ease-out) both;
     pointer-events: auto;
   }
 
   .toast.success {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgb(var(--fg) / 0.2);
   }
 
   .toast.error {
@@ -94,15 +94,15 @@
     height: 32px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(var(--fg) / 0.1);
     border-radius: 10px;
     color: var(--text);
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
   }
 
   .toast.success .toast-icon {
     color: var(--text);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgb(var(--fg) / 0.06);
   }
 
   .toast.error .toast-icon {
@@ -142,7 +142,7 @@
     margin-left: auto;
     place-items: center;
     border-radius: 7px;
-    color: rgba(255, 255, 255, 0.32);
+    color: rgb(var(--fg) / 0.32);
     transition:
       color 180ms ease,
       background 180ms ease;
@@ -150,6 +150,6 @@
 
   .toast-close:hover {
     color: var(--text);
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--fg) / 0.07);
   }
 </style>

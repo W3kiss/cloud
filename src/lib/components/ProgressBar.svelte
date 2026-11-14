@@ -31,9 +31,9 @@
   .progress {
     margin-top: 14px;
     padding: 12px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgb(var(--fg) / 0.08);
     border-radius: 14px;
-    background: rgba(6, 6, 8, 0.55);
+    background: rgb(var(--panel) / 0.55);
   }
 
   .progress-head {
@@ -63,7 +63,7 @@
     flex: 0 0 auto;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.72);
+    box-shadow: 0 0 10px rgb(var(--fg) / 0.72);
     animation: pulse-dot 1.3s ease-in-out infinite;
   }
 
@@ -80,7 +80,7 @@
     height: 6px;
     overflow: hidden;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.075);
+    background: rgb(var(--fg) / 0.075);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55);
   }
 
@@ -99,8 +99,8 @@
     background-size: 260% 100%;
     animation: progress-shift 1.7s linear infinite;
     box-shadow:
-      0 0 12px rgba(255, 255, 255, 0.32),
-      0 0 26px rgba(255, 255, 255, 0.12);
+      0 0 12px rgb(var(--fg) / 0.32),
+      0 0 26px rgb(var(--fg) / 0.12);
     transition: width 220ms linear;
   }
 

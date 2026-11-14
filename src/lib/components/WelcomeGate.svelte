@@ -1,14 +1,26 @@
 <script lang="ts">
   import Icon from "./Icon.svelte";
+  import { t, LANGS } from "$lib/i18n.svelte";
+  import { THEMES, settings, saveSettings } from "$lib/settings.svelte";
 
   let {
     onAccept,
     onExit,
     leaving = false,
-  }: { onAccept: () => void; onExit: () => void; leaving?: boolean } = $props();
+    skipTerms = false,
+  }: { onAccept: () => void; onExit: () => void; leaving?: boolean; skipTerms?: boolean } = $props();
 
-  const disclaimer =
-    "Это приложение является проектом с открытым исходным кодом (Open-Source). Данный инструмент предназначен исключительно для автоматизации рутинных задач после переустановки операционной системы. Автор не несет ответственности за действия пользователя и используемые им ссылки на сторонние ресурсы. Если вы не хотите рисковать или не согласны с данными условиями, пожалуйста, закройте приложение и прекратите его использование.";
+  let step = $state(0);
+
+  function pickLang(id: (typeof LANGS)[number]["id"]) {
+    settings.lang = id;
+    saveSettings();
+  }
+
+  function pickTheme(id: (typeof THEMES)[number]["id"]) {
+    settings.theme = id;
+    saveSettings();
+  }
 </script>
 
 <div
@@ -29,41 +41,81 @@
         <Icon name="shield" size={30} stroke={1.6} />
       </div>
       <div class="welcome-meta">
-        <span class="eyebrow">Setup Hub / Open Source</span>
+        <span class="eyebrow">Setup Hub</span>
         <span class="meta-line"></span>
-        <span class="meta-note">Первый запуск</span>
+        <span class="meta-note">{t("welcome.step1.eyebrow")}</span>
       </div>
     </div>
 
-    <h1 id="welcome-title">Перед началом работы</h1>
+    {#if step === 0}
+      <h1 id="welcome-title">{t("welcome.hello")}</h1>
+      <p class="disclaimer">{t("welcome.sub")}</p>
 
-    <p class="disclaimer">{disclaimer}</p>
+      <h2 class="pick-title">{t("welcome.lang")}</h2>
+      <div class="pick-grid langs">
+        {#each LANGS as lang (lang.id)}
+          <button
+            type="button"
+            class="pick"
+            class:active={settings.lang === lang.id}
+            onclick={() => pickLang(lang.id)}
+          >
+            <b>{lang.flag}</b>
+            <span>{lang.native}</span>
+          </button>
+        {/each}
+      </div>
 
-    <div class="notice">
-      <Icon name="info" size={16} />
-      <span>
-        Все операции выполняются локально. Приложение не отправляет данные
-        на сторонние серверы, кроме загрузки выбранных вами установщиков.
-      </span>
-    </div>
+      <h2 class="pick-title">{t("welcome.theme")}</h2>
+      <div class="pick-grid themes">
+        {#each THEMES as theme (theme.id)}
+          <button
+            type="button"
+            class="pick theme"
+            class:active={settings.theme === theme.id}
+            style={`--sw-bg:${theme.bg}; --sw-accent:${theme.accent}; --sw-panel:rgb(${theme.panel});`}
+            onclick={() => pickTheme(theme.id)}
+          >
+            <i class="swatch"></i>
+            <span>{t(`theme.${theme.id}`)}</span>
+          </button>
+        {/each}
+      </div>
 
-    <div class="welcome-actions">
-      <button type="button" class="btn-exit" onclick={onExit}>
-        <Icon name="power" size={17} />
-        Выйти
-      </button>
-      <button type="button" class="btn-agree" onclick={onAccept}>
-        <span class="agree-shine"></span>
-        <Icon name="check" size={18} stroke={2.2} />
-        Я согласен
-      </button>
-    </div>
+      <div class="welcome-actions">
+        <button type="button" class="btn-exit" onclick={onExit}>
+          <Icon name="power" size={17} />
+          {t("welcome.exit")}
+        </button>
+        <button type="button" class="btn-agree" onclick={() => (skipTerms ? onAccept() : (step = 1))}>
+          <span class="agree-shine"></span>
+          {t("welcome.next")}
+          <Icon name="arrow" size={17} stroke={2.2} />
+        </button>
+      </div>
+    {:else}
+      <h1 id="welcome-title">{t("welcome.title")}</h1>
 
-    <p class="fineprint">
-      Нажимая «Я согласен», вы подтверждаете, что прочитали и принимаете
-      данные условия. Решение сохраняется локально и не передаётся третьим
-      лицам.
-    </p>
+      <p class="disclaimer">{t("welcome.disclaimer")}</p>
+
+      <div class="notice">
+        <Icon name="info" size={16} />
+        <span>{t("welcome.notice")}</span>
+      </div>
+
+      <div class="welcome-actions">
+        <button type="button" class="btn-exit" onclick={() => (step = 0)}>
+          {t("welcome.back")}
+        </button>
+        <button type="button" class="btn-agree" onclick={onAccept}>
+          <span class="agree-shine"></span>
+          <Icon name="check" size={18} stroke={2.2} />
+          {t("welcome.agree")}
+        </button>
+      </div>
+
+      <p class="fineprint">{t("welcome.fine")}</p>
+    {/if}
   </div>
 </div>
 
@@ -89,9 +141,9 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.045), transparent 34%),
-      radial-gradient(circle at 18% 75%, rgba(255, 255, 255, 0.03), transparent 30%),
-      rgba(4, 4, 6, 0.7);
+      radial-gradient(circle at 50% 38%, rgb(var(--fg) / 0.045), transparent 34%),
+      radial-gradient(circle at 18% 75%, rgb(var(--fg) / 0.03), transparent 30%),
+      rgb(var(--panel) / 0.7);
     backdrop-filter: blur(24px) saturate(105%);
     -webkit-backdrop-filter: blur(24px) saturate(105%);
     animation: fade-in 220ms ease both;
@@ -103,15 +155,15 @@
     max-height: calc(100vh - 56px);
     padding: 34px 36px 28px;
     overflow: auto;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgb(var(--fg) / 0.12);
     border-radius: 30px;
     background:
-      linear-gradient(155deg, rgba(255, 255, 255, 0.07), transparent 42%),
-      linear-gradient(180deg, rgba(17, 17, 20, 0.96), rgba(9, 9, 12, 0.98));
+      linear-gradient(155deg, rgb(var(--fg) / 0.07), transparent 42%),
+      linear-gradient(180deg, rgb(var(--panel) / 0.96), rgb(var(--panel) / 0.98));
     box-shadow:
       0 40px 120px rgba(0, 0, 0, 0.66),
-      0 0 0 1px rgba(255, 255, 255, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      0 0 0 1px rgb(var(--fg) / 0.05),
+      inset 0 1px 0 rgb(var(--fg) / 0.12);
     animation: scale-in 420ms var(--ease-out) both;
   }
 
@@ -123,10 +175,10 @@
     padding: 1px;
     background: linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.64),
-      rgba(255, 255, 255, 0.08) 32%,
-      rgba(255, 255, 255, 0.04) 68%,
-      rgba(255, 255, 255, 0.28)
+      rgb(var(--fg) / 0.64),
+      rgb(var(--fg) / 0.08) 32%,
+      rgb(var(--fg) / 0.04) 68%,
+      rgb(var(--fg) / 0.28)
     );
     content: "";
     -webkit-mask:
@@ -152,7 +204,7 @@
     right: -30px;
     width: 210px;
     height: 210px;
-    background: rgba(255, 255, 255, 0.075);
+    background: rgb(var(--fg) / 0.075);
   }
 
   .orb-two {
@@ -160,7 +212,7 @@
     left: -40px;
     width: 240px;
     height: 240px;
-    background: rgba(255, 255, 255, 0.045);
+    background: rgb(var(--fg) / 0.045);
   }
 
   .welcome-top {
@@ -178,15 +230,15 @@
     height: 58px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 1px solid rgb(var(--fg) / 0.28);
     border-radius: 18px;
     color: var(--accent);
     background:
-      radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.13), transparent 42%),
-      rgba(255, 255, 255, 0.045);
+      radial-gradient(circle at 30% 20%, rgb(var(--fg) / 0.13), transparent 42%),
+      rgb(var(--fg) / 0.045);
     box-shadow:
-      0 0 34px rgba(255, 255, 255, 0.09),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      0 0 34px rgb(var(--fg) / 0.09),
+      inset 0 1px 0 rgb(var(--fg) / 0.12);
   }
 
   .welcome-meta {
@@ -207,7 +259,7 @@
   .meta-line {
     width: 32px;
     height: 1px;
-    background: rgba(255, 255, 255, 0.16);
+    background: rgb(var(--fg) / 0.16);
   }
 
   .meta-note {
@@ -232,10 +284,10 @@
     z-index: 1;
     margin: 0;
     padding: 20px 22px;
-    border: 1px solid rgba(255, 255, 255, 0.075);
+    border: 1px solid rgb(var(--fg) / 0.075);
     border-radius: 18px;
     color: #c9ced6;
-    background: rgba(255, 255, 255, 0.025);
+    background: rgb(var(--fg) / 0.025);
     font-size: 13px;
     line-height: 1.72;
   }
@@ -255,7 +307,7 @@
   .notice :global(svg) {
     flex: 0 0 auto;
     margin-top: 2px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(var(--fg) / 0.7);
   }
 
   .welcome-actions {
@@ -302,24 +354,24 @@
 
   .btn-agree {
     min-width: 190px;
-    border: 1px solid rgba(255, 255, 255, 0.74);
+    border: 1px solid rgb(var(--fg) / 0.74);
     color: #09090b;
     background:
       radial-gradient(circle at 32% 12%, #ffffff, transparent 42%),
       linear-gradient(145deg, #ffffff, #e4e4e7 55%, #bdbdc4);
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.2),
-      0 0 26px rgba(255, 255, 255, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      0 0 0 1px rgb(var(--fg) / 0.2),
+      0 0 26px rgb(var(--fg) / 0.22),
+      inset 0 1px 0 rgb(var(--fg) / 0.8);
     animation: breathe 3s ease-in-out infinite;
   }
 
   .btn-agree:hover {
     transform: translateY(-1px) scale(1.015);
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.36),
-      0 0 38px rgba(255, 255, 255, 0.34),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      0 0 0 1px rgb(var(--fg) / 0.36),
+      0 0 38px rgb(var(--fg) / 0.34),
+      inset 0 1px 0 rgb(var(--fg) / 0.9);
   }
 
   .btn-exit:active,
@@ -333,7 +385,7 @@
     background: linear-gradient(
       105deg,
       transparent 20%,
-      rgba(255, 255, 255, 0.65) 46%,
+      rgb(var(--fg) / 0.65) 46%,
       transparent 72%
     );
     transform: translateX(-110%);
@@ -345,7 +397,7 @@
     position: relative;
     z-index: 1;
     margin: 18px 0 0;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgb(var(--fg) / 0.3);
     font-size: 10px;
     line-height: 1.55;
     text-align: center;
@@ -364,5 +416,65 @@
     .btn-agree {
       width: 100%;
     }
+  }
+
+  .pick-title {
+    position: relative;
+    z-index: 1;
+    margin: 18px 0 8px;
+    color: var(--muted-strong);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .pick-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 8px;
+  }
+
+  .pick-grid.langs { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .pick-grid.themes { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+
+  .pick {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 11px;
+    border: 1px solid rgb(var(--fg) / 0.1);
+    border-radius: 12px;
+    background: rgb(var(--fg) / 0.03);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 160ms, background 160ms;
+  }
+
+  .pick b {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 20px;
+    border-radius: 6px;
+    background: rgb(var(--fg) / 0.08);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .pick:hover { border-color: rgb(var(--fg) / 0.25); }
+  .pick.active { border-color: rgb(var(--fg) / 0.7); background: rgb(var(--fg) / 0.09); }
+
+  .swatch {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 50%;
+    border: 2px solid var(--sw-accent);
+    background: var(--sw-bg);
+    box-shadow: inset 0 0 0 3px var(--sw-panel);
   }
 </style>
