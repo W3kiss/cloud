@@ -224,7 +224,7 @@
       <h1>Обслуживание <span>системы</span></h1>
       <p class="lead">Службы, автозагрузка, очистка мусора и контекстное меню. Изменения служб и HKLM требуют прав администратора.</p>
     </div>
-    <img class="hero-art" src="/art/hero-tweaks.svg" alt="" />
+    <img class="hero-art" src="/art/hero-system.svg" alt="" />
   </header>
 
   <div class="tabs">

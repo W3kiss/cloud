@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+<rect width="320" height="180" fill="#8b909c" fill-opacity="0.09"/>
+<g fill="none" stroke="#9aa0ac" stroke-opacity="0.10" stroke-width="1"><path d="M20 0V180"/><path d="M40 0V180"/><path d="M60 0V180"/><path d="M80 0V180"/><path d="M100 0V180"/><path d="M120 0V180"/><path d="M140 0V180"/><path d="M160 0V180"/><path d="M180 0V180"/><path d="M200 0V180"/><path d="M220 0V180"/><path d="M240 0V180"/><path d="M260 0V180"/><path d="M280 0V180"/><path d="M300 0V180"/><path d="M0 20H320"/><path d="M0 40H320"/><path d="M0 60H320"/><path d="M0 80H320"/><path d="M0 100H320"/><path d="M0 120H320"/><path d="M0 140H320"/><path d="M0 160H320"/></g>
+<g fill="none" stroke="#9aa0ac" stroke-opacity="0.22" stroke-width="1"><circle cx="230.39999999999998" cy="90" r="82.8"/><circle cx="230.39999999999998" cy="90" r="54"/></g>
+<g transform="translate(199.2 58.8) scale(2.6)" fill="none" stroke="#9aa0ac" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></g>
+</svg>
