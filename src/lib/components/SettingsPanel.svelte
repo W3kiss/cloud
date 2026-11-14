@@ -192,6 +192,7 @@
         >
           <b>{lang.flag}</b>
           <span>{lang.native}</span>
+          {#if !lang.full}<em class="beta" title="Partial translation">β</em>{/if}
         </button>
       {/each}
     </div>
@@ -1145,4 +1146,5 @@
 
   .lang-chip:hover { border-color: var(--border-strong); }
   .lang-chip.active { border-color: var(--accent); background: var(--accent-soft); }
+  .beta { margin-left: auto; color: var(--muted); font-style: normal; font-size: 11px; }
 </style>

@@ -9,7 +9,7 @@
       "kind": "winget",
       "wingetId": "RARLab.WinRAR",
       "presets": [
-        "essential"
+        "base"
       ],
       "dependsOn": []
     },
@@ -21,7 +21,7 @@
       "kind": "winget",
       "wingetId": "Anysphere.Cursor",
       "presets": [
-        "workstation"
+        "dev"
       ],
       "dependsOn": []
     },
@@ -33,9 +33,8 @@
       "kind": "winget",
       "wingetId": "7zip.7zip",
       "presets": [
-        "essential",
-        "workstation",
-        "gamer"
+        "base",
+        "office"
       ],
       "dependsOn": []
     },
@@ -47,7 +46,7 @@
       "kind": "winget",
       "wingetId": "Microsoft.VisualStudioCode",
       "presets": [
-        "workstation"
+        "dev"
       ],
       "dependsOn": []
     },
@@ -59,7 +58,7 @@
       "kind": "winget",
       "wingetId": "Git.Git",
       "presets": [
-        "workstation"
+        "dev"
       ],
       "dependsOn": []
     },
@@ -71,8 +70,7 @@
       "kind": "winget",
       "wingetId": "Notepad++.Notepad++",
       "presets": [
-        "essential",
-        "workstation"
+        "base"
       ],
       "dependsOn": []
     },
@@ -84,7 +82,8 @@
       "kind": "winget",
       "wingetId": "Microsoft.PowerToys",
       "presets": [
-        "workstation"
+        "dev",
+        "tools"
       ],
       "dependsOn": []
     },
@@ -96,8 +95,8 @@
       "kind": "winget",
       "wingetId": "voidtools.Everything",
       "presets": [
-        "essential",
-        "workstation"
+        "base",
+        "tools"
       ],
       "dependsOn": []
     },
@@ -119,9 +118,7 @@
       "kind": "winget",
       "wingetId": "Google.Chrome",
       "presets": [
-        "essential",
-        "workstation",
-        "gamer"
+        "base"
       ],
       "dependsOn": []
     },
@@ -133,7 +130,7 @@
       "kind": "winget",
       "wingetId": "Discord.Discord",
       "presets": [
-        "essential",
+        "base",
         "gamer"
       ],
       "dependsOn": []
@@ -146,8 +143,7 @@
       "kind": "winget",
       "wingetId": "Telegram.TelegramDesktop",
       "presets": [
-        "essential",
-        "workstation"
+        "base"
       ],
       "dependsOn": []
     },
@@ -158,9 +154,7 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Mozilla.Firefox",
-      "presets": [
-        "workstation"
-      ],
+      "presets": [],
       "dependsOn": []
     },
     {
@@ -170,9 +164,7 @@
       "category": "browsers",
       "kind": "winget",
       "wingetId": "Brave.Brave",
-      "presets": [
-        "workstation"
-      ],
+      "presets": [],
       "dependsOn": []
     },
     {
@@ -183,7 +175,7 @@
       "kind": "winget",
       "wingetId": "Zoom.Zoom",
       "presets": [
-        "workstation"
+        "office"
       ],
       "dependsOn": []
     },
@@ -195,6 +187,7 @@
       "kind": "winget",
       "wingetId": "Valve.Steam",
       "presets": [
+        "base",
         "gamer"
       ],
       "dependsOn": []
@@ -267,7 +260,8 @@
       "kind": "winget",
       "wingetId": "VideoLAN.VLC",
       "presets": [
-        "essential"
+        "base",
+        "creator"
       ],
       "dependsOn": []
     },
@@ -279,7 +273,8 @@
       "kind": "winget",
       "wingetId": "Spotify.Spotify",
       "presets": [
-        "essential"
+        "base",
+        "creator"
       ],
       "dependsOn": []
     },
@@ -291,7 +286,7 @@
       "kind": "winget",
       "wingetId": "Audacity.Audacity",
       "presets": [
-        "workstation"
+        "creator"
       ],
       "dependsOn": []
     },
@@ -302,7 +297,8 @@
       "category": "production",
       "kind": "winget",
       "presets": [
-        "workstation"
+        "designer",
+        "creator"
       ],
       "dependsOn": [],
       "wingetId": "BlackmagicDesign.DaVinciResolve"
@@ -314,7 +310,8 @@
       "category": "production",
       "kind": "winget",
       "presets": [
-        "workstation"
+        "gamer",
+        "creator"
       ],
       "dependsOn": [],
       "wingetId": "OBSProject.OBSStudio"
@@ -326,7 +323,7 @@
       "category": "production",
       "kind": "winget",
       "presets": [
-        "workstation"
+        "designer"
       ],
       "dependsOn": [],
       "wingetId": "Adobe.CreativeCloud"
@@ -339,7 +336,7 @@
       "kind": "winget",
       "wingetId": "ShareX.ShareX",
       "presets": [
-        "workstation"
+        "designer"
       ],
       "dependsOn": []
     },
@@ -351,7 +348,7 @@
       "kind": "winget",
       "wingetId": "Rufus.Rufus",
       "presets": [
-        "essential"
+        "tools"
       ],
       "dependsOn": []
     },
@@ -363,7 +360,7 @@
       "kind": "winget",
       "wingetId": "Python.Python.3.12",
       "presets": [
-        "workstation"
+        "dev"
       ],
       "dependsOn": []
     },
@@ -375,7 +372,7 @@
       "kind": "winget",
       "wingetId": "OpenJS.NodeJS.LTS",
       "presets": [
-        "workstation"
+        "dev"
       ],
       "dependsOn": []
     },
@@ -387,7 +384,7 @@
       "kind": "winget",
       "wingetId": "Docker.DockerDesktop",
       "presets": [
-        "workstation"
+        "dev"
       ],
       "dependsOn": []
     },
@@ -399,7 +396,7 @@
       "kind": "winget",
       "wingetId": "WinDirStat.WinDirStat",
       "presets": [
-        "essential"
+        "tools"
       ],
       "dependsOn": []
     },
@@ -412,7 +409,7 @@
       "wingetId": "CPUID.CPU-Z",
       "presets": [
         "gamer",
-        "workstation"
+        "tools"
       ],
       "dependsOn": []
     },
@@ -424,7 +421,8 @@
       "kind": "winget",
       "wingetId": "TechPowerUp.GPU-Z",
       "presets": [
-        "gamer"
+        "gamer",
+        "tools"
       ],
       "dependsOn": []
     },
@@ -436,7 +434,7 @@
       "kind": "winget",
       "wingetId": "KeePassXCTeam.KeePassXC",
       "presets": [
-        "essential"
+        "office"
       ],
       "dependsOn": []
     },
@@ -448,7 +446,7 @@
       "kind": "winget",
       "wingetId": "WinSCP.WinSCP",
       "presets": [
-        "workstation"
+        "dev"
       ],
       "dependsOn": []
     },
@@ -472,7 +470,7 @@
       "kind": "winget",
       "wingetId": "SlackTechnologies.Slack",
       "presets": [
-        "workstation"
+        "office"
       ],
       "dependsOn": []
     },
@@ -532,7 +530,7 @@
       "kind": "winget",
       "wingetId": "HandBrake.HandBrake",
       "presets": [
-        "workstation"
+        "creator"
       ],
       "dependsOn": []
     },
@@ -544,7 +542,7 @@
       "kind": "winget",
       "wingetId": "GIMP.GIMP",
       "presets": [
-        "workstation"
+        "designer"
       ],
       "dependsOn": []
     },
@@ -556,7 +554,7 @@
       "kind": "winget",
       "wingetId": "Inkscape.Inkscape",
       "presets": [
-        "workstation"
+        "designer"
       ],
       "dependsOn": []
     },
@@ -568,7 +566,7 @@
       "kind": "winget",
       "wingetId": "BlenderFoundation.Blender",
       "presets": [
-        "workstation"
+        "designer"
       ],
       "dependsOn": []
     },
@@ -580,8 +578,564 @@
       "kind": "winget",
       "wingetId": "KDE.Krita",
       "presets": [
-        "workstation"
+        "designer"
       ],
+      "dependsOn": []
+    },
+    {
+      "id": "windows-terminal",
+      "name": "Windows Terminal",
+      "summary": "Современный терминал для PowerShell, CMD и WSL.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Microsoft.WindowsTerminal",
+      "presets": [
+        "dev"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "github-desktop",
+      "name": "GitHub Desktop",
+      "summary": "Простой клиент Git для работы с репозиториями GitHub.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "GitHub.GitHubDesktop",
+      "presets": [
+        "dev"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "summary": "Тестирование и отладка HTTP API.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Postman.Postman",
+      "presets": [
+        "dev"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "hwinfo",
+      "name": "HWiNFO",
+      "summary": "Подробная информация и датчики всего железа.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "REALiX.HWiNFO",
+      "presets": [
+        "tools"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "crystaldiskinfo",
+      "name": "CrystalDiskInfo",
+      "summary": "Состояние и SMART-данные дисков.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "CrystalDewWorld.CrystalDiskInfo",
+      "presets": [
+        "tools"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "crystaldiskmark",
+      "name": "CrystalDiskMark",
+      "summary": "Быстрый тест скорости дисков.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "CrystalDewWorld.CrystalDiskMark",
+      "presets": [
+        "tools"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "sumatrapdf",
+      "name": "SumatraPDF",
+      "summary": "Лёгкая программа для чтения PDF и книг.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "SumatraPDF.SumatraPDF",
+      "presets": [
+        "office"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "libreoffice",
+      "name": "LibreOffice",
+      "summary": "Бесплатный офисный пакет: текст, таблицы, презентации.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "TheDocumentFoundation.LibreOffice",
+      "presets": [
+        "office"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "summary": "Заметки, задачи и базы знаний в одном месте.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Notion.Notion",
+      "presets": [
+        "office"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian",
+      "summary": "Заметки в Markdown с графом связей.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Obsidian.Obsidian",
+      "presets": [
+        "office"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "summary": "Торрент-клиент без рекламы.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "qBittorrent.qBittorrent",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "bulk-crap-uninstaller",
+      "name": "Bulk Crap Uninstaller",
+      "summary": "Массовое удаление программ с остатками.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Klocman.BulkCrapUninstaller",
+      "presets": [
+        "tools"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "teamviewer",
+      "name": "TeamViewer",
+      "summary": "Удалённый доступ к компьютеру.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "TeamViewer.TeamViewer",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "anydesk",
+      "name": "AnyDesk",
+      "summary": "Лёгкий удалённый рабочий стол.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "AnyDeskSoftwareGmbH.AnyDesk",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "putty",
+      "name": "PuTTY",
+      "summary": "SSH и Telnet клиент.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "PuTTY.PuTTY",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "autohotkey",
+      "name": "AutoHotkey",
+      "summary": "Скрипты и горячие клавиши для автоматизации.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "AutoHotkey.AutoHotkey",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "flow-launcher",
+      "name": "Flow Launcher",
+      "summary": "Быстрый запуск программ и поиск по клавише.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Flow-Launcher.Flow-Launcher",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "nanazip",
+      "name": "NanaZip",
+      "summary": "Современный архиватор для Windows 11.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "M2Team.NanaZip",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "ffmpeg",
+      "name": "FFmpeg",
+      "summary": "Конвертация и обработка видео и аудио из консоли.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Gyan.FFmpeg",
+      "presets": [
+        "creator"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "wireshark",
+      "name": "Wireshark",
+      "summary": "Анализ сетевого трафика.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "WiresharkFoundation.Wireshark",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "virtualbox",
+      "name": "VirtualBox",
+      "summary": "Виртуальные машины для тестов и обучения.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Oracle.VirtualBox",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "jetbrains-toolbox",
+      "name": "JetBrains Toolbox",
+      "summary": "Установка и обновление IDE JetBrains.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "JetBrains.Toolbox",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "temurin-jdk",
+      "name": "Java JDK 21",
+      "summary": "Набор разработчика Java (Temurin).",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "EclipseAdoptium.Temurin.21.JDK",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "dotnet-sdk",
+      "name": ".NET SDK 8",
+      "summary": "Среда разработки .NET и C#.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Microsoft.DotNet.SDK.8",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "visual-studio",
+      "name": "Visual Studio Community",
+      "summary": "Среда разработки Microsoft для C#, C++ и других.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Microsoft.VisualStudio.2022.Community",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "rustup",
+      "name": "Rust",
+      "summary": "Компилятор Rust и менеджер версий rustup.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "Rustlang.Rustup",
+      "presets": [
+        "dev"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "go",
+      "name": "Go",
+      "summary": "Язык программирования Go.",
+      "category": "system",
+      "kind": "winget",
+      "wingetId": "GoLang.Go",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "vivaldi",
+      "name": "Vivaldi",
+      "summary": "Настраиваемый браузер на Chromium.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Vivaldi.Vivaldi",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "yandex-browser",
+      "name": "Яндекс Браузер",
+      "summary": "Браузер с сервисами Яндекса.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Yandex.Browser",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "whatsapp",
+      "name": "WhatsApp",
+      "summary": "Мессенджер WhatsApp для компьютера.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "WhatsApp.WhatsApp",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "signal",
+      "name": "Signal",
+      "summary": "Защищённый мессенджер.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "OpenWhisperSystems.Signal",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "teams",
+      "name": "Microsoft Teams",
+      "summary": "Звонки и чаты для работы и учёбы.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Microsoft.Teams",
+      "presets": [
+        "office"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "thunderbird",
+      "name": "Thunderbird",
+      "summary": "Почтовый клиент от Mozilla.",
+      "category": "browsers",
+      "kind": "winget",
+      "wingetId": "Mozilla.Thunderbird",
+      "presets": [
+        "office"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "playnite",
+      "name": "Playnite",
+      "summary": "Единая библиотека игр из всех магазинов.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Playnite.Playnite",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "rockstar-launcher",
+      "name": "Rockstar Games Launcher",
+      "summary": "Лаунчер игр Rockstar: GTA и Red Dead.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "RockstarGames.Launcher",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "heroic",
+      "name": "Heroic Games Launcher",
+      "summary": "Открытый клиент Epic, GOG и Amazon Games.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "HeroicGamesLauncher.HeroicGamesLauncher",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "itch",
+      "name": "itch.io",
+      "summary": "Магазин и клиент инди-игр.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "ItchIo.Itch",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "overwolf",
+      "name": "Overwolf",
+      "summary": "Платформа игровых оверлеев и модов.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Overwolf.Overwolf",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "bluestacks",
+      "name": "BlueStacks",
+      "summary": "Эмулятор Android для игр.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "BlueStack.BlueStacks",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "logitech-ghub",
+      "name": "Logitech G HUB",
+      "summary": "Настройка мышей, клавиатур и подсветки Logitech.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "Logitech.GHUB",
+      "presets": [
+        "gamer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "steelseries-gg",
+      "name": "SteelSeries GG",
+      "summary": "Настройка периферии SteelSeries.",
+      "category": "gaming",
+      "kind": "winget",
+      "wingetId": "SteelSeries.GG",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "summary": "Дизайн интерфейсов и прототипов.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Figma.Figma",
+      "presets": [
+        "designer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "kdenlive",
+      "name": "Kdenlive",
+      "summary": "Бесплатный видеоредактор.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "KDE.Kdenlive",
+      "presets": [
+        "creator"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "shotcut",
+      "name": "Shotcut",
+      "summary": "Простой видеоредактор с фильтрами.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Meltytech.Shotcut",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "paint-net",
+      "name": "Paint.NET",
+      "summary": "Быстрый редактор изображений.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "dotPDN.PaintDotNet",
+      "presets": [
+        "designer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "irfanview",
+      "name": "IrfanView",
+      "summary": "Быстрый просмотр и пакетная обработка изображений.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "IrfanSkiljan.IrfanView",
+      "presets": [
+        "designer"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "mkvtoolnix",
+      "name": "MKVToolNix",
+      "summary": "Работа с дорожками и субтитрами MKV.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "MoritzBunkus.MKVToolNix",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "reaper",
+      "name": "REAPER",
+      "summary": "Цифровая звуковая станция для записи и сведения.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Cockos.REAPER",
+      "presets": [
+        "creator"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "streamlabs",
+      "name": "Streamlabs Desktop",
+      "summary": "Стриминг с готовыми оверлеями и алертами.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Streamlabs.Streamlabs",
+      "presets": [
+        "creator"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "unity-hub",
+      "name": "Unity Hub",
+      "summary": "Установка редакторов Unity и управление проектами.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "Unity.UnityHub",
+      "presets": [],
+      "dependsOn": []
+    },
+    {
+      "id": "godot",
+      "name": "Godot Engine",
+      "summary": "Бесплатный движок для 2D и 3D игр.",
+      "category": "production",
+      "kind": "winget",
+      "wingetId": "GodotEngine.GodotEngine",
+      "presets": [],
       "dependsOn": []
     }
   ]

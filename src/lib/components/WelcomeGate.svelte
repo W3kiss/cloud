@@ -62,6 +62,7 @@
           >
             <b>{lang.flag}</b>
             <span>{lang.native}</span>
+          {#if !lang.full}<em class="beta" title="Partial translation">β</em>{/if}
           </button>
         {/each}
       </div>
@@ -477,4 +478,5 @@
     background: var(--sw-bg);
     box-shadow: inset 0 0 0 3px var(--sw-panel);
   }
+  .beta { margin-left: auto; color: var(--muted); font-style: normal; font-size: 11px; }
 </style>
