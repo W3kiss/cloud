@@ -11,8 +11,8 @@
 
   const LINKS = $derived([
     { label: t("authors.github"), url: "https://github.com/W3kiss", icon: "user", primary: true },
-    { label: t("authors.source"), url: "https://github.com/W3kiss/cloud", icon: "terminal", primary: false },
-    { label: t("authors.releases"), url: "https://github.com/W3kiss/cloud/releases", icon: "download", primary: false },
+    { label: t("authors.source"), url: "https://github.com/W3kiss/setup_hub", icon: "terminal", primary: false },
+    { label: t("authors.releases"), url: "https://github.com/W3kiss/setup_hub/releases", icon: "download", primary: false },
   ]);
 
   const STATS = $derived([
